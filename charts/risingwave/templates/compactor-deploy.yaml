@@ -157,6 +157,18 @@ spec:
               key: root-password
               name: {{ default .Values.minio.auth.existingSecret (include "common.names.fullname" .Subcharts.minio) }}
         {{- end }}
+        {{- if .Values.stateStore.s3.enabled }}
+        {{- if .Values.stateStore.s3.endpoint }}
+        - name: RW_S3_ENDPOINT
+          value: {{ .Values.stateStore.s3.endpoint }}
+        {{- end }}
+        {{- else if .Values.stateStore.oss.enabled }}
+        - name: OSS_ENDPOINT
+          value: {{ include "risingwave.oss.endpoint" . }}
+        {{- else if .Values.stateStore.azblob.enabled }}
+        - name: AZBLOB_ENDPOINT
+          value: {{ include "risingwave.azblob.endpoint" . }}
+        {{- end }}
         - name: RW_CONFIG_PATH
           value: /risingwave/config/risingwave.toml
         - name: RW_LISTEN_ADDR

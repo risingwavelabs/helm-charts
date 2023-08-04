@@ -1,10 +1,24 @@
 # Copyright RisingWave Labs.
 # SPDX-License-Identifier: APACHE-2.0
 
+## @section Tags to control the dependencies to be installed.
+## Ref: https://helm.sh/docs/topics/charts/#tags-and-condition-fields-in-dependencies
+##
 tags:
+  ## @param tags.etcd Tag to control the bitnami/etcd dependency.
+  ## @values true,false
+  ##
   etcd: true
+
+  ## @param tags.minio Tag to control the bitnami/minio dependency.
+  ## @values true,false
+  ## Note that even if it is true, when the state store isn't minio, it won't be installed.
+  ##
   minio: true
 
+## @section Values for the bitnami/etcd dependency.
+## Ref: https://github.com/bitnami/charts/blob/main/bitnami/etcd/values.yaml
+##
 etcd:
   service:
     ports:
@@ -47,6 +61,9 @@ etcd:
   - name: "ETCD_MAX_TXN_OPS"
     value: "999999"
 
+## @section Values for the bitnami/minio dependency.
+## Ref: https://github.com/bitnami/charts/blob/main/bitnami/minio/values.yaml
+##
 minio:
   defaultBuckets: risingwave
 
@@ -58,312 +75,768 @@ minio:
     enabled: true
     size: 50Gi
 
+## @section Common values.
+##
+
+## @param nameOverride String to partially override common.names.fullname template (will maintain the release name)
+##
 nameOverride: ""
 
+## @param fullnameOverride String to fully override common.names.fullname template
+##
 fullnameOverride: ""
 
+## @param commonLabels [object] Labels to add to all deployed objects
+##
 commonLabels: { }
 
+## @param commonAnnotations [object] Annotations to add to all deployed objects
+##
 commonAnnotations: { }
 
+## Enable diagnostic mode in the deployment
+##
 diagnosticMode:
+  ## @param diagnosticMode.enabled Enable diagnostic mode (all probes will be disabled and the command will be overridden)
+  ##
   enabled: false
+  ## @param diagnosticMode.command Command to override all containers in the deployment
+  ##
   command:
   - sleep
+  ## @param diagnosticMode.args Args to override all containers in the deployment
+  ##
   args:
   - infinity
 
+## @section RisingWave values.
+##
+
+## RisingWave image version.
+## Ref: https://github.com/risingwavelabs/risingwave/pkgs/container/risingwave
+## @param image.registry RisingWave image registry
+## @param image.repository RisingWave image name
+## @param image.tag RisingWave image tag
+## @param image.digest RisingWave image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag
+##
 image:
   registry: ghcr.io
   repository: risingwavelabs/risingwave
   tag: v1.0.0
   digest: ""
+  ## @param image.pullPolicy RisingWave image pull policy
+  ## Specify a imagePullPolicy
+  ## Ref: https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy
+  ##
   pullPolicy: IfNotPresent
+  ## @param image.pullSecrets [array] RisingWave image pull secrets
+  ## Optionally specify an array of imagePullSecrets.
+  ## Secrets must be manually created in the namespace.
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  ## e.g:
+  ## pullSecrets:
+  ##   - myRegistryKeySecretName
+  ##
   pullSecrets: [ ]
 
+## @section Service account parameters
+##
+
 serviceAccount:
-  # Specifies whether a service account should be created
+  ## @param serviceAccount.create Enable/disable service account creation
+  ##
   create: true
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
+  ## @param serviceAccount.name Name of the service account to create or use
+  ##
   name: ""
+  ## @param serviceAccount.automountServiceAccountToken Enable/disable auto mounting of service account token
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/#use-the-default-service-account-to-access-the-api-server
+  ##
   automountServiceAccountToken: true
+  ## @param serviceAccount.labels [object] Additional labels to be included on the service account
+  ##
   labels: { }
-  # Annotations to add to the service account
+  ## @param serviceAccount.annotations [object] Additional annotations to be included on the service account
+  ##
   annotations: { }
+
+## @section RisingWave ingress service values. The service is used to expose RisingWave.
+##
 
 service:
+  ## @param service.type Kubernetes Service type
+  ## Ref: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+  ##
   type: ClusterIP
+  ## @param service.ports Kubernetes Service ports, exposing the SQL port
+  ##
   port: 4567
+  ## @param service.nodePorts Kubernetes Service node ports, exposing the SQL port.
+  ## Only take effect when service.type is NodePort or LoadBalancer.
+  ##
+  nodePort: ""
+  ## @param service.loadBalancerSourceRanges [array] Load Balancer source ranges
+  ## ref: https://kubernetes.io/docs/tasks/access-application-cluster/configure-cloud-provider-firewall/#restrict-access-for-loadbalancer-service
+  ## e.g:
+  ## loadBalancerSourceRanges:
+  ##   - 10.10.10.0/24
+  ##
+  loadBalancerSourceRanges: [ ]
+  ## @param service.externalIPs [array] Kubernetes Service external IPs
+  ## Ref: https://kubernetes.io/docs/concepts/services-networking/service/#external-ips
+  ##
   externalIPs: [ ]
+  ## @param service.externalTrafficPolicy Service external traffic policy
+  ## Ref: https://kubernetes.io/docs/reference/networking/virtual-ips/#traffic-policies
+  ##
   externalTrafficPolicy: ""
+  ## @param service.sessionAffinity Session Affinity for Kubernetes service, can be "None" or "ClientIP"
+  ## If "ClientIP", consecutive client requests will be directed to the same Pod
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
+  ##
   sessionAffinity: None
+  ## @param service.sessionAffinityConfig Additional settings for the sessionAffinity
+  ## sessionAffinityConfig:
+  ##   clientIP:
+  ##     timeoutSeconds: 300
+  ##
   sessionAffinityConfig: { }
+  ## @param service.annotations [object] Additional annotations for the RisingWave service
+  ##
   annotations: { }
+  ## @param service.labels [object] Additional labels for the RisingWave service
+  ##
   labels: { }
 
+## @section RisingWave meta store values.
+##
+
 metaStore:
+  ## @section metaStore.etcd only takes effect when tags.etcd is false.
+  ##
   etcd:
-    endpoints: []
+    ## @param metaStore.etcd.endpoints [array] Etcd endpoints
+    ##
+    endpoints: [ ]
+
     authentication:
+      ## @param metaStore.etcd.authentication.enabled Enable/disable authentication.
+      ## If enabled, a Secret will be created to store the username and password.
+      ##
       enabled: false
+      ## @param metaStore.etcd.authentication.username Etcd username
+      ##
       username: ""
+      ## @param metaStore.etcd.authentication.password Etcd password
+      ##
       password: ""
+
+## @section RisingWave state store values.
+##
 
 stateStore:
-  # Data directory.
+  ## @param stateStore.dataDirectory RisingWave state store data directory.
+  ## Default to "hummock" if set to empty.
+  ##
   dataDirectory: "hummock"
 
+  ## @section stateStore.s3 S3 values.
+  ##
+
   s3:
+    ## @param stateStore.s3.enabled Use S3 state store. Only one state store backend can be enabled.
+    ##
     enabled: false
+
+    ## @param stateStore.s3.endpoint S3 endpoint URL for S3-compatible object storages.
+    ##
     endpoint: ""
+    ## @param stateStore.s3.region S3 region.
+    ##
     region: ""
+    ## @param stateStore.s3.bucket S3 bucket.
+    ##
     bucket: ""
+
     authentication:
+      ## @param stateStore.s3.authentication.useServiceAccount Use S3 service account authentication.
+      ## If enabled, accessKey and secretAccessKey will be ignored.
+      ## Otherwise, accessKey and secretAccessKey are required and will be stored in a Secret.
+      ##
       useServiceAccount: false
+      ## @param stateStore.s3.authentication.accessKey S3 access key.
+      ##
       accessKey: ""
+      ## @param stateStore.s3.authentication.secretAccessKey S3 secret access key.
+      ##
       secretAccessKey: ""
+
+  ## @section stateStore.minio MinIO values.
+  ## Parameters except stateStore.minio.enabled be ignored if tags.minio is enabled.
+  ##
 
   minio:
+    ## @param stateStore.minio.enabled Use MinIO state store. Only one state store backend can be enabled.
+    ##
     enabled: true
+    ## @param stateStore.minio.endpoint MinIO endpoint.
+    ##
     endpoint: ""
+    ## @param stateStore.minio.bucket MinIO bucket.
+    ##
     bucket: ""
+
     authentication:
+      ## @param stateStore.minio.authentication.username MinIO username.
+      ##
       username: ""
+      ## @param stateStore.minio.authentication.password MinIO password.
+      ##
       password: ""
 
+  ## @section stateStore.gcs GCS values.
+  ##
+
   gcs:
+    ## @param stateStore.gcs.enabled Use GCS state store. Only one state store backend can be enabled.
+    ##
     enabled: false
+    ## @param stateStore.gcs.bucket GCS bucket.
+    ##
     bucket: ""
+    ## @param stateStore.gcs.root GCS root.
+    ##
     root: ""
+
     authentication:
+      ## @param stateStore.gcs.authentication.useServiceAccount Use GCS service account authentication.
+      ## If enabled, credentials will be ignored.
+      ## Otherwise, credentials is required and will be stored in a Secret.
+      ##
       useServiceAccount: false
+      ## @param stateStore.gcs.authentication.credentials GCS credentials.
+      ##
       credentials: ""
 
+  ## @section stateStore.oss Aliyun OSS values.
+  ##
+
   oss:
+    ## @param stateStore.oss.enabled Use OSS state store. Only one state store backend can be enabled.
+    ##
     enabled: false
+    ## @param stateStore.oss.region OSS region.
+    ##
     region: ""
+    ## @param stateStore.oss.bucket OSS bucket.
+    ##
     bucket: ""
+    ## @param stateStore.oss.root OSS root.
+    ##
     root: ""
+    ## @param stateStore.oss.endpoint use internal OSS endpoint. Useful when using Alibaba Cloud ECS.
+    ##
     useInternalEndpoint: false
+
     authentication:
+      ## @param stateStore.oss.authentication.useServiceAccount Use OSS service account authentication.
+      ## If enabled, accessKey and secretAccessKey will be ignored.
+      ## Otherwise, accessKey and secretAccessKey are required and will be stored in a Secret.
+      ##
       useServiceAccount: false
+      ## @param stateStore.oss.authentication.accessKey OSS access key.
+      ##
       accessKey: ""
+      ## @param stateStore.oss.authentication.secretAccessKey OSS secret access key.
+      ##
       secretAccessKey: ""
 
+  ## @section stateStore.azblob Azure Blob Storage values.
+  ##
+
   azblob:
+    ## @param stateStore.azblob.enabled Use Azure Blob Storage state store. Only one state store backend can be enabled.
+    ##
     enabled: false
+    ## @param stateStore.azblob.endpoint Azure Blob Storage endpoint.
+    ##
     endpoint: ""
+    ## @param stateStore.azblob.container Azure Blob Storage container.
+    ##
     container: ""
+    ## @param stateStore.azblob.root Azure Blob Storage root.
+    ##
     root: ""
+
     authentication:
+      ## @param stateStore.azblob.authentication.useServiceAccount Use Azure Blob Storage service account authentication.
+      ## If enabled, accountName and accountKey will be ignored.
+      ## Otherwise, accountName and accountKey are required and will be stored in a Secret.
+      ##
       useServiceAccount: false
+      ## @param stateStore.azblob.authentication.accountName Azure Blob Storage account name.
+      ##
       accountName: ""
+      ## @param stateStore.azblob.authentication.accountKey Azure Blob Storage account key.
+      ##
       accountKey: ""
 
+  ## @section stateStore.hdfs HDFS values.
+  ##
+
   hdfs:
+    ## @param stateStore.hdfs.enabled Use HDFS state store. Only one state store backend can be enabled.
+    ##
     enabled: false
+    ## @param stateStore.hdfs.nameNode HDFS name node.
+    ##
     nameNode: ""
+    ## @param stateStore.hdfs.root HDFS root.
+    ##
     root: ""
 
+## @section RisingWave configuration values.
+##
+
+## @param configuration RisingWave configuration in toml.
+## Ref: https://github.com/risingwavelabs/risingwave/blob/main/src/config/example.toml
+##
 configuration: ""
 
+## @param existingConfigMap Name of existing ConfigMap containing RisingWave configuration.
+## The ConfigMap must contain a key named `risingwave.toml`. If set, `configuration` will be ignored.
+##
 existingConfigMap: ""
 
+## @section RisingWave components values.
+##
+
 metaComponent:
+  ## @param metaComponent.podLabels Labels to add to the component pods.
+  ##
   podLabels: { }
 
+  ## @param metaComponent.podAnnotations Annotations to add to the component pods.
+  ##
   podAnnotations: { }
 
+  ## @param metaComponent.extraEnvVars Extra environment variables to add to the component pods.
+  ##
   extraEnvVars: [ ]
 
+  ## @param metaComponent.extraEnvVarsConfigMap Name of existing ConfigMap containing extra environment variables.
+  ##
   extraEnvVarsConfigMap: ""
 
+  ## @param metaComponent.extraEnvVarsSecret Name of existing Secret containing extra environment variables.
+  ##
   extraEnvVarsSecret: ""
 
+  ## @param metaComponent.replicas Number of replicas.
+  ##
   replicas: 1
 
+  ## @param metaComponent.resources Resource requests and limits.
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources:
     limits: { }
     requests: { }
 
+  ## @param metaComponent.podSecurityContext Pod security context.
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  ##
   podSecurityContext: { }
-  # fsGroup: 2000
 
+  ## @param metaComponent.securityContext Container security context.
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  ##
   securityContext:
     allowPrivilegeEscalation: false
 
+  ## @param metaComponent.additionalContainers Additional containers to add to the component pods.
+  ## Ref: https://kubernetes.io/docs/concepts/containers/
+  ##
   additionalContainers: [ ]
 
+  ## @param metaComponent.nodeSelector Node labels for pod assignment.
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+  ##
   nodeSelector: { }
 
+  ## @param metaComponent.tolerations Tolerations for pod assignment.
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  ##
   tolerations: [ ]
 
+  ## @param metaComponent.affinity Affinity for pod assignment.
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+  ##
   affinity: { }
 
+  ## @param metaComponent.terminationGracePeriodSeconds Termination grace period in seconds.
+  ## Defaults to 30 seconds.
+  ##
   terminationGracePeriodSeconds: ""
 
+  ## @param metaComponent.schedulerName Name of an alternate scheduler.
+  ## Ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
+  ##
   schedulerName: ""
 
+  ## @param metaComponent.priorityClassName Name of an alternate priority class.
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/
+  ##
   priorityClassName: ""
 
+  ## @param metaComponent.runtimeClassName Runtime class of the component pods.
+  ## Ref: https://kubernetes.io/docs/concepts/containers/runtime-class/
+  ##
   runtimeClassName: ""
 
+  ## @param metaComponent.shareProcessNamespace Share a single process namespace between all the containers in a pod.
+  ## When this is set containers will be able to view and signal processes from other containers in the same pod,
+  ## and the first process in each container will not be assigned PID 1.
+  ## Defaults to false.
+  ##
   shareProcessNamespace: false
 
 frontendComponent:
+  ## @param frontendComponent.podLabels Labels to add to the component pods.
+  ##
   podLabels: { }
 
+  ## @param frontendComponent.podAnnotations Annotations to add to the component pods.
+  ##
   podAnnotations: { }
 
+  ## @param frontendComponent.extraEnvVars Extra environment variables to add to the component pods.
+  ##
   extraEnvVars: [ ]
 
+  ## @param frontendComponent.extraEnvVarsConfigMap Name of existing ConfigMap containing extra environment variables.
+  ##
   extraEnvVarsConfigMap: ""
 
+  ## @param frontendComponent.extraEnvVarsSecret Name of existing Secret containing extra environment variables.
+  ##
   extraEnvVarsSecret: ""
 
+  ## @param frontendComponent.replicas Number of replicas.
+  ##
   replicas: 1
 
+  ## @param frontendComponent.resources Resource requests and limits.
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources:
     limits: { }
     requests: { }
 
+  ## @param frontendComponent.podSecurityContext Pod security context.
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  ##
   podSecurityContext: { }
-  # fsGroup: 2000
 
+  ## @param frontendComponent.securityContext Container security context.
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  ##
   securityContext:
     allowPrivilegeEscalation: false
 
+  ## @param frontendComponent.additionalContainers Additional containers to add to the component pods.
+  ## Ref: https://kubernetes.io/docs/concepts/containers/
+  ##
   additionalContainers: [ ]
 
+  ## @param frontendComponent.nodeSelector Node labels for pod assignment.
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+  ##
   nodeSelector: { }
 
+  ## @param frontendComponent.tolerations Tolerations for pod assignment.
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  ##
   tolerations: [ ]
 
+  ## @param frontendComponent.affinity Affinity for pod assignment.
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+  ##
   affinity: { }
 
+  ## @param frontendComponent.terminationGracePeriodSeconds Termination grace period in seconds.
+  ## Defaults to 30 seconds.
+  ##
   terminationGracePeriodSeconds: ""
 
+  ## @param frontendComponent.schedulerName Name of an alternate scheduler.
+  ## Ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
+  ##
   schedulerName: ""
 
+  ## @param frontendComponent.priorityClassName Name of an alternate priority class.
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/
+  ##
   priorityClassName: ""
 
+  ## @param frontendComponent.runtimeClassName Runtime class of the component pods.
+  ## Ref: https://kubernetes.io/docs/concepts/containers/runtime-class/
+  ##
   runtimeClassName: ""
 
+  ## @param frontendComponent.shareProcessNamespace Share a single process namespace between all the containers in a pod.
+  ## When this is set containers will be able to view and signal processes from other containers in the same pod,
+  ## and the first process in each container will not be assigned PID 1.
+  ## Defaults to false.
+  ##
   shareProcessNamespace: false
 
 computeComponent:
+  ## @param computeComponent.podLabels Labels to add to the component pods.
+  ##
   podLabels: { }
 
+  ## @param computeComponent.podAnnotations Annotations to add to the component pods.
+  ##
   podAnnotations: { }
 
+  ## @param computeComponent.extraEnvVars Extra environment variables to add to the component pods.
+  ##
   extraEnvVars: [ ]
 
+  ## @param computeComponent.extraEnvVarsConfigMap Name of existing ConfigMap containing extra environment variables.
+  ##
   extraEnvVarsConfigMap: ""
 
+  ## @param computeComponent.extraEnvVarsSecret Name of existing Secret containing extra environment variables.
+  ##
   extraEnvVarsSecret: ""
 
+  ## @param computeComponent.replicas Number of replicas.
+  ##
   replicas: 1
 
+  ## @param computeComponent.resources Resource requests and limits.
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources:
     limits: { }
     requests: { }
 
+  ## @param computeComponent.podSecurityContext Pod security context.
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  ##
   podSecurityContext: { }
-  # fsGroup: 2000
 
+  ## @param computeComponent.securityContext Container security context.
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  ##
   securityContext:
     allowPrivilegeEscalation: false
 
+  ## @param computeComponent.additionalContainers Additional containers to add to the component pods.
+  ## Ref: https://kubernetes.io/docs/concepts/containers/
+  ##
   additionalContainers: [ ]
 
+  ## @param computeComponent.nodeSelector Node labels for pod assignment.
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+  ##
   nodeSelector: { }
 
+  ## @param computeComponent.tolerations Tolerations for pod assignment.
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  ##
   tolerations: [ ]
 
+  ## @param computeComponent.affinity Affinity for pod assignment.
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+  ##
   affinity: { }
 
+  ## @param computeComponent.terminationGracePeriodSeconds Termination grace period in seconds.
+  ## Defaults to 30 seconds.
+  ##
   terminationGracePeriodSeconds: ""
 
+  ## @param computeComponent.schedulerName Name of an alternate scheduler.
+  ## Ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
+  ##
   schedulerName: ""
 
+  ## @param computeComponent.priorityClassName Name of an alternate priority class.
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/
+  ##
   priorityClassName: ""
 
+  ## @param computeComponent.runtimeClassName Runtime class of the component pods.
+  ## Ref: https://kubernetes.io/docs/concepts/containers/runtime-class/
+  ##
   runtimeClassName: ""
 
+  ## @param computeComponent.shareProcessNamespace Share a single process namespace between all the containers in a pod.
+  ## When this is set containers will be able to view and signal processes from other containers in the same pod,
+  ## and the first process in each container will not be assigned PID 1.
+  ## Defaults to false.
+  ##
   shareProcessNamespace: false
 
 compactorComponent:
+  ## @param compactorComponent.podLabels Labels to add to the component pods.
+  ##
   podLabels: { }
 
+  ## @param compactorComponent.podAnnotations Annotations to add to the component pods.
+  ##
   podAnnotations: { }
 
+  ## @param compactorComponent.extraEnvVars Extra environment variables to add to the component pods.
+  ##
   extraEnvVars: [ ]
 
+  ## @param compactorComponent.extraEnvVarsConfigMap Name of existing ConfigMap containing extra environment variables.
+  ##
   extraEnvVarsConfigMap: ""
 
+  ## @param compactorComponent.extraEnvVarsSecret Name of existing Secret containing extra environment variables.
+  ##
   extraEnvVarsSecret: ""
 
+  ## @param compactorComponent.replicas Number of replicas.
+  ##
   replicas: 1
 
+  ## @param compactorComponent.resources Resource requests and limits.
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources:
     limits: { }
     requests: { }
 
+  ## @param compactorComponent.podSecurityContext Pod security context.
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  ##
   podSecurityContext: { }
-  # fsGroup: 2000
 
+  ## @param compactorComponent.securityContext Container security context.
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  ##
   securityContext:
     allowPrivilegeEscalation: false
 
+  ## @param compactorComponent.additionalContainers Additional containers to add to the component pods.
+  ## Ref: https://kubernetes.io/docs/concepts/containers/
+  ##
   additionalContainers: [ ]
 
+  ## @param compactorComponent.nodeSelector Node labels for pod assignment.
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+  ##
   nodeSelector: { }
 
+  ## @param compactorComponent.tolerations Tolerations for pod assignment.
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  ##
   tolerations: [ ]
 
+  ## @param compactorComponent.affinity Affinity for pod assignment.
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+  ##
   affinity: { }
 
+  ## @param compactorComponent.terminationGracePeriodSeconds Termination grace period in seconds.
+  ## Defaults to 30 seconds.
+  ##
   terminationGracePeriodSeconds: ""
 
+  ## @param compactorComponent.schedulerName Name of an alternate scheduler.
+  ## Ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
+  ##
   schedulerName: ""
 
+  ## @param compactorComponent.priorityClassName Name of an alternate priority class.
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/
+  ##
   priorityClassName: ""
 
+  ## @param compactorComponent.runtimeClassName Runtime class of the component pods.
+  ## Ref: https://kubernetes.io/docs/concepts/containers/runtime-class/
+  ##
   runtimeClassName: ""
 
+  ## @param compactorComponent.shareProcessNamespace Share a single process namespace between all the containers in a pod.
+  ## When this is set containers will be able to view and signal processes from other containers in the same pod,
+  ## and the first process in each container will not be assigned PID 1.
+  ## Defaults to false.
+  ##
   shareProcessNamespace: false
 
 connectorComponent:
+  ## @param connectorComponent.enabled Enable the connector component.
+  ## Connector component will be attached containers to each compute and meta pod.
+  ## Defaults to true.
+  ##
   enabled: true
 
+  ## @param connectorComponent.extraEnvVars Extra environment variables to add to the connector container.
+  ##
   extraEnvVars: [ ]
 
+  ## @param connectorComponent.extraEnvVarsConfigMap Name of existing ConfigMap containing extra environment variables.
+  ##
   extraEnvVarsConfigMap: ""
 
+  ## @param connectorComponent.extraEnvVarsSecret Name of existing Secret containing extra environment variables.
+  ##
   extraEnvVarsSecret: ""
 
+  ## @param connectorComponent.securityContext Container security context.
+  ##
   securityContext:
     allowPrivilegeEscalation: false
 
+  ## @param connectorComponent.resources Resource requests and limits.
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  ##
   resources:
     limits: { }
     requests: { }
 
+## @section RisingWave container ports. No need to change in most cases.
+##
+
 ports:
   meta:
+    ## @param ports.meta.svc Port for the meta service.
+    ##
     svc: 5690
+    ## @param ports.meta.dashboard Port for the meta dashboard service.
+    ##
     dashboard: 5691
+    ## @param ports.meta.metrics Port for the meta metrics service.
+    ##
     metrics: 1250
   compute:
+    ## @param ports.compute.svc Port for the compute service.
+    ##
     svc: 5688
+    ## @param ports.compute.metrics Port for the compute metrics service.
+    ##
     metrics: 1222
   frontend:
+    ## @param ports.frontend.svc Port for the frontend service.
+    ##
     svc: 4567
+    ## @param ports.frontend.metrics Port for the frontend metrics service.
+    ##
     metrics: 8080
   compactor:
+    ## @param ports.compactor.svc Port for the compactor service.
+    ##
     svc: 6660
+    ## @param ports.compactor.metrics Port for the compactor metrics service.
+    ##
     metrics: 1260
   connector:
+    ## @param ports.connector.svc Port for the connector service.
+    ##
     svc: 8090
+    ## @param ports.connector.metrics Port for the connector metrics service.
+    ##
     metrics: 8091

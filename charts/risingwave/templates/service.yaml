@@ -27,6 +27,10 @@ spec:
   {{- range .Values.service.externalIPs }}
   - {{ . }}
   {{- end }}
+  {{- if .Values.service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+  {{ toYaml .Values.service.loadBalancerSourceRanges | indent 2 }}
+  {{- end }}
   externalTrafficPolicy: {{ .Values.service.externalTrafficPolicy }}
   sessionAffinity: {{ .Values.service.sessionAffinity }}
   {{- if .Values.service.sessionAffinityConfig }}
@@ -39,3 +43,6 @@ spec:
   - name: svc
     port: {{ .Values.service.port }}
     targetPort: svc
+    {{- if or (eq .Values.service.type "NodePort") (eq .Values.service.type "LoadBalancer") }}
+    nodePort: {{ .Values.service.nodePort }}
+    {{- end }}
