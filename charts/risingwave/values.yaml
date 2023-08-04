@@ -481,9 +481,9 @@ metaComponent:
   affinity: { }
 
   ## @param metaComponent.terminationGracePeriodSeconds Termination grace period in seconds.
-  ## Defaults to 30 seconds.
+  ## Defaults to 1 seconds.
   ##
-  terminationGracePeriodSeconds: ""
+  terminationGracePeriodSeconds: 1
 
   ## @param metaComponent.schedulerName Name of an alternate scheduler.
   ## Ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
@@ -570,9 +570,9 @@ frontendComponent:
   affinity: { }
 
   ## @param frontendComponent.terminationGracePeriodSeconds Termination grace period in seconds.
-  ## Defaults to 30 seconds.
+  ## Defaults to 1 seconds.
   ##
-  terminationGracePeriodSeconds: ""
+  terminationGracePeriodSeconds: 1
 
   ## @param frontendComponent.schedulerName Name of an alternate scheduler.
   ## Ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
@@ -659,9 +659,9 @@ computeComponent:
   affinity: { }
 
   ## @param computeComponent.terminationGracePeriodSeconds Termination grace period in seconds.
-  ## Defaults to 30 seconds.
+  ## Defaults to 1 seconds.
   ##
-  terminationGracePeriodSeconds: ""
+  terminationGracePeriodSeconds: 1
 
   ## @param computeComponent.schedulerName Name of an alternate scheduler.
   ## Ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
@@ -748,9 +748,9 @@ compactorComponent:
   affinity: { }
 
   ## @param compactorComponent.terminationGracePeriodSeconds Termination grace period in seconds.
-  ## Defaults to 30 seconds.
+  ## Defaults to 1 seconds.
   ##
-  terminationGracePeriodSeconds: ""
+  terminationGracePeriodSeconds: 1
 
   ## @param compactorComponent.schedulerName Name of an alternate scheduler.
   ## Ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
