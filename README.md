@@ -14,6 +14,36 @@ helm repo add risingwavelabs https://risingwavelabs.github.io/helm-charts/
 
 You can then run `helm search repo risingwavelabs` to see the charts.
 
+## Deploy
+
+To deploy the RisingWave chart with the release name `risingwave`:
+
+```bash
+helm install risingwave risingwavelabs/risingwave
+```
+
+Example output:
+
+```plain
+NOTES:
+Welcome to fast and modern stream processing with RisingWave!
+
+Check the running status with the following command:
+
+    kubectl get pods -l app.kubernetes.io/instance=risingwave
+
+Try accessing the SQL console with the following command:
+
+    kubectl port-forward svc/risingwave 4567:svc
+
+Keep the above command running and open a new terminal window to run the following command:
+
+    psql -h localhost -p 4567 -d dev -U root
+
+
+Visit our documentation for advanced usages: https://www.risingwave.dev/docs/current/intro/
+```
+
 ## Examples
 
 Please refer to the [examples](examples) directory for examples on how to customize the values.
