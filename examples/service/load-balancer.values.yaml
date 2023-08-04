@@ -1,0 +1,5 @@
+service:
+  type: LoadBalancer
+  loadBalancerSourceRanges: [ ]
+  labels: { }
+  annotations: { }

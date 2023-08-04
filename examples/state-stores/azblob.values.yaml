@@ -1,0 +1,16 @@
+tags:
+  minio: false
+
+stateStore:
+  minio:
+    enabled: false
+
+  azblob:
+    enabled: true
+    endpoint: https://your-azure-account-name.blob.core.windows.net
+    container: risingwave
+    root: risingwave
+    authentication:
+      useServiceAccount: false
+      accountName: dummy
+      accountKey: dummy

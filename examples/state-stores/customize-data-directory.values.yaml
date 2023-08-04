@@ -1,0 +1,2 @@
+stateStore:
+  dataDirectory: "my/hummock"

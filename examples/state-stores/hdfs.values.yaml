@@ -1,0 +1,11 @@
+tags:
+  minio: false
+
+stateStore:
+  minio:
+    enabled: false
+
+  hdfs:
+    enabled: true
+    nameNode: hadoop-hdfs-master:9000
+    root: risingwave

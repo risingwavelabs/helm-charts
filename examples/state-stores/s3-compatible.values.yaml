@@ -5,12 +5,11 @@ stateStore:
   minio:
     enabled: false
 
-  oss:
+  s3:
     enabled: true
-    region: cn-hangzhou
+    endpoint: s3-compatible-service-domain:9000
+    region: us-east-1
     bucket: risingwave
-    root: risingwave
-    useInternalEndpoint: false
     authentication:
       useServiceAccount: false
       accessKey: ak

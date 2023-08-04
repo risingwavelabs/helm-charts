@@ -1,0 +1,14 @@
+tags:
+  minio: false
+
+stateStore:
+  minio:
+    enabled: false
+
+  gcs:
+    enabled: true
+    bucket: risingwave
+    root: risingwave
+    authentication:
+      useServiceAccount: false
+      credentials: dummy

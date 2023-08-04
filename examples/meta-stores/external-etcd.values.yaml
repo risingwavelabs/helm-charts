@@ -1,0 +1,12 @@
+tags:
+  etcd: false
+
+metaStore:
+  etcd:
+    endpoints:
+    - etcd:2379
+
+  authentication:
+    enabled: true
+    username: "root"
+    password: "123456"

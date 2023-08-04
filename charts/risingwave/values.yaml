@@ -236,6 +236,7 @@ metaStore:
 
 stateStore:
   ## @param stateStore.dataDirectory RisingWave state store data directory.
+  ## Must be a relative path. Max length is 800 characters.
   ## Default to "hummock" if set to empty.
   ##
   dataDirectory: "hummock"

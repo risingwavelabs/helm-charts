@@ -1,6 +1,11 @@
 tags:
   minio: false
 
+serviceAccount:
+  create: true
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::111122223333:role/my-role
+
 stateStore:
   minio:
     enabled: false
@@ -10,6 +15,4 @@ stateStore:
     region: us-east-1
     bucket: risingwave
     authentication:
-      useServiceAccount: false
-      accessKey: ak
-      secretKey: sk
+      useServiceAccount: true
