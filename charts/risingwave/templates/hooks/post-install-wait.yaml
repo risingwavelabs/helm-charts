@@ -1,0 +1,53 @@
+{{/*
+Copyright RisingWave Labs
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
+{{- if .Values.wait }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ printf "%s-hook-wait" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "risingwave.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "-20"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 10
+  template:
+    metadata:
+      labels:
+        {{- include "risingwave.labels" . | nindent 8 }}
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: wait
+        image: {{ .Values.bash.image }}
+        env:
+        - name: PG_HOSTNAME
+          value: {{ include "risingwave.fullname" . }}.{{ .Release.Namespace }}.svc
+        - name: PG_PORT
+          value: {{ .Values.service.port | quote }}
+        command:
+        - bash
+        - -c
+        args:
+        - |
+          set -e
+
+          function nc_bash {
+            true &>/dev/null </dev/tcp/$1/$2
+          }
+
+          for i in {1..12}; do
+            if nc_bash $PG_HOSTNAME $PG_PORT; then
+              break
+            fi
+            echo "Waiting for RisingWave to be ready"
+            sleep 5
+          done
+
+          echo "RisingWave is ready"
+{{- end }}

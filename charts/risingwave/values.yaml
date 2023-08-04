@@ -911,6 +911,21 @@ databases: [ ]
 ## @section Misc.
 ##
 
+## @param wait Wait for the RisingWave cluster to be ready.
+##
+wait: false
+
 postgresql:
+  ## @param postgresql.image PostgreSQL image.
+  ##
   image: postgres:15.3
 
+busybox:
+  ## @param busybox.image Busybox image.
+  ##
+  image: busybox:1.36
+
+bash:
+  ## @param bash.image Bash image.
+  ##
+  image: bash:5.2

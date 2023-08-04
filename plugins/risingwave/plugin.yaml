@@ -1,0 +1,6 @@
+name: "risingwave"
+version: "0.1.0"
+usage: "operate risingwave releases"
+description: "operate risingwave releases"
+ignoreFlags: false
+command: $HELM_PLUGIN_DIR/risingwave.sh

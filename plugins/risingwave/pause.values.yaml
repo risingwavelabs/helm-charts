@@ -1,0 +1,14 @@
+etcd:
+  replicaCount: 0
+
+metaComponent:
+  replicas: 0
+
+frontendComponent:
+  replicas: 0
+
+computeComponent:
+  replicas: 0
+
+compactorComponent:
+  replicas: 0
