@@ -849,6 +849,8 @@ ports:
     metrics: 8091
 
 ## @section RisingWave monitor.
+##
+
 monitor:
   ## Prometheus Service Monitor
   ## ref: https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#endpoint
@@ -885,3 +887,30 @@ monitor:
     ## @param metrics.podMonitor.relabelings [array] Prometheus relabeling rules
     ##
     relabelings: [ ]
+
+## @section RisingWave auth.
+##
+
+auth:
+  ## @param auth.rootUser Root username.
+  ##
+  rootUser: root
+  ## @param auth.rootPassword Root password.
+  ## Empty string means no password.
+  ##
+  rootPassword: ""
+
+## @section RisingWave databases.
+##
+
+## @param databases [array] List of databases.
+## Will be used to create databases after the first start.
+##
+databases: [ ]
+
+## @section Misc.
+##
+
+postgresql:
+  image: postgres:15.3
+

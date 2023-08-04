@@ -1,0 +1,80 @@
+{{/*
+Copyright RisingWave Labs
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
+{{- if or (ne .Values.auth.rootUser "root") .Values.auth.rootPassword }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ printf "%s-hook-create-root-user" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "risingwave.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 10
+  template:
+    metadata:
+      labels:
+        {{- include "risingwave.labels" . | nindent 8 }}
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: create-root-user
+        image: {{ .Values.postgresql.image }}
+        env:
+        - name: PG_HOSTNAME
+          value: {{ include "risingwave.fullname" . }}.{{ .Release.Namespace }}.svc
+        - name: PG_PORT
+          value: {{ .Values.service.port | quote }}
+        - name: PG_ROOT_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "risingwave.fullname" . }}
+              key: root-user
+        - name: PG_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "risingwave.fullname" . }}
+              key: root-password
+        {{- if ne .Values.auth.rootUser "root" }}
+        - name: PG_REAL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "risingwave.fullname" . }}
+              key: real-root-password
+        {{- end }}
+        - name: PG_DATABASE
+          value: dev
+        command:
+        - bash
+        - -c
+        args:
+        - |
+          set -e
+
+          function nc_bash {
+            true &>/dev/null </dev/tcp/$1/$2
+          }
+
+          for i in {1..10}; do
+            if nc_bash $PG_HOSTNAME $PG_PORT; then
+              break
+            fi
+            echo "Waiting for RisingWave to be ready"
+            sleep 5
+          done
+
+          psql -h $PG_HOSTNAME -p $PG_PORT -v ON_ERROR_STOP=1 --username root --dbname "$PG_DATABASE" <<-EOSQL
+          {{- if ne .Values.auth.rootUser "root" }}
+              CREATE USER $PG_ROOT_USER WITH SUPERUSER PASSWORD '$PG_ROOT_PASSWORD';
+              ALTER USER root WITH PASSWORD '$PG_REAL_ROOT_PASSWORD';
+          {{- else }}
+              ALTER USER $PG_ROOT_USER WITH SUPERUSER PASSWORD 'PG_ROOT_PASSWORD';
+          {{- end }}
+          EOSQL
+          echo "Created user $PG_ROOT_USER"
+{{- end }}

@@ -13,4 +13,4 @@ stateStore:
     authentication:
       useServiceAccount: false
       accessKey: ak
-      secretKey: sk
+      secretAccessKey: sk

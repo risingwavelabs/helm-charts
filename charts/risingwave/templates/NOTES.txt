@@ -2,6 +2,11 @@
 {{- if and .Release.Namespace (ne .Release.Namespace "default") }}
 {{ $kubectlArgs = cat $kubectlArgs "-n" .Release.Namespace }}
 {{- end }}
+{{- $firstDatabase := "dev" -}}
+{{- if .Values.databases }}
+{{ $firstDatabase = first .Values.databases }}
+{{- end }}
+{{- $port := .Values.service.port }}
 Welcome to fast and modern stream processing with RisingWave!
 
 Check the running status with the following command:
@@ -10,10 +15,16 @@ Check the running status with the following command:
 
 Try accessing the SQL console with the following command:
 
-    {{ $kubectlArgs }} port-forward svc/{{ include "risingwave.fullname" . }} 4567:svc
+    {{ $kubectlArgs }} port-forward svc/{{ include "risingwave.fullname" . }} {{ $port }}:svc
 
 Keep the above command running and open a new terminal window to run the following command:
 
-    psql -h localhost -p 4567 -d dev -U root
+    {{ if not .Values.auth.rootPassword -}}
+    psql -h localhost -p {{ $port }} -d {{ $firstDatabase }} -U {{ .Values.auth.rootUser }}
+    {{ else -}}
+    export PGUSER=$({{ $kubectlArgs }} get secret -o jsonpath="{.data.root-user}" {{ include "risingwave.fullname" . }} | base64 --decode)
+    export PGPASSWORD=$({{ $kubectlArgs }} get secret -o jsonpath="{.data.root-password}" {{ include "risingwave.fullname" . }} | base64 --decode)
+    psql -h localhost -p {{ $port }} -d {{ $firstDatabase }}
+    {{- end }}
 
 Visit our documentation for advanced usages: https://www.risingwave.dev/docs/current/intro/
