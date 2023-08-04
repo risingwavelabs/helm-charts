@@ -20,6 +20,12 @@ metadata:
   annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
   {{- end }}
 spec:
+  podTargetLabels:
+  - risingwave/name
+  - risingwave/component
+  - app.kubernetes.io/name
+  - app.kubernetes.io/instance
+  - risingwave.risingwavelabs.com/component
   namespaceSelector:
     matchNames:
     - {{ .Release.Namespace }}
