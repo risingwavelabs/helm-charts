@@ -43,11 +43,11 @@ spec:
       - __name__
     {{- include "common.tplvalues.render" (dict "value" .Values.monitor.podMonitor.relabelings "context" $) | nindent 6 }}
     {{- end }}
-  namespaceSelector:
-    matchNames:
-    - {{ .Release.Namespace }}
-  selector:
-    matchLabels: {{- include "common.labels.matchLabels" . | nindent 6 }}
+    namespaceSelector:
+      matchNames:
+      - {{ .Release.Namespace }}
+    selector:
+      matchLabels: {{- include "common.labels.matchLabels" . | nindent 8 }}
   {{- if .Values.connectorComponent.enabled }}
   - port: c-metrics
     path: /metrics
@@ -77,13 +77,19 @@ spec:
       - apps_risingwave_com_component
       targetLabel: apps_risingwave_com_component
       replacement: connector
-    {{- include "common.tplvalues.render" (dict "value" .Values.monitor.podMonitor.relabelings "context" $) | nindent 6 }}
-    {{- end }}
+      {{- include "common.tplvalues.render" (dict "value" .Values.monitor.podMonitor.relabelings "context" $) | nindent 6 }}
+      {{- end }}
     namespaceSelector:
       matchNames:
       - {{ .Release.Namespace }}
     selector:
-      matchLabels: {{- include "common.labels.matchLabels" . | nindent 6 }}
+      matchLabels: {{- include "common.labels.matchLabels" . | nindent 8 }}
+      matchExpressions:
+      - key: app.kubernetes.io/component
+        operator: In
+        values:
+        - meta
+        - compute
   {{- end }}
   {{- if .Values.compactMode.enabled }}
   - port: f-metrics
@@ -114,12 +120,17 @@ spec:
       - apps_risingwave_com_component
       targetLabel: apps_risingwave_com_component
       replacement: frontend
-    {{- include "common.tplvalues.render" (dict "value" .Values.monitor.podMonitor.relabelings "context" $) | nindent 6 }}
-    {{- end }}
+      {{- include "common.tplvalues.render" (dict "value" .Values.monitor.podMonitor.relabelings "context" $) | nindent 6 }}
+      {{- end }}
     namespaceSelector:
       matchNames:
       - {{ .Release.Namespace }}
     selector:
-      matchLabels: {{- include "common.labels.matchLabels" . | nindent 6 }}
+      matchLabels: {{- include "common.labels.matchLabels" . | nindent 8 }}
+      matchExpressions:
+      - key: app.kubernetes.io/component
+        operator: In
+        values:
+        - compute
   {{- end }}
 {{- end }}

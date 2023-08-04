@@ -1,0 +1,3 @@
+monitor:
+  podMonitor:
+    enabled: true

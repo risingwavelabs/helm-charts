@@ -38,11 +38,19 @@ spec:
   {{- end }}
   selector:
     {{- include "risingwave.selectorLabels" . | nindent 4 }}
+    {{- if .Values.compactMode.enabled }}
+    apps.risingwave.com/component: compute
+    {{- else }}
     apps.risingwave.com/component: frontend
+    {{- end }}
   ports:
   - name: svc
     port: {{ .Values.service.port }}
+    {{- if .Values.compactMode.enabled }}
+    targetPort: f-svc
+    {{- else }}
     targetPort: svc
+    {{- end }}
     {{- if or (eq .Values.service.type "NodePort") (eq .Values.service.type "LoadBalancer") }}
     nodePort: {{ .Values.service.nodePort }}
     {{- end }}

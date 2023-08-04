@@ -239,7 +239,11 @@ Create the name of the frontend Service and Deployment to use
 Create the name of the compute Service and StatefulSet to use
 */}}
 {{- define "risingwave.computeComponentName" -}}
-{{ printf "%s-compute" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- if .Values.compactMode.enabled }}
+{{- printf "%s-frontend-compute" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- printf "%s-compute" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
 {{- end }}
 
 {{- define "risingwave.computeHeadlessServiceName" -}}
