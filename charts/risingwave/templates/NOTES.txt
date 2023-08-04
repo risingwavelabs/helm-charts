@@ -1,4 +1,4 @@
-Welcome to fast and modern streaming processing with RisingWave!
+Welcome to fast and modern stream processing with RisingWave!
 
 Try accessing the SQL console with the following command:
 
