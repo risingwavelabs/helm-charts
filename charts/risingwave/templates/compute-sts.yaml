@@ -197,8 +197,10 @@ spec:
           value: {{ include "risingwave.hummockConnectionString" . }}
         - name: RW_DATA_DIRECTORY
           value: {{ include "risingwave.stateStoreDataDirectory" . }}
+        {{- if .Values.connectorComponent.enabled }}
         - name: RW_CONNECTOR_RPC_ENDPOINT
           value: "127.0.0.1:{{ .Values.ports.connector.svc }}"
+        {{- end }}
         {{- if .Values.computeComponent.resources.limits }}
         {{- if .Values.computeComponent.resources.limits.cpu }}
         - name: RW_PARALLELISM

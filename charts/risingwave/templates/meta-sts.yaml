@@ -204,8 +204,10 @@ spec:
           value: {{ include "risingwave.stateStoreDataDirectory" . }}
         - name: RW_DASHBOARD_HOST
           value: "0.0.0.0:{{ .Values.ports.meta.dashboard }}"
+        {{- if .Values.connectorComponent.enabled }}
         - name: RW_CONNECTOR_RPC_ENDPOINT
-          value: "127.0.0.1:{{ .Values.ports.connector.svc }}"
+          value: "{{ include "risingwave.computeHeadlessServiceName" . }}.{{ .Release.Namespace }}.svc:{{ .Values.ports.connector.svc }}"
+        {{- end }}
         - name: RW_BACKEND
           value: etcd
         - name: RW_ETCD_ENDPOINTS
@@ -256,87 +258,6 @@ spec:
           tcpSocket:
             port: svc
         {{- end }}
-      {{- if .Values.connectorComponent.enabled }}
-      - name: connector
-        image: {{ include "risingwave.image" . }}
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
-        {{- if .Values.diagnosticMode.enabled }}
-        command: {{ toYaml .Values.diagnosticMode.command | nindent 8 }}
-        args: {{ toYaml .Values.diagnosticMode.args | nindent 8 }}
-        {{- else }}
-        command:
-        - /risingwave/bin/connector-node/start-service.sh
-        args:
-        - -p
-        - {{ .Values.ports.connector.svc | quote }}
-        {{- end }}
-        envFrom:
-        {{- if .Values.connectorComponent.extraEnvVarsConfigMap }}
-        - configMapRef:
-            name: {{ .Values.connectorComponent.extraEnvVarsConfigMap }}
-        {{- end }}
-        {{- if .Values.connectorComponent.extraEnvVarsSecret }}
-        - secretRef:
-            name: {{ .Values.connectorComponent.extraEnvVarsSecret }}
-        {{- end }}
-        env:
-        - name: POD_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: "metadata.name"
-        - name: POD_NAMESPACE
-          valueFrom:
-            fieldRef:
-              fieldPath: "metadata.namespace"
-        - name: CONTAINER_CPU_LIMIT
-          valueFrom:
-            resourceFieldRef:
-              resource: "limits.cpu"
-        - name: CONTAINER_MEMORY_LIMIT
-          valueFrom:
-            resourceFieldRef:
-              resource: "limits.memory"
-        {{- if .Values.connectorComponent.resources.limits.memory }}
-        - name: JAVA_OPTS
-          value: "-Xmx$(CONTAINER_MEMORY_LIMIT)"
-        {{- end }}
-        - name: RW_CONNECTOR_NODE_PROMETHEUS_PORT
-          value: {{ .Values.ports.connector.metrics | quote }}
-        {{- range .Values.connectorComponent.extraEnvVars }}
-        - {{ . }}
-        {{- end }}
-        {{- if .Values.metaComponent.securityContext }}
-        securityContext: {{ toYaml .Values.connectorComponent.securityContext | nindent 10 }}
-        {{- end }}
-        resources:
-          {{- if .Values.metaComponent.resources.limits }}
-          limits:
-            {{ toYaml .Values.metaComponent.resources.limits | nindent 12}}
-          {{- end }}
-          {{- if .Values.metaComponent.resources.requests }}
-          requests:
-            {{ toYaml .Values.metaComponent.resources.requests | nindent 12}}
-          {{- end }}
-        ports:
-        - containerPort: {{ .Values.ports.connector.svc }}
-          name: c-svc
-          protocol: TCP
-        - containerPort: {{ .Values.ports.connector.metrics }}
-          name: c-metrics
-          protocol: TCP
-        {{- if not .Values.diagnosticMode.enabled }}
-        livenessProbe:
-          initialDelaySeconds: 2
-          periodSeconds: 10
-          tcpSocket:
-            port: c-svc
-        readinessProbe:
-          initialDelaySeconds: 2
-          periodSeconds: 10
-          tcpSocket:
-            port: c-svc
-        {{- end }}
-      {{- end }}
       {{- if .Values.metaComponent.additionalContainers }}
       {{- range .Values.metaComponent.additionalContainers }}
       - {{ toYaml . | nindent 8}}

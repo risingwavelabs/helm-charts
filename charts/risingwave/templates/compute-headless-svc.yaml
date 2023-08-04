@@ -27,3 +27,19 @@ spec:
   - name: metrics
     port: {{ .Values.ports.compute.metrics }}
     targetPort: metrics
+  {{- if .Values.connectorComponent.enabled }}
+  - name: c-svc
+    port: {{ .Values.ports.connector.svc }}
+    targetPort: c-svc
+  - name: c-metrics
+    port: {{ .Values.ports.connector.metrics }}
+    targetPort: c-metrics
+  {{- end }}
+  {{- if .Values.compactMode.enabled }}
+  - name: f-svc
+    port: {{ .Values.ports.frontend.svc }}
+    targetPort: f-svc
+  - name: f-metrics
+    port: {{ .Values.ports.frontend.metrics }}
+    targetPort: f-metrics
+  {{- end }}

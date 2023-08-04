@@ -247,7 +247,11 @@ Create the name of the compute Service and StatefulSet to use
 {{- end }}
 
 {{- define "risingwave.computeHeadlessServiceName" -}}
-{{ printf "%s-compute-headless" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- if .Values.compactMode.enabled }}
+{{- printf "%s-frontend-compute-headless" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- printf "%s-compute-headless" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
 {{- end }}
 
 {{/*
