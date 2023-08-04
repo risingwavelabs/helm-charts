@@ -1,0 +1,52 @@
+{{/*
+Copyright RisingWave Labs
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
+{{- if .Values.monitor.podMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: {{ include "common.names.fullname" . }}
+  namespace: {{ ternary .Values.monitor.podMonitor.namespace .Release.Namespace (not (empty .Values.monitor.podMonitor.namespace)) }}
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.monitor.podMonitor.additionalLabels }}
+    {{- include "common.tplvalues.render" (dict "value" .Values.monitor.podMonitor.additionalLabels "context" $) | nindent 4 }}
+    {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  podMetricsEndpoints:
+  - port: metrics
+    path: /metrics
+      {{- if .Values.monitor.podMonitor.interval }}
+    interval: {{ .Values.monitor.podMonitor.interval }}
+      {{- end }}
+      {{- if .Values.monitor.podMonitor.scrapeTimeout }}
+    scrapeTimeout: {{ .Values.monitor.podMonitor.scrapeTimeout }}
+      {{- end }}
+      {{- if .Values.monitor.podMonitor.scheme }}
+    scheme: {{ .Values.monitor.podMonitor.scheme }}
+      {{- end }}
+      {{- if .Values.monitor.podMonitor.tlsConfig }}
+    tlsConfig: {{- include "common.tplvalues.render" ( dict "value" .Values.monitor.podMonitor.tlsConfig "context" $ ) | nindent 8 }}
+      {{- end }}
+    {{- if .Values.monitor.podMonitor.relabelings }}
+    relabelings:
+    - action: drop
+      regex: stream_exchange_.+
+      sourceLabels:
+      - __name__
+    {{- include "common.tplvalues.render" (dict "value" .Values.monitor.podMonitor.relabelings "context" $) | nindent 6 }}
+    {{- end }}
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace }}
+  selector:
+    matchLabels: {{- include "common.labels.matchLabels" . | nindent 6 }}
+
+{{- end }}

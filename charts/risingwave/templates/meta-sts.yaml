@@ -33,10 +33,14 @@ spec:
       labels:
         {{- include "risingwave.labels" . | nindent 8 }}
         apps.risingwave.com/component: meta
+        risingwave/name: {{ include "risingwave.fullname" . }}
+        risingwave/component: meta
         {{- if .Values.metaComponent.podLabels }}
         {{- toYaml .Values.metaComponent.podLabels | nindent 8 }}
         {{- end }}
       annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ .Values.ports.meta.metrics }}"
         {{- include "risingwave.annotations" . | nindent 8 }}
         {{- if .Values.metaComponent.podAnnotations }}
         {{- toYaml .Values.metaComponent.podAnnotations | nindent 8 }}

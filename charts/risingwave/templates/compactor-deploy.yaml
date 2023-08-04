@@ -29,10 +29,14 @@ spec:
       labels:
         {{- include "risingwave.labels" . | nindent 8 }}
         apps.risingwave.com/component: compactor
+        risingwave/name: {{ include "risingwave.fullname" . }}
+        risingwave/component: compactor
         {{- if .Values.compactorComponent.podLabels }}
         {{- toYaml .Values.compactorComponent.podLabels | nindent 8 }}
         {{- end }}
       annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ .Values.ports.compactor.metrics }}"
         {{- include "risingwave.annotations" . | nindent 8 }}
         {{- if .Values.compactorComponent.podAnnotations }}
         {{- toYaml .Values.compactorComponent.podAnnotations | nindent 8 }}

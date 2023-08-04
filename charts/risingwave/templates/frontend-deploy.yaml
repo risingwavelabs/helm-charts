@@ -29,10 +29,14 @@ spec:
       labels:
         {{- include "risingwave.labels" . | nindent 8 }}
         apps.risingwave.com/component: frontend
+        risingwave/name: {{ include "risingwave.fullname" . }}
+        risingwave/component: frontend
         {{- if .Values.frontendComponent.podLabels }}
         {{- toYaml .Values.frontendComponent.podLabels | nindent 8 }}
         {{- end }}
       annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ .Values.ports.frontend.metrics }}"
         {{- include "risingwave.annotations" . | nindent 8 }}
         {{- if .Values.frontendComponent.podAnnotations }}
         {{- toYaml .Values.frontendComponent.podAnnotations | nindent 8 }}
