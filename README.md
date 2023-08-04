@@ -28,6 +28,12 @@ helm install \
   risingwave risingwavelabs/risingwave
 ```
 
+To show all the possible configurations:
+
+```bash
+helm show values risingwavelabs/risingwave
+```
+
 ## Plugin
 
 Install the [risingwave](/plugins/risingwave) plugin to operate the releases.
