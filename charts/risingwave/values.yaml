@@ -1,0 +1,369 @@
+# Copyright RisingWave Labs.
+# SPDX-License-Identifier: APACHE-2.0
+
+tags:
+  etcd: true
+  minio: true
+
+etcd:
+  service:
+    ports:
+      client: 2379
+      peer: 2380
+
+  replicaCount: 1
+
+  livenessProbe:
+    initialDelaySeconds: 5
+
+  readinessProbe:
+    initialDelaySeconds: 5
+
+  auth:
+    rbac:
+      create: false
+      allowNoneAuthentication: true
+
+  persistence:
+    enabled: true
+    size: 10Gi
+
+  persistentVolumeClaimRetentionPolicy:
+    enabled: true
+    whenScaled: Retain
+    whenDeleted: Delete
+
+  extraEnvVars:
+  - name: "ETCD_MAX_REQUEST_BYTES"
+    value: "104857600"
+  - name: "MAX_QUOTA_BACKEND_BYTES"
+    value: "8589934592"
+  - name: "ETCD_AUTO_COMPACTION_MODE"
+    value: "periodic"
+  - name: "ETCD_AUTO_COMPACTION_RETENTION"
+    value: "1m"
+  - name: "ETCD_SNAPSHOT_COUNT"
+    value: "10000"
+  - name: "ETCD_MAX_TXN_OPS"
+    value: "999999"
+
+minio:
+  defaultBuckets: risingwave
+
+  auth:
+    rootUser: root
+    rootPassword: ""
+
+  persistence:
+    enabled: true
+    size: 50Gi
+
+nameOverride: ""
+
+fullnameOverride: ""
+
+commonLabels: { }
+
+commonAnnotations: { }
+
+diagnosticMode:
+  enabled: false
+  command:
+  - sleep
+  args:
+  - infinity
+
+image:
+  registry: ghcr.io
+  repository: risingwavelabs/risingwave
+  tag: v1.0.0
+  digest: ""
+  pullPolicy: IfNotPresent
+  pullSecrets: [ ]
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+  automountServiceAccountToken: true
+  labels: { }
+  # Annotations to add to the service account
+  annotations: { }
+
+service:
+  type: ClusterIP
+  port: 4567
+  externalIPs: [ ]
+  externalTrafficPolicy: ""
+  sessionAffinity: None
+  sessionAffinityConfig: { }
+  annotations: { }
+  labels: { }
+
+metaStore:
+  etcd:
+    endpoints: []
+    authentication:
+      enabled: false
+      username: ""
+      password: ""
+
+stateStore:
+  # Data directory.
+  dataDirectory: "hummock"
+
+  s3:
+    enabled: false
+    endpoint: ""
+    region: ""
+    bucket: ""
+    authentication:
+      useServiceAccount: false
+      accessKey: ""
+      secretAccessKey: ""
+
+  minio:
+    enabled: true
+    endpoint: ""
+    bucket: ""
+    authentication:
+      username: ""
+      password: ""
+
+  gcs:
+    enabled: false
+    bucket: ""
+    root: ""
+    authentication:
+      useServiceAccount: false
+      credentials: ""
+
+  oss:
+    enabled: false
+    region: ""
+    bucket: ""
+    root: ""
+    useInternalEndpoint: false
+    authentication:
+      useServiceAccount: false
+      accessKey: ""
+      secretAccessKey: ""
+
+  azblob:
+    enabled: false
+    endpoint: ""
+    container: ""
+    root: ""
+    authentication:
+      useServiceAccount: false
+      accountName: ""
+      accountKey: ""
+
+  hdfs:
+    enabled: false
+    nameNode: ""
+    root: ""
+
+configuration: ""
+
+existingConfigMap: ""
+
+metaComponent:
+  podLabels: { }
+
+  podAnnotations: { }
+
+  extraEnvVars: [ ]
+
+  extraEnvVarsConfigMap: ""
+
+  extraEnvVarsSecret: ""
+
+  replicas: 1
+
+  resources:
+    limits: { }
+    requests: { }
+
+  podSecurityContext: { }
+  # fsGroup: 2000
+
+  securityContext:
+    allowPrivilegeEscalation: false
+
+  additionalContainers: [ ]
+
+  nodeSelector: { }
+
+  tolerations: [ ]
+
+  affinity: { }
+
+  terminationGracePeriodSeconds: ""
+
+  schedulerName: ""
+
+  priorityClassName: ""
+
+  runtimeClassName: ""
+
+  shareProcessNamespace: false
+
+frontendComponent:
+  podLabels: { }
+
+  podAnnotations: { }
+
+  extraEnvVars: [ ]
+
+  extraEnvVarsConfigMap: ""
+
+  extraEnvVarsSecret: ""
+
+  replicas: 1
+
+  resources:
+    limits: { }
+    requests: { }
+
+  podSecurityContext: { }
+  # fsGroup: 2000
+
+  securityContext:
+    allowPrivilegeEscalation: false
+
+  additionalContainers: [ ]
+
+  nodeSelector: { }
+
+  tolerations: [ ]
+
+  affinity: { }
+
+  terminationGracePeriodSeconds: ""
+
+  schedulerName: ""
+
+  priorityClassName: ""
+
+  runtimeClassName: ""
+
+  shareProcessNamespace: false
+
+computeComponent:
+  podLabels: { }
+
+  podAnnotations: { }
+
+  extraEnvVars: [ ]
+
+  extraEnvVarsConfigMap: ""
+
+  extraEnvVarsSecret: ""
+
+  replicas: 1
+
+  resources:
+    limits: { }
+    requests: { }
+
+  podSecurityContext: { }
+  # fsGroup: 2000
+
+  securityContext:
+    allowPrivilegeEscalation: false
+
+  additionalContainers: [ ]
+
+  nodeSelector: { }
+
+  tolerations: [ ]
+
+  affinity: { }
+
+  terminationGracePeriodSeconds: ""
+
+  schedulerName: ""
+
+  priorityClassName: ""
+
+  runtimeClassName: ""
+
+  shareProcessNamespace: false
+
+compactorComponent:
+  podLabels: { }
+
+  podAnnotations: { }
+
+  extraEnvVars: [ ]
+
+  extraEnvVarsConfigMap: ""
+
+  extraEnvVarsSecret: ""
+
+  replicas: 1
+
+  resources:
+    limits: { }
+    requests: { }
+
+  podSecurityContext: { }
+  # fsGroup: 2000
+
+  securityContext:
+    allowPrivilegeEscalation: false
+
+  additionalContainers: [ ]
+
+  nodeSelector: { }
+
+  tolerations: [ ]
+
+  affinity: { }
+
+  terminationGracePeriodSeconds: ""
+
+  schedulerName: ""
+
+  priorityClassName: ""
+
+  runtimeClassName: ""
+
+  shareProcessNamespace: false
+
+connectorComponent:
+  enabled: true
+
+  extraEnvVars: [ ]
+
+  extraEnvVarsConfigMap: ""
+
+  extraEnvVarsSecret: ""
+
+  securityContext:
+    allowPrivilegeEscalation: false
+
+  resources:
+    limits: { }
+    requests: { }
+
+ports:
+  meta:
+    svc: 5690
+    dashboard: 5691
+    metrics: 1250
+  compute:
+    svc: 5688
+    metrics: 1222
+  frontend:
+    svc: 4567
+    metrics: 8080
+  compactor:
+    svc: 6660
+    metrics: 1260
+  connector:
+    svc: 8090
+    metrics: 8091

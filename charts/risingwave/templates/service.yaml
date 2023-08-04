@@ -1,0 +1,41 @@
+{{/*
+Copyright RisingWave Labs
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "risingwave.fullname" . }}
+  labels:
+    {{- include "risingwave.labels" . | nindent 4 }}
+    apps.risingwave.com/component: frontend
+    {{- if .Values.service.labels }}
+    {{- toYaml .Values.service.labels | nindent 4 }}
+    {{- end }}
+  {{- $annotations := (include "risingwave.annotations" . ) | trim }}
+  {{- if $annotations }}
+  annotations:
+    {{ nindent 4 $annotations }}
+  {{- end }}
+    {{- if .Values.service.annotations }}
+    {{- toYaml .Values.service.annotations | nindent 4 }}
+    {{- end }}
+spec:
+  type: {{ .Values.service.type }}
+  externalIPs:
+  {{- range .Values.service.externalIPs }}
+  - {{ . }}
+  {{- end }}
+  externalTrafficPolicy: {{ .Values.service.externalTrafficPolicy }}
+  sessionAffinity: {{ .Values.service.sessionAffinity }}
+  {{- if .Values.service.sessionAffinityConfig }}
+  sessionAffinityConfig: {{- toYaml .Values.service.sessionAffinityConfig | indent 4 }}
+  {{- end }}
+  selector:
+    {{- include "risingwave.selectorLabels" . | nindent 4 }}
+    apps.risingwave.com/component: frontend
+  ports:
+  - name: svc
+    port: {{ .Values.service.port }}
+    targetPort: svc

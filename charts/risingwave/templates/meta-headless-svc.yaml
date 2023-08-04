@@ -1,0 +1,32 @@
+{{/*
+Copyright RisingWave Labs
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
+apiVersion: v1
+kind: Service
+metadata:
+  name:  {{ include "risingwave.metaHeadlessServiceName" . }}
+  labels:
+    {{- include "risingwave.labels" . | nindent 4 }}
+    apps.risingwave.com/component: meta
+  {{- $annotations := (include "risingwave.annotations" . ) | trim }}
+  {{- if $annotations }}
+  annotations:
+    {{ nindent 4 $annotations }}
+  {{- end }}
+spec:
+  clusterIP: None
+  selector:
+    {{- include "risingwave.selectorLabels" . | nindent 4 }}
+    apps.risingwave.com/component: meta
+  ports:
+  - name: svc
+    port: {{ .Values.ports.meta.svc }}
+    targetPort: svc
+  - name: dashboard
+    port: {{ .Values.ports.meta.dashboard }}
+    targetPort: dashboard
+  - name: metrics
+    port: {{ .Values.ports.meta.metrics }}
+    targetPort: metrics

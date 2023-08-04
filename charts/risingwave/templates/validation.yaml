@@ -1,0 +1,29 @@
+{{/*
+Copyright RisingWave Labs
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
+{{/*
+Validate state store backends.
+*/}}
+{{- $count := 0 -}}
+{{- with .Values.stateStore }}
+{{- if .s3.enabled }}{{ $count = add1 $count }}{{- end }}
+{{- if .minio.enabled }}{{ $count = add1 $count }}{{- end }}
+{{- if .gcs.enabled }}{{ $count = add1 $count }}{{- end }}
+{{- if .oss.enabled }}{{ $count = add1 $count }}{{- end }}
+{{- if .azblob.enabled }}{{ $count = add1 $count }}{{- end }}
+{{- if .hdfs.enabled }}{{ $count = add1 $count }}{{- end }}
+{{- if (eq $count 0 ) }}
+{{- fail "No state store backend is enabled, required one"}}
+{{- else if (gt $count 1) }}
+{{- fail "Multiple state store backends are enabled, only one is allowed"}}
+{{- end }}
+{{- end }}
+
+
+{{- if and .Values.tags.minio .Values.stateStore.minio.enabled }}
+{{- if empty .Values.minio.defaultBuckets }}
+{{- fail "Create at least one default bucket in MinIO to use" }}
+{{- end }}
+{{- end }}

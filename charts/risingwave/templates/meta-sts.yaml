@@ -1,0 +1,324 @@
+{{/*
+Copyright RisingWave Labs.
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "risingwave.metaComponentName" . }}
+  labels:
+    {{- include "risingwave.labels" . | nindent 4 }}
+    apps.risingwave.com/component: meta
+  {{- $annotations := (include "risingwave.annotations" . ) | trim }}
+  {{- if $annotations }}
+  annotations:
+    {{ nindent 4 $annotations }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.metaComponent.replicas }}
+  selector:
+    matchLabels:
+      {{- include "risingwave.labels" . | nindent 6 }}
+      apps.risingwave.com/component: meta
+  serviceName: {{ include "risingwave.metaHeadlessServiceName" . }}
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: "100%"
+  podManagementPolicy: Parallel
+  minReadySeconds: 0
+  template:
+    metadata:
+      labels:
+        {{- include "risingwave.labels" . | nindent 8 }}
+        apps.risingwave.com/component: meta
+        {{- if .Values.metaComponent.podLabels }}
+        {{- toYaml .Values.metaComponent.podLabels | nindent 8 }}
+        {{- end }}
+      annotations:
+        {{- include "risingwave.annotations" . | nindent 8 }}
+        {{- if .Values.metaComponent.podAnnotations }}
+        {{- toYaml .Values.metaComponent.podAnnotations | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if .Values.image.pullSecrets }}
+      imagePullSecrets:
+      {{- range .Values.image.pullSecrets }}
+      - {{ . }}
+      {{- end }}
+      {{- end }}
+      volumes:
+      - name: config
+        configMap:
+          name: {{ include "risingwave.configurationConfigMapName" . }}
+      restartPolicy: Always
+      {{- if .Values.metaComponent.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ .Values.metaComponent.terminationGracePeriodSeconds }}
+      {{- end }}
+      {{- if .Values.metaComponent.nodeSelector }}
+      nodeSelector:
+      {{- toYaml .Values.metaComponent.nodeSelector | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "risingwave.serviceAccountName" . }}
+      automountServiceAccountToken: true
+      hostNetwork: false
+      hostPID: false
+      hostIPC: false
+      {{- if .Values.metaComponent.shareProcessNamespace }}
+      shareProcessNamespace: {{ .Values.metaComponent.shareProcessNamespace }}
+      {{- end }}
+      {{- if .Values.metaComponent.podSecurityContext }}
+      securityContext: {{- toYaml .Values.metaComponent.podSecurityContext | nindent 8 }}
+      {{- end }}
+      {{- if .Values.metaComponent.affinity }}
+      affinity: {{- toYaml .Values.metaComponent.affinity | nindent 8 }}
+      {{- end }}
+      {{- if .Values.metaComponent.schedulerName }}
+      schedulerName: {{ .Values.metaComponent.schedulerName }}
+      {{- end }}
+      {{- if .Values.metaComponent.tolerations }}
+      tolerations: {{- toYaml .Values.metaComponent.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.metaComponent.priorityClassName }}
+      priorityClassName: {{ .Values.metaComponent.priorityClassName }}
+      {{- end }}
+      {{- if .Values.metaComponent.runtimeClassName }}
+      runtimeClassName: {{ .Values.metaComponent.runtimeClassName }}
+      {{- end }}
+      enableServiceLinks: false
+      preemptionPolicy: PreemptLowerPriority
+      setHostnameAsFQDN: false
+      containers:
+      - name: meta
+        image: {{ include "risingwave.image" . }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- if .Values.diagnosticMode.enabled }}
+        command: {{ toYaml .Values.diagnosticMode.command | nindent 8 }}
+        args: {{ toYaml .Values.diagnosticMode.args | nindent 8 }}
+        {{- else }}
+        command:
+        - /risingwave/bin/risingwave
+        - meta-node
+        {{- end }}
+        ports:
+        - containerPort: {{ .Values.ports.meta.svc }}
+          name: svc
+          protocol: TCP
+        - containerPort: {{ .Values.ports.meta.dashboard }}
+          name: dashboard
+          protocol: TCP
+        - containerPort: {{ .Values.ports.meta.metrics }}
+          name: metrics
+          protocol: TCP
+        envFrom:
+        {{- if .Values.metaComponent.extraEnvVarsConfigMap }}
+        - configMapRef:
+            name: {{ .Values.metaComponent.extraEnvVarsConfigMap }}
+        {{- end }}
+        {{- if .Values.metaComponent.extraEnvVarsSecret }}
+        - secretRef:
+            name: {{ .Values.metaComponent.extraEnvVarsSecret }}
+        {{- end }}
+        {{- if (include "risingwave.credentialsSecretRequired" .) }}
+        {{- $credentialsSecret := (include "risingwave.credentialsSecretName" . ) -}}
+        {{- if $credentialsSecret }}
+        - secretRef:
+            name: {{ $credentialsSecret }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.metaStore.etcd.authentication.enabled }}
+        - secretRef:
+            name: {{- include "risingwave.etcdCredentialsSecretName" . }}
+        {{- end }}
+        env:
+        - name: RUST_LOG
+          value: INFO
+        - name: RUST_BACKTRACE
+          value: full
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: "status.podIP"
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: "metadata.name"
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: "metadata.namespace"
+        - name: CONTAINER_CPU_LIMIT
+          valueFrom:
+            resourceFieldRef:
+              resource: "limits.cpu"
+        - name: CONTAINER_MEMORY_LIMIT
+          valueFrom:
+            resourceFieldRef:
+              resource: "limits.memory"
+        {{- if and .Values.tags.minio .Values.stateStore.minio.enabled }}
+        - name: MINIO_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: root-user
+              name: {{ default .Values.minio.auth.existingSecret (include "common.names.fullname" .Subcharts.minio) }}
+        - name: MINIO_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: root-password
+              name: {{ default .Values.minio.auth.existingSecret (include "common.names.fullname" .Subcharts.minio) }}
+        {{- end }}
+        - name: RW_CONFIG_PATH
+          value: /risingwave/config/risingwave.toml
+        - name: RW_LISTEN_ADDR
+          value: {{ printf "0.0.0.0:%d" (.Values.ports.meta.svc | int)}}
+        - name: RW_ADVERTISE_ADDR
+          value: "$(POD_NAME).{{ include "risingwave.metaHeadlessServiceName" . }}.$(POD_NAMESPACE).svc:{{ .Values.ports.meta.svc }}"
+        - name: RW_PROMETHEUS_HOST
+          value: "0.0.0.0:{{ .Values.ports.meta.metrics }}"
+        - name: RW_METRICS_LEVEL
+          value: "1"
+        - name: RW_STATE_STORE
+          value: {{ include "risingwave.hummockConnectionString" . }}
+        - name: RW_DATA_DIRECTORY
+          value: {{ include "risingwave.stateStoreDataDirectory" . }}
+        - name: RW_DASHBOARD_HOST
+          value: "0.0.0.0:{{ .Values.ports.meta.dashboard }}"
+        - name: RW_CONNECTOR_RPC_ENDPOINT
+          value: "127.0.0.1:{{ .Values.ports.connector.svc }}"
+        - name: RW_BACKEND
+          value: etcd
+        - name: RW_ETCD_ENDPOINTS
+          value: {{ include "risingwave.metaStoreEtcdEndpoints" . }}
+        - name: RW_ETCD_AUTH
+          value: {{ include "risingwave.metaStoreAuthRequired" . | quote }}
+        {{- if .Values.tags.etcd }}
+        {{- if and (not .Values.etcd.auth.rbac.allowNoneAuthentication) .Values.etcd.auth.rbac.create }}
+        {{- if .Values.etcd.auth.rbac.existingSecret }}
+        - name: RW_ETCD_USERNAME
+          value: root
+        - name: RW_ETCD_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: {{- include "etcd.secretPasswordKey" .Subcharts.etcd }}
+              name: {{- include "etcd.secretName" .Subcharts.etcd }}
+        {{- end }}
+        {{- end }}
+        {{- end }}
+        {{- range .Values.metaComponent.extraEnvVars }}
+        - {{ . }}
+        {{- end }}
+        resources:
+          {{- if .Values.metaComponent.resources.limits }}
+          limits:
+            {{ toYaml .Values.metaComponent.resources.limits | nindent 12}}
+          {{- end }}
+          {{- if .Values.metaComponent.resources.requests }}
+          requests:
+            {{ toYaml .Values.metaComponent.resources.requests | nindent 12}}
+          {{- end }}
+        volumeMounts:
+        - mountPath: /risingwave/config
+          name: config
+          readOnly: true
+        {{- if .Values.metaComponent.securityContext }}
+        securityContext: {{ toYaml .Values.metaComponent.securityContext | nindent 10 }}
+        {{- end }}
+        {{- if not .Values.diagnosticMode.enabled}}
+        livenessProbe:
+          initialDelaySeconds: 2
+          periodSeconds: 10
+          tcpSocket:
+            port: svc
+        readinessProbe:
+          initialDelaySeconds: 2
+          periodSeconds: 10
+          tcpSocket:
+            port: svc
+        {{- end }}
+      {{- if .Values.connectorComponent.enabled }}
+      - name: connector
+        image: {{ include "risingwave.image" . }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- if .Values.diagnosticMode.enabled }}
+        command: {{ toYaml .Values.diagnosticMode.command | nindent 8 }}
+        args: {{ toYaml .Values.diagnosticMode.args | nindent 8 }}
+        {{- else }}
+        command:
+        - /risingwave/bin/connector-node/start-service.sh
+        args:
+        - -p
+        - {{ .Values.ports.connector.svc | quote }}
+        {{- end }}
+        envFrom:
+        {{- if .Values.connectorComponent.extraEnvVarsConfigMap }}
+        - configMapRef:
+            name: {{ .Values.connectorComponent.extraEnvVarsConfigMap }}
+        {{- end }}
+        {{- if .Values.connectorComponent.extraEnvVarsSecret }}
+        - secretRef:
+            name: {{ .Values.connectorComponent.extraEnvVarsSecret }}
+        {{- end }}
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: "metadata.name"
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: "metadata.namespace"
+        - name: CONTAINER_CPU_LIMIT
+          valueFrom:
+            resourceFieldRef:
+              resource: "limits.cpu"
+        - name: CONTAINER_MEMORY_LIMIT
+          valueFrom:
+            resourceFieldRef:
+              resource: "limits.memory"
+        {{- if .Values.connectorComponent.resources.limits.memory }}
+        - name: JAVA_OPTS
+          value: "-Xmx$(CONTAINER_MEMORY_LIMIT)"
+        {{- end }}
+        - name: RW_CONNECTOR_NODE_PROMETHEUS_PORT
+          value: {{ .Values.ports.connector.metrics | quote }}
+        {{- range .Values.connectorComponent.extraEnvVars }}
+        - {{ . }}
+        {{- end }}
+        {{- if .Values.metaComponent.securityContext }}
+        securityContext: {{ toYaml .Values.connectorComponent.securityContext | nindent 10 }}
+        {{- end }}
+        resources:
+          {{- if .Values.metaComponent.resources.limits }}
+          limits:
+            {{ toYaml .Values.metaComponent.resources.limits | nindent 12}}
+          {{- end }}
+          {{- if .Values.metaComponent.resources.requests }}
+          requests:
+            {{ toYaml .Values.metaComponent.resources.requests | nindent 12}}
+          {{- end }}
+        ports:
+        - containerPort: {{ .Values.ports.connector.svc }}
+          name: c-svc
+          protocol: TCP
+        - containerPort: {{ .Values.ports.connector.metrics }}
+          name: c-metrics
+          protocol: TCP
+        {{- if not .Values.diagnosticMode.enabled }}
+        livenessProbe:
+          initialDelaySeconds: 2
+          periodSeconds: 10
+          tcpSocket:
+            port: c-svc
+        readinessProbe:
+          initialDelaySeconds: 2
+          periodSeconds: 10
+          tcpSocket:
+            port: c-svc
+        {{- end }}
+      {{- end }}
+      {{- if .Values.metaComponent.additionalContainers }}
+      {{- range .Values.metaComponent.additionalContainers }}
+      - {{ toYaml . | nindent 8}}
+      {{- end }}
+      {{- end }}

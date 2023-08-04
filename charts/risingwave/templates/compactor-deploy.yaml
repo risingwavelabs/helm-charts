@@ -1,0 +1,216 @@
+{{/*
+Copyright RisingWave Labs.
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "risingwave.compactorComponentName" . }}
+  labels:
+    {{- include "risingwave.labels" . | nindent 4 }}
+    apps.risingwave.com/component: compactor
+  {{- $annotations := (include "risingwave.annotations" . ) | trim }}
+  {{- if $annotations }}
+  annotations:
+    {{ nindent 4 $annotations }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.compactorComponent.replicas }}
+  selector:
+    matchLabels:
+      {{- include "risingwave.labels" . | nindent 6 }}
+      apps.risingwave.com/component: compactor
+  strategy:
+    type: Recreate
+  minReadySeconds: 0
+  template:
+    metadata:
+      labels:
+        {{- include "risingwave.labels" . | nindent 8 }}
+        apps.risingwave.com/component: compactor
+        {{- if .Values.compactorComponent.podLabels }}
+        {{- toYaml .Values.compactorComponent.podLabels | nindent 8 }}
+        {{- end }}
+      annotations:
+        {{- include "risingwave.annotations" . | nindent 8 }}
+        {{- if .Values.compactorComponent.podAnnotations }}
+        {{- toYaml .Values.compactorComponent.podAnnotations | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if .Values.image.pullSecrets }}
+      imagePullSecrets:
+      {{- range .Values.image.pullSecrets }}
+      - {{ . }}
+      {{- end }}
+      {{- end }}
+      volumes:
+      - name: config
+        configMap:
+          name: {{ include "risingwave.configurationConfigMapName" . }}
+      restartPolicy: Always
+      {{- if .Values.compactorComponent.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ .Values.compactorComponent.terminationGracePeriodSeconds }}
+      {{- end }}
+      {{- if .Values.compactorComponent.nodeSelector }}
+      nodeSelector:
+      {{- toYaml .Values.compactorComponent.nodeSelector | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "risingwave.serviceAccountName" . }}
+      automountServiceAccountToken: true
+      hostNetwork: false
+      hostPID: false
+      hostIPC: false
+      {{- if .Values.compactorComponent.shareProcessNamespace }}
+      shareProcessNamespace: {{ .Values.compactorComponent.shareProcessNamespace }}
+      {{- end }}
+      {{- if .Values.compactorComponent.podSecurityContext }}
+      securityContext: {{- toYaml .Values.compactorComponent.podSecurityContext | nindent 8 }}
+      {{- end }}
+      {{- if .Values.compactorComponent.affinity }}
+      affinity: {{- toYaml .Values.compactorComponent.affinity | nindent 8 }}
+      {{- end }}
+      {{- if .Values.compactorComponent.schedulerName }}
+      schedulerName: {{ .Values.compactorComponent.schedulerName }}
+      {{- end }}
+      {{- if .Values.compactorComponent.tolerations }}
+      tolerations: {{- toYaml .Values.compactorComponent.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.compactorComponent.priorityClassName }}
+      priorityClassName: {{ .Values.compactorComponent.priorityClassName }}
+      {{- end }}
+      {{- if .Values.compactorComponent.runtimeClassName }}
+      runtimeClassName: {{ .Values.compactorComponent.runtimeClassName }}
+      {{- end }}
+      enableServiceLinks: false
+      preemptionPolicy: PreemptLowerPriority
+      setHostnameAsFQDN: false
+      containers:
+      - name: compactor
+        image: {{ include "risingwave.image" . }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- if .Values.diagnosticMode.enabled }}
+        command: {{ toYaml .Values.diagnosticMode.command | nindent 8 }}
+        args: {{ toYaml .Values.diagnosticMode.args | nindent 8 }}
+        {{- else }}
+        command:
+        - /risingwave/bin/risingwave
+        - frontend-node
+        {{- end }}
+        ports:
+        - containerPort: {{ .Values.ports.compactor.svc }}
+          name: svc
+          protocol: TCP
+        - containerPort: {{ .Values.ports.compactor.metrics }}
+          name: metrics
+          protocol: TCP
+        envFrom:
+        {{- if .Values.compactorComponent.extraEnvVarsConfigMap }}
+        - configMapRef:
+            name: {{ .Values.compactorComponent.extraEnvVarsConfigMap }}
+        {{- end }}
+        {{- if .Values.compactorComponent.extraEnvVarsSecret }}
+        - secretRef:
+            name: {{ .Values.compactorComponent.extraEnvVarsSecret }}
+        {{- end }}
+        {{- if (include "risingwave.credentialsSecretRequired" .) }}
+        {{- $credentialsSecret := (include "risingwave.credentialsSecretName" . ) -}}
+        {{- if $credentialsSecret }}
+        - secretRef:
+            name: {{ $credentialsSecret }}
+        {{- end }}
+        {{- end }}
+        env:
+        - name: RUST_LOG
+          value: INFO
+        - name: RUST_BACKTRACE
+          value: full
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: "status.podIP"
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: "metadata.name"
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: "metadata.namespace"
+        - name: CONTAINER_CPU_LIMIT
+          valueFrom:
+            resourceFieldRef:
+              resource: "limits.cpu"
+        - name: CONTAINER_MEMORY_LIMIT
+          valueFrom:
+            resourceFieldRef:
+              resource: "limits.memory"
+        {{- if and .Values.tags.minio .Values.stateStore.minio.enabled }}
+        - name: MINIO_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: root-user
+              name: {{ default .Values.minio.auth.existingSecret (include "common.names.fullname" .Subcharts.minio) }}
+        - name: MINIO_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: root-password
+              name: {{ default .Values.minio.auth.existingSecret (include "common.names.fullname" .Subcharts.minio) }}
+        {{- end }}
+        - name: RW_CONFIG_PATH
+          value: /risingwave/config/risingwave.toml
+        - name: RW_LISTEN_ADDR
+          value: "0.0.0.0:{{ .Values.ports.compactor.svc }}"
+        - name: RW_ADVERTISE_ADDR
+          value: "$(POD_IP):{{ .Values.ports.compactor.svc }}"
+        - name: RW_PROMETHEUS_LISTENER_ADDR
+          value: "0.0.0.0:{{ .Values.ports.compactor.metrics }}"
+        - name: RW_META_ADDR
+          value: {{ printf "load-balance+http://%s.%s.svc:%d" (include "risingwave.metaHeadlessServiceName" .) .Release.Namespace (.Values.ports.meta.svc | int)}}
+        - name: RW_METRICS_LEVEL
+          value: "1"
+        - name: RW_STATE_STORE
+          value: {{ include "risingwave.hummockConnectionString" . }}
+        - name: RW_DATA_DIRECTORY
+          value: {{ include "risingwave.stateStoreDataDirectory" . }}
+        {{- range .Values.compactorComponent.extraEnvVars }}
+        - {{ . }}
+        {{- end }}
+        resources:
+          {{- if .Values.compactorComponent.resources.limits }}
+          limits:
+            {{ toYaml .Values.compactorComponent.resources.limits | nindent 12}}
+          {{- end }}
+          {{- if .Values.compactorComponent.resources.requests }}
+          requests:
+            {{ toYaml .Values.compactorComponent.resources.requests | nindent 12}}
+          {{- end }}
+        volumeMounts:
+        - mountPath: /risingwave/config
+          name: config
+          readOnly: true
+        {{- if .Values.compactorComponent.securityContext }}
+        securityContext: {{ toYaml .Values.compactorComponent.securityContext | nindent 10 }}
+        {{- end }}
+        {{- if not .Values.diagnosticMode.enabled}}
+        startupProbe:
+          periodSeconds: 5
+          failureThreshold: 12
+          tcpSocket:
+            port: svc
+        livenessProbe:
+          initialDelaySeconds: 2
+          periodSeconds: 10
+          tcpSocket:
+            port: svc
+        readinessProbe:
+          initialDelaySeconds: 2
+          periodSeconds: 10
+          tcpSocket:
+            port: svc
+        {{- end }}
+      {{- if .Values.compactorComponent.additionalContainers }}
+      {{- range .Values.compactorComponent.additionalContainers }}
+      - {{ toYaml . | nindent 8}}
+      {{- end }}
+      {{- end }}

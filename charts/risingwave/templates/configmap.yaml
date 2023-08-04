@@ -1,0 +1,21 @@
+{{/*
+Copyright RisingWave Labs
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
+{{- if empty .Values.existingConfigMap }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "risingwave.configurationConfigMapName" . }}
+  labels:
+      {{- include "risingwave.labels" . | nindent 4 }}
+  {{- $annotations := (include "risingwave.annotations" . ) | trim }}
+  {{- if $annotations }}
+  annotations:
+    {{ nindent 4 $annotations }}
+  {{- end }}
+data:
+  risingwave.toml: |
+    {{ .Values.configuration | nindent 4 }}
+{{- end }}
