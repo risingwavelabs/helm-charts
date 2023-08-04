@@ -9,7 +9,7 @@ metadata:
   name: {{ include "risingwave.metaComponentName" . }}
   labels:
     {{- include "risingwave.labels" . | nindent 4 }}
-    apps.risingwave.com/component: meta
+    risingwave.risingwavelabs.com/component: meta
   {{- $annotations := (include "risingwave.annotations" . ) | trim }}
   {{- if $annotations }}
   annotations:
@@ -20,7 +20,7 @@ spec:
   selector:
     matchLabels:
       {{- include "risingwave.labels" . | nindent 6 }}
-      apps.risingwave.com/component: meta
+      risingwave.risingwavelabs.com/component: meta
   serviceName: {{ include "risingwave.metaHeadlessServiceName" . }}
   updateStrategy:
     type: RollingUpdate
@@ -32,7 +32,7 @@ spec:
     metadata:
       labels:
         {{- include "risingwave.labels" . | nindent 8 }}
-        apps.risingwave.com/component: meta
+        risingwave.risingwavelabs.com/component: meta
         risingwave/name: {{ include "risingwave.fullname" . }}
         risingwave/component: meta
         {{- if .Values.metaComponent.podLabels }}

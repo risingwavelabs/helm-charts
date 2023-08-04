@@ -9,7 +9,7 @@ metadata:
   name: {{ include "risingwave.fullname" . }}
   labels:
     {{- include "risingwave.labels" . | nindent 4 }}
-    apps.risingwave.com/component: frontend
+    risingwave.risingwavelabs.com/component: frontend
     {{- if .Values.service.labels }}
     {{- toYaml .Values.service.labels | nindent 4 }}
     {{- end }}
@@ -39,9 +39,9 @@ spec:
   selector:
     {{- include "risingwave.selectorLabels" . | nindent 4 }}
     {{- if .Values.compactMode.enabled }}
-    apps.risingwave.com/component: compute
+    risingwave.risingwavelabs.com/component: compute
     {{- else }}
-    apps.risingwave.com/component: frontend
+    risingwave.risingwavelabs.com/component: frontend
     {{- end }}
   ports:
   - name: svc

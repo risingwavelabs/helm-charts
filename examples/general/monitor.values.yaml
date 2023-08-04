@@ -1,3 +1,5 @@
 monitor:
   podMonitor:
     enabled: true
+    additionalLabels:
+      release: prometheus

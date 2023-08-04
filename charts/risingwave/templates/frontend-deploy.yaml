@@ -10,7 +10,7 @@ metadata:
   name: {{ include "risingwave.frontendComponentName" . }}
   labels:
     {{- include "risingwave.labels" . | nindent 4 }}
-    apps.risingwave.com/component: frontend
+    risingwave.risingwavelabs.com/component: frontend
   {{- $annotations := (include "risingwave.annotations" . ) | trim }}
   {{- if $annotations }}
   annotations:
@@ -21,7 +21,7 @@ spec:
   selector:
     matchLabels:
       {{- include "risingwave.labels" . | nindent 6 }}
-      apps.risingwave.com/component: frontend
+      risingwave.risingwavelabs.com/component: frontend
   strategy:
     type: Recreate
   minReadySeconds: 0
@@ -29,7 +29,7 @@ spec:
     metadata:
       labels:
         {{- include "risingwave.labels" . | nindent 8 }}
-        apps.risingwave.com/component: frontend
+        risingwave.risingwavelabs.com/component: frontend
         risingwave/name: {{ include "risingwave.fullname" . }}
         risingwave/component: frontend
         {{- if .Values.frontendComponent.podLabels }}

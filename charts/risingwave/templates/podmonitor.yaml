@@ -20,6 +20,14 @@ metadata:
   annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
   {{- end }}
 spec:
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace }}
+  selector:
+    matchLabels: {{- include "common.labels.matchLabels" . | nindent 8 }}
+    matchExpressions:
+    - key: risingwave.risingwavelabs.com/component
+      operator: Exists
   podMetricsEndpoints:
   - port: metrics
     path: /metrics
@@ -35,19 +43,14 @@ spec:
       {{- if .Values.monitor.podMonitor.tlsConfig }}
     tlsConfig: {{- include "common.tplvalues.render" ( dict "value" .Values.monitor.podMonitor.tlsConfig "context" $ ) | nindent 8 }}
       {{- end }}
-    {{- if .Values.monitor.podMonitor.relabelings }}
     relabelings:
     - action: drop
       regex: stream_exchange_.+
       sourceLabels:
       - __name__
+    {{- if .Values.monitor.podMonitor.relabelings }}
     {{- include "common.tplvalues.render" (dict "value" .Values.monitor.podMonitor.relabelings "context" $) | nindent 6 }}
     {{- end }}
-    namespaceSelector:
-      matchNames:
-      - {{ .Release.Namespace }}
-    selector:
-      matchLabels: {{- include "common.labels.matchLabels" . | nindent 8 }}
   {{- if .Values.connectorComponent.enabled }}
   - port: c-metrics
     path: /metrics
@@ -74,22 +77,11 @@ spec:
     - action: replace
       regex: (.*)
       sourceLabels:
-      - apps_risingwave_com_component
-      targetLabel: apps_risingwave_com_component
+      - risingwave_risingwavelabs_com_component
+      targetLabel: risingwave_risingwavelabs_com_component
       replacement: connector
       {{- include "common.tplvalues.render" (dict "value" .Values.monitor.podMonitor.relabelings "context" $) | nindent 6 }}
       {{- end }}
-    namespaceSelector:
-      matchNames:
-      - {{ .Release.Namespace }}
-    selector:
-      matchLabels: {{- include "common.labels.matchLabels" . | nindent 8 }}
-      matchExpressions:
-      - key: app.kubernetes.io/component
-        operator: In
-        values:
-        - meta
-        - compute
   {{- end }}
   {{- if .Values.compactMode.enabled }}
   - port: f-metrics
@@ -117,20 +109,10 @@ spec:
     - action: replace
       regex: (.*)
       sourceLabels:
-      - apps_risingwave_com_component
-      targetLabel: apps_risingwave_com_component
+      - risingwave_risingwavelabs_com_component
+      targetLabel: risingwave_risingwavelabs_com_component
       replacement: frontend
       {{- include "common.tplvalues.render" (dict "value" .Values.monitor.podMonitor.relabelings "context" $) | nindent 6 }}
       {{- end }}
-    namespaceSelector:
-      matchNames:
-      - {{ .Release.Namespace }}
-    selector:
-      matchLabels: {{- include "common.labels.matchLabels" . | nindent 8 }}
-      matchExpressions:
-      - key: app.kubernetes.io/component
-        operator: In
-        values:
-        - compute
   {{- end }}
 {{- end }}

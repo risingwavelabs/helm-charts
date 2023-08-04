@@ -9,7 +9,7 @@ metadata:
   name: {{ include "risingwave.computeHeadlessServiceName" . }}
   labels:
     {{- include "risingwave.labels" . | nindent 4 }}
-    apps.risingwave.com/component: compute
+    risingwave.risingwavelabs.com/component: compute
   {{- $annotations := (include "risingwave.annotations" . ) | trim }}
   {{- if $annotations }}
   annotations:
@@ -19,7 +19,7 @@ spec:
   clusterIP: None
   selector:
     {{- include "risingwave.selectorLabels" . | nindent 4 }}
-    apps.risingwave.com/component: compute
+    risingwave.risingwavelabs.com/component: compute
   ports:
   - name: svc
     port: {{ .Values.ports.compute.svc }}
