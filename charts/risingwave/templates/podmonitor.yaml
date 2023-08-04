@@ -7,7 +7,7 @@ SPDX-License-Identifier: APACHE-2.0
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
-  name: {{ include "common.names.fullname" . }}
+  name: {{ printf "%s-%s" .Release.Namespace (include "common.names.fullname" . ) | trunc 63 | trimSuffix "-"}}
   namespace: {{ ternary .Values.monitor.podMonitor.namespace .Release.Namespace (not (empty .Values.monitor.podMonitor.namespace)) }}
   labels: {{- include "common.labels.standard" . | nindent 4 }}
     {{- if .Values.commonLabels }}
@@ -55,7 +55,7 @@ spec:
       sourceLabels:
       - __name__
     {{- if .Values.monitor.podMonitor.relabelings }}
-    {{- include "common.tplvalues.render" (dict "value" .Values.monitor.podMonitor.relabelings "context" $) | nindent 6 }}
+    {{- include "common.tplvalues.render" (dict "value" .Values.monitor.podMonitor.relabelings "context" $) | nindent 4 }}
     {{- end }}
   {{- if .Values.connectorComponent.enabled }}
   - port: c-metrics
@@ -72,7 +72,6 @@ spec:
     {{- if .Values.monitor.podMonitor.tlsConfig }}
     tlsConfig: {{- include "common.tplvalues.render" ( dict "value" .Values.monitor.podMonitor.tlsConfig "context" $ ) | nindent 8 }}
     {{- end }}
-    {{- if .Values.monitor.podMonitor.relabelings }}
     relabelings:
     - action: replace
       regex: (.*)
@@ -86,8 +85,9 @@ spec:
       - risingwave_risingwavelabs_com_component
       targetLabel: risingwave_risingwavelabs_com_component
       replacement: connector
-      {{- include "common.tplvalues.render" (dict "value" .Values.monitor.podMonitor.relabelings "context" $) | nindent 6 }}
-      {{- end }}
+    {{- if .Values.monitor.podMonitor.relabelings }}
+    {{- include "common.tplvalues.render" (dict "value" .Values.monitor.podMonitor.relabelings "context" $) | nindent 4 }}
+    {{- end }}
   {{- end }}
   {{- if .Values.compactMode.enabled }}
   - port: f-metrics
@@ -104,7 +104,6 @@ spec:
     {{- if .Values.monitor.podMonitor.tlsConfig }}
     tlsConfig: {{- include "common.tplvalues.render" ( dict "value" .Values.monitor.podMonitor.tlsConfig "context" $ ) | nindent 8 }}
     {{- end }}
-    {{- if .Values.monitor.podMonitor.relabelings }}
     relabelings:
     - action: replace
       regex: (.*)
@@ -118,7 +117,8 @@ spec:
       - risingwave_risingwavelabs_com_component
       targetLabel: risingwave_risingwavelabs_com_component
       replacement: frontend
-      {{- include "common.tplvalues.render" (dict "value" .Values.monitor.podMonitor.relabelings "context" $) | nindent 6 }}
-      {{- end }}
+    {{- if .Values.monitor.podMonitor.relabelings }}
+    {{- include "common.tplvalues.render" (dict "value" .Values.monitor.podMonitor.relabelings "context" $) | nindent 4 }}
+    {{- end }}
   {{- end }}
 {{- end }}

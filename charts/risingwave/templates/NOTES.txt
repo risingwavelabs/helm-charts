@@ -1,10 +1,8 @@
-Welcome to fast and modern stream processing with RisingWave!
-
 {{- $kubectlArgs := "kubectl" -}}
-
 {{- if and .Release.Namespace (ne .Release.Namespace "default") }}
-{{ $kubectlArgs | cat "-n" .Release.Namespace }}
+{{ $kubectlArgs = cat $kubectlArgs "-n" .Release.Namespace }}
 {{- end }}
+Welcome to fast and modern stream processing with RisingWave!
 
 Check the running status with the following command:
 
