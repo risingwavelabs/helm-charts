@@ -1,6 +1,6 @@
 # helm-charts
 
-RisingWave Helm charts
+[![Release Charts](https://github.com/risingwavelabs/helm-charts/actions/workflows/release.yml/badge.svg)](https://github.com/risingwavelabs/helm-charts/actions/workflows/release.yml)
 
 ## Usage
 
@@ -17,4 +17,3 @@ You can then run `helm search repo risingwavelabs` to see the charts.
 ## License
 
 Apache License 2.0. See [LICENSE](LICENSE) for more details.
-
