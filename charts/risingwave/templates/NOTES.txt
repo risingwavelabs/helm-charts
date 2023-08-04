@@ -21,7 +21,7 @@ Keep the above command running and open a new terminal window to run the followi
 
     {{ if not .Values.auth.rootPassword -}}
     psql -h localhost -p {{ $port }} -d {{ $firstDatabase }} -U {{ .Values.auth.rootUser }}
-    {{ else -}}
+    {{- else -}}
     export PGUSER=$({{ $kubectlArgs }} get secret -o jsonpath="{.data.root-user}" {{ include "risingwave.fullname" . }} | base64 --decode)
     export PGPASSWORD=$({{ $kubectlArgs }} get secret -o jsonpath="{.data.root-password}" {{ include "risingwave.fullname" . }} | base64 --decode)
     psql -h localhost -p {{ $port }} -d {{ $firstDatabase }}

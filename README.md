@@ -40,7 +40,6 @@ Keep the above command running and open a new terminal window to run the followi
 
     psql -h localhost -p 4567 -d dev -U root
 
-
 Visit our documentation for advanced usages: https://www.risingwave.dev/docs/current/intro/
 ```
 
