@@ -3,7 +3,8 @@
 
 apiVersion: v2
 name: risingwave
-description: A Helm chart for Kubernetes
+description: |-
+  The distributed streaming database SQL stream processing with Postgres-like experience.
 
 # A chart can be either an 'application' or a 'library' chart.
 #
