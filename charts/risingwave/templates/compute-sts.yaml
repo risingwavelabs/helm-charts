@@ -322,6 +322,108 @@ spec:
             port: c-svc
         {{- end }}
       {{- end }}
+      {{- if .Values.compactMode.enabled }}
+      - name: frontend
+        image: {{ include "risingwave.image" . }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- if .Values.diagnosticMode.enabled }}
+        command: {{ toYaml .Values.diagnosticMode.command | nindent 8 }}
+        args: {{ toYaml .Values.diagnosticMode.args | nindent 8 }}
+        {{- else }}
+        command:
+        - /risingwave/bin/risingwave
+        - frontend-node
+        {{- end }}
+        ports:
+        - containerPort: {{ .Values.ports.frontend.svc }}
+          name: f-svc
+          protocol: TCP
+        - containerPort: {{ .Values.ports.frontend.metrics }}
+          name: f-metrics
+          protocol: TCP
+        envFrom:
+        {{- if .Values.frontendComponent.extraEnvVarsConfigMap }}
+        - configMapRef:
+            name: {{ .Values.frontendComponent.extraEnvVarsConfigMap }}
+        {{- end }}
+        {{- if .Values.frontendComponent.extraEnvVarsSecret }}
+        - secretRef:
+            name: {{ .Values.frontendComponent.extraEnvVarsSecret }}
+        {{- end }}
+        env:
+        - name: RUST_LOG
+          value: INFO
+        - name: RUST_BACKTRACE
+          value: full
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: "status.podIP"
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: "metadata.name"
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: "metadata.namespace"
+        - name: CONTAINER_CPU_LIMIT
+          valueFrom:
+            resourceFieldRef:
+              resource: "limits.cpu"
+        - name: CONTAINER_MEMORY_LIMIT
+          valueFrom:
+            resourceFieldRef:
+              resource: "limits.memory"
+        - name: RW_CONFIG_PATH
+          value: /risingwave/config/risingwave.toml
+        - name: RW_LISTEN_ADDR
+          value: "0.0.0.0:{{ .Values.ports.frontend.svc }}"
+        - name: RW_ADVERTISE_ADDR
+          value: "$(POD_IP):{{ .Values.ports.frontend.svc}}"
+        - name: RW_PROMETHEUS_LISTENER_ADDR
+          value: "0.0.0.0:{{ .Values.ports.frontend.metrics }}"
+        - name: RW_META_ADDR
+          value: {{ printf "load-balance+http://%s.%s.svc:%d" (include "risingwave.metaHeadlessServiceName" .) .Release.Namespace (.Values.ports.meta.svc | int)}}
+        - name: RW_METRICS_LEVEL
+          value: "1"
+        {{- range .Values.frontendComponent.extraEnvVars }}
+        - {{ . }}
+        {{- end }}
+        resources:
+          {{- if .Values.frontendComponent.resources.limits }}
+          limits:
+            {{ toYaml .Values.frontendComponent.resources.limits | nindent 12}}
+          {{- end }}
+          {{- if .Values.frontendComponent.resources.requests }}
+          requests:
+            {{ toYaml .Values.frontendComponent.resources.requests | nindent 12}}
+          {{- end }}
+        volumeMounts:
+        - mountPath: /risingwave/config
+          name: config
+          readOnly: true
+        {{- if .Values.frontendComponent.securityContext }}
+        securityContext: {{ toYaml .Values.frontendComponent.securityContext | nindent 10 }}
+        {{- end }}
+        {{- if not .Values.diagnosticMode.enabled}}
+        startupProbe:
+          periodSeconds: 5
+          failureThreshold: 12
+          tcpSocket:
+            port: f-svc
+        livenessProbe:
+          initialDelaySeconds: 2
+          periodSeconds: 10
+          tcpSocket:
+            port: f-svc
+        readinessProbe:
+          initialDelaySeconds: 2
+          periodSeconds: 10
+          tcpSocket:
+            port: f-svc
+        {{- end }}
+      {{- end }}
       {{- if .Values.computeComponent.additionalContainers }}
       {{- range .Values.computeComponent.additionalContainers }}
       - {{ toYaml . | nindent 8}}

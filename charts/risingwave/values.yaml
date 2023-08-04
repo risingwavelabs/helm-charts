@@ -411,6 +411,12 @@ existingConfigMap: ""
 ## @section RisingWave components values.
 ##
 
+compactMode:
+  ## @param compactMode.enabled Enable compact mode. Compact mode will merge frontend into compute pods.
+  ## When enabled, frontend.replicas and frontend.additionalContainers will be ignored.
+  ##
+  enabled: false
+
 metaComponent:
   ## @param metaComponent.podLabels Labels to add to the component pods.
   ##

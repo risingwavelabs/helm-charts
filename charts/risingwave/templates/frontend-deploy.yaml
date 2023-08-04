@@ -3,6 +3,7 @@ Copyright RisingWave Labs.
 SPDX-License-Identifier: APACHE-2.0
 */}}
 
+{{- if not .Values.compactMode.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -195,3 +196,4 @@ spec:
       - {{ toYaml . | nindent 8}}
       {{- end }}
       {{- end }}
+  {{- end }}

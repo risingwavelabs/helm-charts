@@ -48,5 +48,78 @@ spec:
     - {{ .Release.Namespace }}
   selector:
     matchLabels: {{- include "common.labels.matchLabels" . | nindent 6 }}
-
+  {{- if .Values.connectorComponent.enabled }}
+  - port: c-metrics
+    path: /metrics
+    {{- if .Values.monitor.podMonitor.interval }}
+    interval: {{ .Values.monitor.podMonitor.interval }}
+    {{- end }}
+    {{- if .Values.monitor.podMonitor.scrapeTimeout }}
+    scrapeTimeout: {{ .Values.monitor.podMonitor.scrapeTimeout }}
+    {{- end }}
+    {{- if .Values.monitor.podMonitor.scheme }}
+    scheme: {{ .Values.monitor.podMonitor.scheme }}
+    {{- end }}
+    {{- if .Values.monitor.podMonitor.tlsConfig }}
+    tlsConfig: {{- include "common.tplvalues.render" ( dict "value" .Values.monitor.podMonitor.tlsConfig "context" $ ) | nindent 8 }}
+    {{- end }}
+    {{- if .Values.monitor.podMonitor.relabelings }}
+    relabelings:
+    - action: replace
+      regex: (.*)
+      sourceLabels:
+      - risingwave_component
+      targetLabel: risingwave_component
+      replacement: connector
+    - action: replace
+      regex: (.*)
+      sourceLabels:
+      - apps_risingwave_com_component
+      targetLabel: apps_risingwave_com_component
+      replacement: connector
+    {{- include "common.tplvalues.render" (dict "value" .Values.monitor.podMonitor.relabelings "context" $) | nindent 6 }}
+    {{- end }}
+    namespaceSelector:
+      matchNames:
+      - {{ .Release.Namespace }}
+    selector:
+      matchLabels: {{- include "common.labels.matchLabels" . | nindent 6 }}
+  {{- end }}
+  {{- if .Values.compactMode.enabled }}
+  - port: f-metrics
+    path: /metrics
+    {{- if .Values.monitor.podMonitor.interval }}
+    interval: {{ .Values.monitor.podMonitor.interval }}
+    {{- end }}
+    {{- if .Values.monitor.podMonitor.scrapeTimeout }}
+    scrapeTimeout: {{ .Values.monitor.podMonitor.scrapeTimeout }}
+    {{- end }}
+    {{- if .Values.monitor.podMonitor.scheme }}
+    scheme: {{ .Values.monitor.podMonitor.scheme }}
+    {{- end }}
+    {{- if .Values.monitor.podMonitor.tlsConfig }}
+    tlsConfig: {{- include "common.tplvalues.render" ( dict "value" .Values.monitor.podMonitor.tlsConfig "context" $ ) | nindent 8 }}
+    {{- end }}
+    {{- if .Values.monitor.podMonitor.relabelings }}
+    relabelings:
+    - action: replace
+      regex: (.*)
+      sourceLabels:
+      - risingwave_component
+      targetLabel: risingwave_component
+      replacement: frontend
+    - action: replace
+      regex: (.*)
+      sourceLabels:
+      - apps_risingwave_com_component
+      targetLabel: apps_risingwave_com_component
+      replacement: frontend
+    {{- include "common.tplvalues.render" (dict "value" .Values.monitor.podMonitor.relabelings "context" $) | nindent 6 }}
+    {{- end }}
+    namespaceSelector:
+      matchNames:
+      - {{ .Release.Namespace }}
+    selector:
+      matchLabels: {{- include "common.labels.matchLabels" . | nindent 6 }}
+  {{- end }}
 {{- end }}
