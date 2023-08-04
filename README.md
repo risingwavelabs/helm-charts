@@ -19,7 +19,7 @@ You can then run `helm search repo risingwavelabs` to see the charts.
 To deploy the RisingWave chart with the release name `risingwave`:
 
 ```bash
-helm install risingwave risingwavelabs/risingwave
+helm install --set wait=true risingwave risingwavelabs/risingwave
 ```
 
 Example output:
