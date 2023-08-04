@@ -129,6 +129,10 @@ spec:
         {{- end }}
         {{- end }}
         env:
+        # Disable auto region loading. Refer to the original source for more information.
+        # https://github.com/awslabs/aws-sdk-rust/blob/main/sdk/aws-config/src/imds/region.rs
+        - name: AWS_EC2_METADATA_DISABLED
+          value: "true"
         - name: RUST_LOG
           value: INFO
         - name: RUST_BACKTRACE
@@ -265,6 +269,10 @@ spec:
             name: {{ .Values.connectorComponent.extraEnvVarsSecret }}
         {{- end }}
         env:
+        # Disable auto region loading. Refer to the original source for more information.
+        # https://github.com/awslabs/aws-sdk-rust/blob/main/sdk/aws-config/src/imds/region.rs
+        - name: AWS_EC2_METADATA_DISABLED
+          value: "true"
         - name: POD_NAME
           valueFrom:
             fieldRef:
@@ -351,6 +359,10 @@ spec:
             name: {{ .Values.frontendComponent.extraEnvVarsSecret }}
         {{- end }}
         env:
+        # Disable auto region loading. Refer to the original source for more information.
+        # https://github.com/awslabs/aws-sdk-rust/blob/main/sdk/aws-config/src/imds/region.rs
+        - name: AWS_EC2_METADATA_DISABLED
+          value: "true"
         - name: RUST_LOG
           value: INFO
         - name: RUST_BACKTRACE

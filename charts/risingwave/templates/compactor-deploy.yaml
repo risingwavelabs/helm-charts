@@ -125,6 +125,10 @@ spec:
         {{- end }}
         {{- end }}
         env:
+        # Disable auto region loading. Refer to the original source for more information.
+        # https://github.com/awslabs/aws-sdk-rust/blob/main/sdk/aws-config/src/imds/region.rs
+        - name: AWS_EC2_METADATA_DISABLED
+          value: "true"
         - name: RUST_LOG
           value: INFO
         - name: RUST_BACKTRACE
