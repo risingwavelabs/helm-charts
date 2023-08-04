@@ -1,0 +1,36 @@
+apiVersion: v1
+entries:
+  risingwave:
+  - apiVersion: v2
+    appVersion: v1.0.0
+    created: "2023-08-04T10:18:29.958850132Z"
+    dependencies:
+    - name: etcd
+      repository: https://charts.bitnami.com/bitnami
+      tags:
+      - etcd
+      version: 9.1.*
+    - condition: stateStore.minio.enabled
+      name: minio
+      repository: https://charts.bitnami.com/bitnami
+      tags:
+      - minio
+      version: 12.6.*
+    description: A Helm chart for Kubernetes
+    digest: 25541c929e704d32faea4556c30b29c8153f92d8d53c31e1e243a00d74ac6825
+    home: https://www.risingwave.com
+    icon: https://avatars.githubusercontent.com/u/77175557?s=48&v=4
+    keywords:
+    - risingwave
+    - streaming-processing
+    - cloud-native
+    - real-time
+    maintainers:
+    - name: RisingWave Labs
+      url: https://www.risingwave-labs.com
+    name: risingwave
+    type: application
+    urls:
+    - https://github.com/risingwavelabs/helm-charts/releases/download/risingwave-0.1.0/risingwave-0.1.0.tgz
+    version: 0.1.0
+generated: "2023-08-04T10:18:29.958860233Z"
