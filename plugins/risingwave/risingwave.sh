@@ -82,6 +82,7 @@ function pause() {
   fi
 
   $HELM_BIN upgrade "$HELM_RELEASE" "$HELM_CHART" \
+    --version "$HELM_RELEASE_CHART_VERSION" \
     --namespace "$HELM_NAMESPACE" \
     --reuse-values \
     --values "$SCRIPT_DIR/pause.values.yaml" \
@@ -131,6 +132,7 @@ function upgrade() {
   fi
 
   $HELM_BIN upgrade "$HELM_RELEASE" "$HELM_CHART" \
+    --version "$HELM_RELEASE_CHART_VERSION" \
     --namespace "$HELM_NAMESPACE" \
     --reuse-values \
     --set image.tag="$HELM_RELEASE_APP_VERSION" \
@@ -186,6 +188,8 @@ if [[ "$HELM_RELEASE_CHART" != risingwave-* ]]; then
   echo "Chart $HELM_RELEASE_CHART is not a risingwave chart." 1>&2
   exit 1
 fi
+
+export HELM_RELEASE_CHART_VERSION=$(echo "$HELM_RELEASE_CHART" | cut -d'-' -f2)
 
 # Check release is deployed
 if [[ "$HELM_RELEASE_STATUS" != deployed ]]; then
