@@ -271,6 +271,11 @@ stateStore:
       ## @param stateStore.s3.authentication.secretAccessKey S3 secret access key.
       ##
       secretAccessKey: ""
+      ## @param stateStore.s3.authentication.existingSecretName Use existing Secret for S3 authentication.
+      ## If set, use the existing Secret instead of creating a new one.
+      ## Secret must contain AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY keys.
+      ##
+      existingSecretName: ""
 
   ## @section stateStore.minio MinIO values.
   ## Parameters except stateStore.minio.enabled be ignored if tags.minio is enabled.
@@ -294,6 +299,11 @@ stateStore:
       ## @param stateStore.minio.authentication.password MinIO password.
       ##
       password: ""
+      ## @param stateStore.s3.authentication.existingSecretName Use existing Secret for S3 authentication.
+      ## If set, use the existing Secret instead of creating a new one.
+      ## Secret must contain MINIO_USERNAME and MINIO_PASSWORD keys.
+      ##
+      existingSecretName: ""
 
   ## @section stateStore.gcs GCS values.
   ##
@@ -318,6 +328,11 @@ stateStore:
       ## @param stateStore.gcs.authentication.credentials GCS credentials.
       ##
       credentials: ""
+      ## @param stateStore.s3.authentication.existingSecretName Use existing Secret for S3 authentication.
+      ## If set, use the existing Secret instead of creating a new one.
+      ## Secret must contain GOOGLE_APPLICATION_CREDENTIALS key.
+      ##
+      existingSecretName: ""
 
   ## @section stateStore.oss Aliyun OSS values.
   ##
@@ -351,6 +366,11 @@ stateStore:
       ## @param stateStore.oss.authentication.secretAccessKey OSS secret access key.
       ##
       secretAccessKey: ""
+      ## @param stateStore.s3.authentication.existingSecretName Use existing Secret for S3 authentication.
+      ## If set, use the existing Secret instead of creating a new one.
+      ## Secret must contain OSS_ACCESS_KEY_ID and OSS_ACCESS_KEY_SECRET keys.
+      ##
+      existingSecretName: ""
 
   ## @section stateStore.azblob Azure Blob Storage values.
   ##
@@ -381,6 +401,11 @@ stateStore:
       ## @param stateStore.azblob.authentication.accountKey Azure Blob Storage account key.
       ##
       accountKey: ""
+      ## @param stateStore.s3.authentication.existingSecretName Use existing Secret for S3 authentication.
+      ## If set, use the existing Secret instead of creating a new one.
+      ## Secret must contain AZBLOB_ACCOUNT_NAME and AZBLOB_ACCOUNT_KEY keys.
+      ##
+      existingSecretName: ""
 
   ## @section stateStore.hdfs HDFS values.
   ##

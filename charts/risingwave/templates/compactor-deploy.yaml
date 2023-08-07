@@ -153,17 +153,25 @@ spec:
           valueFrom:
             resourceFieldRef:
               resource: "limits.memory"
+        {{- if .Values.stateStore.s3.enabled }}
+        - name: AWS_REGION
+          value: {{ .Values.stateStore.s3.region }}
+        {{- end }}
+        {{- if .Values.stateStore.oss.enabled }}
+        - name: OSS_REGION
+          value: {{ .Values.stateStore.oss.region }}
+        {{- end }}
         {{- if and .Values.tags.minio .Values.stateStore.minio.enabled }}
         - name: MINIO_USERNAME
           valueFrom:
             secretKeyRef:
               key: root-user
-              name: {{ default .Values.minio.auth.existingSecret (include "common.names.fullname" .Subcharts.minio) }}
+              name: {{ default (include "common.names.fullname" .Subcharts.minio) .Values.minio.auth.existingSecret }}
         - name: MINIO_PASSWORD
           valueFrom:
             secretKeyRef:
               key: root-password
-              name: {{ default .Values.minio.auth.existingSecret (include "common.names.fullname" .Subcharts.minio) }}
+              name: {{ default (include "common.names.fullname" .Subcharts.minio) .Values.minio.auth.existingSecret }}
         {{- end }}
         {{- if .Values.stateStore.s3.enabled }}
         {{- if .Values.stateStore.s3.endpoint }}
@@ -175,7 +183,7 @@ spec:
           value: {{ include "risingwave.oss.endpoint" . }}
         {{- else if .Values.stateStore.azblob.enabled }}
         - name: AZBLOB_ENDPOINT
-          value: {{ include "risingwave.azblob.endpoint" . }}
+          value: {{ .Values.stateStore.azblob.endpoint }}
         {{- end }}
         - name: RW_CONFIG_PATH
           value: /risingwave/config/risingwave.toml
@@ -214,7 +222,9 @@ spec:
         {{- end }}
         {{- if not .Values.diagnosticMode.enabled}}
         startupProbe:
+          initialDelaySeconds: 2
           periodSeconds: 5
+          timeoutSeconds: 5
           failureThreshold: 12
           tcpSocket:
             port: svc

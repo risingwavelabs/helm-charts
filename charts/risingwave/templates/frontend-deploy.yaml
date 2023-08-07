@@ -180,7 +180,9 @@ spec:
         {{- end }}
         {{- if not .Values.diagnosticMode.enabled}}
         startupProbe:
+          initialDelaySeconds: 2
           periodSeconds: 5
+          timeoutSeconds: 5
           failureThreshold: 12
           tcpSocket:
             port: svc

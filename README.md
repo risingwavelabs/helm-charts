@@ -25,6 +25,12 @@ helm install --set wait=true risingwave risingwavelabs/risingwave
 Example output:
 
 ```plain
+NAME: risingwave
+LAST DEPLOYED: Mon Aug  7 14:41:08 2023
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
 NOTES:
 Welcome to fast and modern stream processing with RisingWave!
 

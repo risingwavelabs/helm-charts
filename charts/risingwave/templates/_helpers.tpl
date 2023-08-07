@@ -82,54 +82,74 @@ Create the name of the service account to use
 Create the name of the etcd credentials Secret to use
 */}}
 {{- define "risingwave.etcdCredentialsSecretName" -}}
-{{ printf "%s-etcd" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- printf "%s-etcd" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Create the name of the S3 credentials Secret to use
 */}}
 {{- define "risingwave.s3CredentialsSecretName" -}}
-{{ printf "%s-s3" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- if .Values.stateStore.s3.authentication.existingSecretName }}
+{{- .Values.stateStore.s3.authentication.existingSecretName }}
+{{- else }}
+{{- printf "%s-s3" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
 {{- end }}
 
 {{/*
 Create the name of the MinIO credentials Secret to use
 */}}
 {{- define "risingwave.minioCredentialsSecretName" -}}
-{{ printf "%s-minio" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- if .Values.stateStore.minio.authentication.existingSecretName }}
+{{- .Values.stateStore.minio.authentication.existingSecretName }}
+{{- else }}
+{{- printf "%s-minio" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
 {{- end }}
 
 {{/*
 Create the name of the GCS credentials Secret to use
 */}}
 {{- define "risingwave.gcsCredentialsSecretName" -}}
-{{ printf "%s-gcs" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- if .Values.stateStore.gcs.authentication.existingSecretName }}
+{{- .Values.stateStore.gcs.authentication.existingSecretName }}
+{{- else }}
+{{- printf "%s-gcs" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
 {{- end }}
 
 {{/*
 Create the name of the OSS credentials Secret to use
 */}}
 {{- define "risingwave.ossCredentialsSecretName" -}}
-{{ printf "%s-oss" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- if .Values.stateStore.oss.authentication.existingSecretName }}
+{{- .Values.stateStore.oss.authentication.existingSecretName }}
+{{- else }}
+{{- printf "%s-oss" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
 {{- end }}
 
 {{/*
 Create the name of the AzureBlob credentials Secret to use
 */}}
 {{- define "risingwave.azblobCredentialsSecretName" -}}
-{{ printf "%s-azblob" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- if .Values.stateStore.azblob.authentication.existingSecretName }}
+{{- .Values.stateStore.azblob.authentication.existingSecretName }}
+{{- else }}
+{{- printf "%s-azblob" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
 {{- end }}
 
 {{- define "risingwave.credentialsSecretRequired" -}}
-{{- if and .Values.stateStore.s3.enabled (empty .Values.stateStore.s3.authentication.useServiceAccount) }}
+{{- if and .Values.stateStore.s3.enabled (not .Values.stateStore.s3.authentication.useServiceAccount) }}
 true
 {{- else if and (not .Values.tags.minio) .Values.stateStore.minio.enabled }}
 true
-{{- else if and .Values.stateStore.oss.enabled (empty .Values.stateStore.oss.authentication.useServiceAccount) }}
+{{- else if and .Values.stateStore.oss.enabled (not .Values.stateStore.oss.authentication.useServiceAccount) }}
 true
-{{- else if and .Values.stateStore.gcs.enabled (empty .Values.stateStore.gcs.authentication.useServiceAccount) }}
+{{- else if and .Values.stateStore.gcs.enabled (not .Values.stateStore.gcs.authentication.useServiceAccount) }}
 true
-{{- else if and .Values.stateStore.azblob.enabled (empty .Values.stateStore.azblob.authentication.useServiceAccount) }}
+{{- else if and .Values.stateStore.azblob.enabled (not .Values.stateStore.azblob.authentication.useServiceAccount) }}
 true
 {{- else }}
 false
@@ -188,7 +208,7 @@ Create the hummock connection string to use.
 Create the hummock data directory.
 */}}
 {{- define "risingwave.stateStoreDataDirectory" -}}
-{{- default .Values.stateStore.dataDirectory "hummock" }}
+{{- default "hummock" .Values.stateStore.dataDirectory }}
 {{- end }}
 
 {{/*
@@ -214,25 +234,25 @@ Create the etcd endpoints
 Create the name of the AzureBlob credentials Secret to use
 */}}
 {{- define "risingwave.configurationConfigMapName" -}}
-{{ printf "%s-configuration" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- printf "%s-configuration" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Create the name of the meta Service and StatefulSet to use
 */}}
 {{- define "risingwave.metaComponentName" -}}
-{{ printf "%s-meta" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- printf "%s-meta" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{- define "risingwave.metaHeadlessServiceName" -}}
-{{ printf "%s-meta-headless" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- printf "%s-meta-headless" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Create the name of the frontend Service and Deployment to use
 */}}
 {{- define "risingwave.frontendComponentName" -}}
-{{ printf "%s-frontend" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- printf "%s-frontend" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
@@ -258,7 +278,7 @@ Create the name of the compute Service and StatefulSet to use
 Create the name of the compactor Service and Deployment to use
 */}}
 {{- define "risingwave.compactorComponentName" -}}
-{{ printf "%s-compactor" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- printf "%s-compactor" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
