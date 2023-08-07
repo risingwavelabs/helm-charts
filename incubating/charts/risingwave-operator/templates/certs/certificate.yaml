@@ -1,0 +1,27 @@
+{{/*
+Copyright RisingWave Labs.
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "risingwave-operator.fullname" . }}
+  labels:
+    {{- include "risingwave-operator.labels" . | nindent 4 }}
+  {{- $annotations := (include "risingwave-operator.annotations" . ) | trim }}
+  {{- if $annotations }}
+  annotations:
+    {{ nindent 4 $annotations }}
+  {{- end }}
+  {{- with .Values.serviceAccount.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  dnsNames:
+  - {{ include "risingwave-operator.fullname" . }}.{{ .Release.Namespace }}.svc
+  - {{ include "risingwave-operator.fullname" . }}.{{ .Release.Namespace }}.svc.{{ .Values.clusterDomain }}
+  issuerRef:
+    name: {{ include "risingwave-operator.fullname" . }}
+    kind: Issuer
+  secretName: {{ include "risingwave-operator.fullname" . }}

@@ -19,7 +19,7 @@ spec:
   replicas: {{ .Values.compactorComponent.replicas }}
   selector:
     matchLabels:
-      {{- include "risingwave.labels" . | nindent 6 }}
+      {{- include "risingwave.selectorLabels" . | nindent 6 }}
       risingwave.risingwavelabs.com/component: compactor
   strategy:
     type: Recreate

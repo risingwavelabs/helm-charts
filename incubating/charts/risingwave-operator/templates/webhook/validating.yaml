@@ -1,0 +1,62 @@
+{{/*
+Copyright RisingWave Labs.
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: {{ include "risingwave-operator.fullname" . }}
+  labels:
+    {{- include "risingwave-operator.labels" . | nindent 4 }}
+  {{- $annotations := (include "risingwave-operator.annotations" . ) | trim }}
+  {{- if $annotations }}
+  annotations:
+    {{ nindent 4 $annotations }}
+  {{- end }}
+  {{- with .Values.serviceAccount.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+webhooks:
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: {{ include "risingwave-operator.fullname" . }}
+      namespace: {{ .Release.Namespace }}
+      path: /validate-risingwave-risingwavelabs-com-v1alpha1-risingwave
+  failurePolicy: Fail
+  name: validating-risingwaves.risingwavelabs.com
+  rules:
+  - apiGroups:
+    - risingwave.risingwavelabs.com
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    - DELETE
+    resources:
+    - risingwaves
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: {{ include "risingwave-operator.fullname" . }}
+      namespace: {{ .Release.Namespace }}
+      path: /validate-risingwave-risingwavelabs-com-v1alpha1-risingwavescaleview
+  failurePolicy: Fail
+  name: validating-risingwavescaleviews.risingwavelabs.com
+  rules:
+  - apiGroups:
+    - risingwave.risingwavelabs.com
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    - DELETE
+    resources:
+    - risingwavescaleviews
+  sideEffects: None

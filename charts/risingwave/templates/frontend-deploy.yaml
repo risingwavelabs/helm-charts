@@ -20,7 +20,7 @@ spec:
   replicas: {{ .Values.frontendComponent.replicas }}
   selector:
     matchLabels:
-      {{- include "risingwave.labels" . | nindent 6 }}
+      {{- include "risingwave.selectorLabels" . | nindent 6 }}
       risingwave.risingwavelabs.com/component: frontend
   strategy:
     type: Recreate

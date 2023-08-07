@@ -1,0 +1,208 @@
+## @section Common values.
+##
+
+## @param nameOverride String to partially override common.names.fullname template (will maintain the release name)
+##
+nameOverride: ""
+
+## @param fullnameOverride String to fully override common.names.fullname template
+##
+fullnameOverride: ""
+
+## @param commonLabels [object] Labels to add to all deployed objects
+##
+commonLabels: { }
+
+## @param commonAnnotations [object] Annotations to add to all deployed objects
+##
+commonAnnotations: { }
+
+## @param clusterDomain Default Kubernetes cluster domain
+clusterDomain: cluster.local
+
+## Enable diagnostic mode in the deployment
+##
+diagnosticMode:
+  ## @param diagnosticMode.enabled Enable diagnostic mode (all probes will be disabled and the command will be overridden)
+  ##
+  enabled: false
+  ## @param diagnosticMode.command Command to override all containers in the deployment
+  ##
+  command:
+  - sleep
+  ## @param diagnosticMode.args Args to override all containers in the deployment
+  ##
+  args:
+  - infinity
+
+## @section Service account parameters
+##
+
+serviceAccount:
+  ## @param serviceAccount.create Enable/disable service account creation
+  ##
+  create: true
+  ## @param serviceAccount.name Name of the service account to create or use
+  ##
+  name: ""
+  ## @param serviceAccount.automountServiceAccountToken Enable/disable auto mounting of service account token
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/#use-the-default-service-account-to-access-the-api-server
+  ##
+  automountServiceAccountToken: true
+  ## @param serviceAccount.labels [object] Additional labels to be included on the service account
+  ##
+  labels: { }
+  ## @param serviceAccount.annotations [object] Additional annotations to be included on the service account
+  ##
+  annotations: { }
+
+## @section RisingWave Operator values.
+##
+
+## RisingWave Operator image version.
+## Ref: https://github.com/risingwavelabs/risingwave/pkgs/container/risingwave-operator
+## @param image.registry Image registry
+## @param image.repository Image name
+## @param image.tag Image tag
+## @param image.digest Image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag
+##
+image:
+  registry: ghcr.io
+  repository: risingwavelabs/risingwave-operator
+  tag: v0.5.0
+  digest: ""
+  ## @param image.pullPolicy Image pull policy
+  ## Specify a imagePullPolicy
+  ## Ref: https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy
+  ##
+  pullPolicy: IfNotPresent
+  ## @param image.pullSecrets [array] Image pull secrets
+  ## Optionally specify an array of imagePullSecrets.
+  ## Secrets must be manually created in the namespace.
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  ## e.g:
+  ## pullSecrets:
+  ##   - myRegistryKeySecretName
+  ##
+  pullSecrets: [ ]
+
+## @param installCRDs Install CRDs
+##
+installCRDs: true
+
+manager:
+  ## @param manager.replicaCount Number of replicas
+  ##
+  replicaCount: 1
+
+  ## @param manager.updateStrategy Update strategy of the deployment.
+  ##
+  updateStrategy: { }
+    # type: RollingUpdate
+    # rollingUpdate:
+    #   maxSurge: 0
+    #   maxUnavailable: 1
+
+  ## @param manager.podLabels Labels to add to the operator pod.
+  ##
+  podLabels: { }
+
+  ## @param manager.podAnnotations Annotations to add to the operator pod.
+  ##
+  podAnnotations: { }
+
+  ## @param manager.extraEnvVars Extra environment variables to add to the operator pod.
+  ##
+  extraEnvVars: [ ]
+
+  ## @param manager.extraEnvVarsConfigMap Name of existing ConfigMap containing extra environment variables.
+  ##
+  extraEnvVarsConfigMap: ""
+
+  ## @param manager.extraEnvVarsSecret Name of existing Secret containing extra environment variables.
+  ##
+  extraEnvVarsSecret: ""
+
+  ## @param manager.extraArgs Extra arguments to pass to risingwave-operator manager binary.
+  extraArgs: [ ]
+
+  ## @param manager.resources Resource requests and limits.
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  resources:
+    limits: { }
+    requests: { }
+
+  ## @param manager.podSecurityContext Pod security context.
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  ##
+  podSecurityContext:
+    runAsNonRoot: true
+    type: RuntimeDefault
+
+  ## @param manager.securityContext Container security context.
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  ##
+  securityContext:
+    capabilities:
+      drop:
+      - ALL
+    allowPrivilegeEscalation: false
+
+  ## @param manager.additionalContainers Additional containers to add to the operator pod.
+  ## Ref: https://kubernetes.io/docs/concepts/containers/
+  ##
+  additionalContainers: [ ]
+
+  ## @param manager.nodeSelector Node labels for pod assignment.
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+  ##
+  nodeSelector:
+    kubernetes.io/os: linux
+
+  ## @param manager.tolerations Tolerations for pod assignment.
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  ##
+  tolerations: [ ]
+
+  ## @param manager.affinity Affinity for pod assignment.
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+  ##
+  affinity: { }
+
+  ## @param manager.topologySpreadConstraints Topology spread constraints for pod assignment.
+  topologySpreadConstraints: [ ]
+
+  ## @param manager.terminationGracePeriodSeconds Termination grace period in seconds.
+  ## Defaults to 1 second.
+  ##
+  terminationGracePeriodSeconds: 1
+
+  ## @param manager.schedulerName Name of an alternate scheduler.
+  ## Ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
+  ##
+  schedulerName: ""
+
+  ## @param manager.priorityClassName Name of an alternate priority class.
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/
+  ##
+  priorityClassName: ""
+
+  ## @param manager.runtimeClassName Runtime class of the component pods.
+  ## Ref: https://kubernetes.io/docs/concepts/containers/runtime-class/
+  ##
+  runtimeClassName: ""
+
+  ## @param manager.shareProcessNamespace Share a single process namespace between all the containers in a pod.
+  ## When this is set containers will be able to view and signal processes from other containers in the same pod,
+  ## and the first process in each container will not be assigned PID 1.
+  ## Defaults to false.
+  ##
+  shareProcessNamespace: false
+
+kube-rbac-proxy:
+  ## @param kube-rbac-proxy.image Image of the kube-rbac-proxy container
+  ##
+  image: quay.io/brancz/kube-rbac-proxy:v0.14.2
+  ## @param kube-rbac-proxy.pullPolicy Image pull policy
+  ##
+  imagePullPolicy: IfNotPresent
