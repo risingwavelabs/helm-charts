@@ -42,7 +42,5 @@ cd risingwave-operator || exit 1
 # shellcheck disable=SC2045
 for crd_file in config/crd/bases/*.yaml; do
   target_file=$target_dir/$(basename "$crd_file")
-  echo "{{- if .Values.installCRDs }}" > "$target_file"
-  cat "$crd_file" >> "$target_file"
-  echo "{{- end }}" >> "$target_file"
+  cp "$crd_file" "$target_file"
 done

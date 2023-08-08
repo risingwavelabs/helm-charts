@@ -13,7 +13,7 @@ version: 0.1.0
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "0.5.0"
+appVersion: "v0.5.0"
 
 home: https://www.risingwave.com
 icon: https://avatars.githubusercontent.com/u/77175557?s=48&v=4

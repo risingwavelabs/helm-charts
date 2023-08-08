@@ -1,0 +1,155 @@
+{{/*
+Copyright RisingWave Labs.
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "risingwave-operator.fullname" . }}
+  labels:
+    apps.kubernetes.io/component: manager
+    {{- include "risingwave-operator.labels" . | nindent 4 }}
+  {{- $annotations := (include "risingwave-operator.annotations" . ) | trim }}
+  {{- if $annotations }}
+  annotations:
+    {{ nindent 4 $annotations }}
+  {{- end }}
+  {{- with .Values.serviceAccount.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.manager.updateStrategy }}
+  strategy:
+    {{- toYaml .Values.manager.updateStrategy | nindent 4 }}
+  {{- end }}
+  replicas: {{ .Values.manager.replicaCount }}
+  minReadySeconds: {{ .Values.manager.minReadySeconds }}
+  selector:
+    matchLabels:
+      {{- include "risingwave-operator.selectorLabels" . | nindent 6 }}
+      apps.kubernetes.io/component: manager
+  template:
+    metadata:
+      annotations:
+        {{- include "risingwave-operator.annotations" . | nindent 8 }}
+        {{- with .Values.manager.podAnnotations }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "risingwave-operator.labels" . | nindent 8 }}
+        apps.kubernetes.io/component: manager
+        {{- with .Values.manager.podLabels }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      serviceAccountName: {{ include "risingwave-operator.serviceAccountName" . }}
+      automountServiceAccountToken: {{ .Values.serviceAccount.automountServiceAccountToken }}
+      shareProcessNamespace: {{ .Values.manager.shareProcessNamespace }}
+      {{- if .Values.manager.runtimeClassName }}
+      runtimeClassName: {{ .Values.manager.runtimeClassName }}
+      {{- end }}
+      {{- if .Values.manager.priorityClassName }}
+      priorityClassName: {{ .Values.manager.priorityClassName }}
+      {{- end }}
+      {{- if .Values.manager.schedulerName }}
+      schedulerName: {{ .Values.manager.schedulerName }}
+      {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.manager.terminationGracePeriodSeconds }}
+      {{- if .Values.manager.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml .Values.manager.topologySpreadConstraints | nindent 8 }}
+      {{- end }}
+      {{- if .Values.manager.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.manager.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if .Values.manager.affinity }}
+      affinity:
+        {{- toYaml .Values.manager.affinity | nindent 8 }}
+      {{- end }}
+      {{- if .Values.manager.tolerations }}
+      tolerations:
+        {{- toYaml .Values.manager.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.manager.podSecurityContext }}
+      securityContext:
+        {{- toYaml .Values.manager.podSecurityContext | nindent 8 }}
+      {{- end }}
+      volumes:
+      - name: cert
+        secret:
+          defaultMode: 420
+          secretName: {{ include "risingwave-operator.fullname" . }}
+      containers:
+      - name: manager
+        image: {{ include "risingwave-operator.image" . }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- if .Values.manager.securityContext }}
+        securityContext:
+          {{- toYaml .Values.manager.securityContext | nindent 10 }}
+        {{- end }}
+        env:
+        {{- if .Values.manager.extraEnvVars }}
+        {{- range .Values.manager.extraEnvVars }}
+        - {{ . }}
+        {{- end }}
+        {{- end }}
+        envFrom:
+        {{- if .Values.manager.extraEnvVarsSecret }}
+        - secretRef:
+            name: {{ .Values.manager.extraEnvVarsSecret }}
+        {{- end }}
+        {{- if .Values.manager.extraEnvVarsConfigMap }}
+        - configMapRef:
+            name: {{ .Values.manager.extraEnvVarsConfigMap }}
+        {{- end }}
+        command:
+        - /manager
+        args:
+        - --leader-elect
+        - --zap-devel=true
+        - --health-probe-bind-address=:8081
+        - --metrics-bind-address=127.0.0.1:8080
+        {{- if .Values.manager.extraArgs }}
+        {{- range .Values.manager.extraArgs }}
+        - {{ . }}
+        {{- end }}
+        {{- end }}
+        volumeMounts:
+        - mountPath: /tmp/k8s-webhook-server/serving-certs
+          name: cert
+          readOnly: true
+        ports:
+        - containerPort: 9443
+          name: webhook
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources:
+        {{- toYaml .Values.manager.resources | nindent 10 }}
+      - name: proxy
+        image: {{ .Values.proxy.image }}
+        imagePullPolicy: {{ .Values.proxy.imagePullPolicy }}
+        args:
+        - --secure-listen-address=0.0.0.0:8443
+        - --upstream=http://127.0.0.1:8080/
+        - --logtostderr=true
+        - --v=10
+        ports:
+        - containerPort: 8443
+          name: metrics
+          protocol: TCP
+      {{- if .Values.manager.additionalContainers }}
+      {{- toYaml .Values.manager.additionalContainers | nindent 6 }}
+      {{- end }}

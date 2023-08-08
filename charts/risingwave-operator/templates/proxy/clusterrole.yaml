@@ -1,0 +1,32 @@
+{{/*
+Copyright RisingWave Labs.
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ printf "%s-proxy" (include "risingwave-operator.fullname" .) | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "risingwave-operator.labels" . | nindent 4 }}
+  {{- $annotations := (include "risingwave-operator.annotations" . ) | trim }}
+  {{- if $annotations }}
+  annotations:
+    {{ nindent 4 $annotations }}
+  {{- end }}
+  {{- with .Values.serviceAccount.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+rules:
+- apiGroups:
+  - authentication.k8s.io
+  resources:
+  - tokenreviews
+  verbs:
+  - create
+- apiGroups:
+  - authorization.k8s.io
+  resources:
+  - subjectaccessreviews
+  verbs:
+  - create

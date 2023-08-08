@@ -1,0 +1,27 @@
+{{/*
+Copyright RisingWave Labs.
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "risingwave-operator.fullname" . }}
+  labels:
+    {{- include "risingwave-operator.labels" . | nindent 4 }}
+  {{- $annotations := (include "risingwave-operator.annotations" . ) | trim }}
+  {{- if $annotations }}
+  annotations:
+    {{ nindent 4 $annotations }}
+  {{- end }}
+  {{- with .Values.serviceAccount.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "risingwave-operator.fullname" . }}
+subjects:
+- kind: ServiceAccount
+  name: {{ include "risingwave-operator.serviceAccountName" . }}
+  namespace: {{ .Release.Namespace }}

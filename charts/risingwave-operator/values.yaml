@@ -86,10 +86,6 @@ image:
   ##
   pullSecrets: [ ]
 
-## @param installCRDs Install CRDs
-##
-installCRDs: true
-
 manager:
   ## @param manager.replicaCount Number of replicas
   ##
@@ -101,7 +97,13 @@ manager:
     # type: RollingUpdate
     # rollingUpdate:
     #   maxSurge: 0
-    #   maxUnavailable: 1
+  #   maxUnavailable: 1
+
+  ## @param manager.minReadySeconds Minimum number of seconds for which a newly created pod should be ready
+  ## without any of its container crashing.
+  ## Ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#min-ready-seconds
+  ##
+  minReadySeconds: 0
 
   ## @param manager.podLabels Labels to add to the operator pod.
   ##
@@ -129,15 +131,20 @@ manager:
   ## @param manager.resources Resource requests and limits.
   ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources:
-    limits: { }
-    requests: { }
+    limits:
+      cpu: 500m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
 
   ## @param manager.podSecurityContext Pod security context.
   ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
   ##
   podSecurityContext:
     runAsNonRoot: true
-    type: RuntimeDefault
+    seccompProfile:
+      type: RuntimeDefault
 
   ## @param manager.securityContext Container security context.
   ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
@@ -199,7 +206,7 @@ manager:
   ##
   shareProcessNamespace: false
 
-kube-rbac-proxy:
+proxy:
   ## @param kube-rbac-proxy.image Image of the kube-rbac-proxy container
   ##
   image: quay.io/brancz/kube-rbac-proxy:v0.14.2

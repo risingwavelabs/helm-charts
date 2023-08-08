@@ -4,14 +4,15 @@ SPDX-License-Identifier: APACHE-2.0
 */}}
 
 apiVersion: admissionregistration.k8s.io/v1
-kind: ValidatingWebhookConfiguration
+kind: MutatingWebhookConfiguration
 metadata:
   name: {{ include "risingwave-operator.fullname" . }}
   labels:
     {{- include "risingwave-operator.labels" . | nindent 4 }}
+  annotations:
+    cert-manager.io/inject-ca-from: {{ .Release.Namespace }}/{{ include "risingwave-operator.fullname" . }}
   {{- $annotations := (include "risingwave-operator.annotations" . ) | trim }}
   {{- if $annotations }}
-  annotations:
     {{ nindent 4 $annotations }}
   {{- end }}
   {{- with .Values.serviceAccount.annotations }}
@@ -24,9 +25,9 @@ webhooks:
     service:
       name: {{ include "risingwave-operator.fullname" . }}
       namespace: {{ .Release.Namespace }}
-      path: /validate-risingwave-risingwavelabs-com-v1alpha1-risingwave
+      path: /mutate-risingwave-risingwavelabs-com-v1alpha1-risingwave
   failurePolicy: Fail
-  name: validating-risingwaves.risingwavelabs.com
+  name: mutating-risingwaves.risingwavelabs.com
   rules:
   - apiGroups:
     - risingwave.risingwavelabs.com
@@ -34,8 +35,6 @@ webhooks:
     - v1alpha1
     operations:
     - CREATE
-    - UPDATE
-    - DELETE
     resources:
     - risingwaves
   sideEffects: None
@@ -45,9 +44,9 @@ webhooks:
     service:
       name: {{ include "risingwave-operator.fullname" . }}
       namespace: {{ .Release.Namespace }}
-      path: /validate-risingwave-risingwavelabs-com-v1alpha1-risingwavescaleview
+      path: /mutate-risingwave-risingwavelabs-com-v1alpha1-risingwavescaleview
   failurePolicy: Fail
-  name: validating-risingwavescaleviews.risingwavelabs.com
+  name: mutating-risingwavescaleviews.risingwavelabs.com
   rules:
   - apiGroups:
     - risingwave.risingwavelabs.com
@@ -55,8 +54,6 @@ webhooks:
     - v1alpha1
     operations:
     - CREATE
-    - UPDATE
-    - DELETE
     resources:
     - risingwavescaleviews
   sideEffects: None
