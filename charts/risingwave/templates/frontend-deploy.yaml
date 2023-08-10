@@ -28,7 +28,7 @@ spec:
   template:
     metadata:
       labels:
-        {{- include "risingwave.labels" . | nindent 8 }}
+        {{- include "risingwave.selectorLabels" . | nindent 8 }}
         risingwave.risingwavelabs.com/component: frontend
         risingwave/name: {{ include "risingwave.fullname" . }}
         risingwave/component: frontend

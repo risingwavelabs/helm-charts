@@ -19,7 +19,7 @@ spec:
   template:
     metadata:
       labels:
-        {{- include "risingwave.labels" . | nindent 8 }}
+        {{- include "risingwave.selectorLabels" . | nindent 8 }}
     spec:
       restartPolicy: OnFailure
       containers:
