@@ -3,6 +3,39 @@ entries:
   risingwave:
   - apiVersion: v2
     appVersion: v1.1.1
+    created: "2023-08-11T06:20:01.880263263Z"
+    dependencies:
+    - name: etcd
+      repository: https://charts.bitnami.com/bitnami
+      tags:
+      - etcd
+      version: 9.1.*
+    - condition: stateStore.minio.enabled
+      name: minio
+      repository: https://charts.bitnami.com/bitnami
+      tags:
+      - minio
+      version: 12.6.*
+    description: The distributed streaming database SQL stream processing with Postgres-like
+      experience.
+    digest: 300eb0746342863714ef1e56949056df7a8c3420148ec0e3a4f0fbbafb6347ea
+    home: https://www.risingwave.com
+    icon: https://avatars.githubusercontent.com/u/77175557?s=48&v=4
+    keywords:
+    - risingwave
+    - streaming-processing
+    - cloud-native
+    - real-time
+    maintainers:
+    - name: RisingWave Labs
+      url: https://www.risingwave-labs.com
+    name: risingwave
+    type: application
+    urls:
+    - https://github.com/risingwavelabs/helm-charts/releases/download/risingwave-0.1.13/risingwave-0.1.13.tgz
+    version: 0.1.13
+  - apiVersion: v2
+    appVersion: v1.1.1
     created: "2023-08-11T05:03:41.884132302Z"
     dependencies:
     - name: etcd
@@ -432,6 +465,27 @@ entries:
   risingwave-operator:
   - apiVersion: v2
     appVersion: v0.5.1
+    created: "2023-08-11T06:20:02.058809165Z"
+    description: RisingWave Kubernetes Operator
+    digest: 1fcc4dd602a34c1c61fde131fbd96ed8b30a1e55104a0d8f75aacaf7cb3f5924
+    home: https://www.risingwave.com
+    icon: https://avatars.githubusercontent.com/u/77175557?s=48&v=4
+    keywords:
+    - risingwave
+    - streaming-processing
+    - cloud-native
+    - real-time
+    - operator
+    maintainers:
+    - name: RisingWave Labs
+      url: https://www.risingwave-labs.com
+    name: risingwave-operator
+    type: application
+    urls:
+    - https://github.com/risingwavelabs/helm-charts/releases/download/risingwave-operator-0.1.2/risingwave-operator-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
+    appVersion: v0.5.1
     created: "2023-08-10T05:38:42.95043412Z"
     description: RisingWave Kubernetes Operator
     digest: f5b15076ba02aa46354e3675edcba41f67df9c9f44cf3299d9e3a3cb29a64bf8
@@ -472,4 +526,4 @@ entries:
     urls:
     - https://github.com/risingwavelabs/helm-charts/releases/download/risingwave-operator-0.1.0/risingwave-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2023-08-11T05:03:41.884219904Z"
+generated: "2023-08-11T06:20:02.058899564Z"
