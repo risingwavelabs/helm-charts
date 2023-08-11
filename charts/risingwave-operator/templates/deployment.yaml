@@ -124,6 +124,7 @@ spec:
         - containerPort: 9443
           name: webhook
           protocol: TCP
+        {{- if not .Values.diagnosticMode.enabled }}
         livenessProbe:
           httpGet:
             path: /healthz
@@ -136,6 +137,7 @@ spec:
             port: 8081
           initialDelaySeconds: 5
           periodSeconds: 10
+        {{- end }}
         resources:
         {{- toYaml .Values.manager.resources | nindent 10 }}
       - name: proxy

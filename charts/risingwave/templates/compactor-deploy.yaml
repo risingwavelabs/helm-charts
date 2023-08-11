@@ -207,11 +207,11 @@ spec:
         resources:
           {{- if .Values.compactorComponent.resources.limits }}
           limits:
-            {{ toYaml .Values.compactorComponent.resources.limits | nindent 12}}
+            {{ toYaml .Values.compactorComponent.resources.limits | nindent 12 }}
           {{- end }}
           {{- if .Values.compactorComponent.resources.requests }}
           requests:
-            {{ toYaml .Values.compactorComponent.resources.requests | nindent 12}}
+            {{ toYaml .Values.compactorComponent.resources.requests | nindent 12 }}
           {{- end }}
         volumeMounts:
         - mountPath: /risingwave/config
@@ -220,7 +220,7 @@ spec:
         {{- if .Values.compactorComponent.securityContext }}
         securityContext: {{ toYaml .Values.compactorComponent.securityContext | nindent 10 }}
         {{- end }}
-        {{- if not .Values.diagnosticMode.enabled}}
+        {{- if not .Values.diagnosticMode.enabled }}
         startupProbe:
           initialDelaySeconds: 2
           periodSeconds: 5
@@ -241,6 +241,6 @@ spec:
         {{- end }}
       {{- if .Values.compactorComponent.additionalContainers }}
       {{- range .Values.compactorComponent.additionalContainers }}
-      - {{ toYaml . | nindent 8}}
+      - {{ toYaml . | nindent 8 }}
       {{- end }}
       {{- end }}

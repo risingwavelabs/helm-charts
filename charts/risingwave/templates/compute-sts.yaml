@@ -225,11 +225,11 @@ spec:
         resources:
           {{- if .Values.computeComponent.resources.limits }}
           limits:
-            {{ toYaml .Values.computeComponent.resources.limits | nindent 12}}
+            {{ toYaml .Values.computeComponent.resources.limits | nindent 12 }}
           {{- end }}
           {{- if .Values.computeComponent.resources.requests }}
           requests:
-            {{ toYaml .Values.computeComponent.resources.requests | nindent 12}}
+            {{ toYaml .Values.computeComponent.resources.requests | nindent 12 }}
           {{- end }}
         volumeMounts:
         - mountPath: /risingwave/config
@@ -238,7 +238,7 @@ spec:
         {{- if .Values.computeComponent.securityContext }}
         securityContext: {{ toYaml .Values.computeComponent.securityContext | nindent 10 }}
         {{- end }}
-        {{- if not .Values.diagnosticMode.enabled}}
+        {{- if not .Values.diagnosticMode.enabled }}
         startupProbe:
           initialDelaySeconds: 2
           periodSeconds: 5
@@ -316,11 +316,11 @@ spec:
         resources:
           {{- if .Values.metaComponent.resources.limits }}
           limits:
-            {{ toYaml .Values.metaComponent.resources.limits | nindent 12}}
+            {{ toYaml .Values.metaComponent.resources.limits | nindent 12 }}
           {{- end }}
           {{- if .Values.metaComponent.resources.requests }}
           requests:
-            {{ toYaml .Values.metaComponent.resources.requests | nindent 12}}
+            {{ toYaml .Values.metaComponent.resources.requests | nindent 12 }}
           {{- end }}
         ports:
         - containerPort: {{ .Values.ports.connector.svc }}
@@ -411,7 +411,7 @@ spec:
         - name: RW_LISTEN_ADDR
           value: "0.0.0.0:{{ .Values.ports.frontend.svc }}"
         - name: RW_ADVERTISE_ADDR
-          value: "$(POD_IP):{{ .Values.ports.frontend.svc}}"
+          value: "$(POD_IP):{{ .Values.ports.frontend.svc }}"
         - name: RW_PROMETHEUS_LISTENER_ADDR
           value: "0.0.0.0:{{ .Values.ports.frontend.metrics }}"
         - name: RW_META_ADDR
@@ -424,11 +424,11 @@ spec:
         resources:
           {{- if .Values.frontendComponent.resources.limits }}
           limits:
-            {{ toYaml .Values.frontendComponent.resources.limits | nindent 12}}
+            {{ toYaml .Values.frontendComponent.resources.limits | nindent 12 }}
           {{- end }}
           {{- if .Values.frontendComponent.resources.requests }}
           requests:
-            {{ toYaml .Values.frontendComponent.resources.requests | nindent 12}}
+            {{ toYaml .Values.frontendComponent.resources.requests | nindent 12 }}
           {{- end }}
         volumeMounts:
         - mountPath: /risingwave/config
@@ -437,7 +437,7 @@ spec:
         {{- if .Values.frontendComponent.securityContext }}
         securityContext: {{ toYaml .Values.frontendComponent.securityContext | nindent 10 }}
         {{- end }}
-        {{- if not .Values.diagnosticMode.enabled}}
+        {{- if not .Values.diagnosticMode.enabled }}
         startupProbe:
           initialDelaySeconds: 2
           periodSeconds: 5
@@ -459,6 +459,6 @@ spec:
       {{- end }}
       {{- if .Values.computeComponent.additionalContainers }}
       {{- range .Values.computeComponent.additionalContainers }}
-      - {{ toYaml . | nindent 8}}
+      - {{ toYaml . | nindent 8 }}
       {{- end }}
       {{- end }}
