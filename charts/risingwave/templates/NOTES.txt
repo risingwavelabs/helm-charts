@@ -7,23 +7,31 @@
 {{ $firstDatabase = first .Values.databases }}
 {{- end }}
 {{- $port := .Values.service.port }}
+{{- $psqlHostArgs := "-h localhost " -}}
+{{- if eq .Values.service.type "LoadBalancer" }}
+{{- $psqlHostArgs = "" }}
+{{- end }}
 Welcome to fast and modern stream processing with RisingWave!
 
 Check the running status with the following command:
 
     {{ $kubectlArgs }} get pods -l app.kubernetes.io/instance={{ include "risingwave.fullname" . }}
 
+{{ if eq .Values.service.type "LoadBalancer" -}}
+Try accessing the SQL console with the following command:
+{{ else }}
 Try accessing the SQL console with the following command:
 
     {{ $kubectlArgs }} port-forward svc/{{ include "risingwave.fullname" . }} {{ $port }}:svc
 
 Keep the above command running and open a new terminal window to run the following command:
-
-    {{ if not .Values.auth.rootPassword -}}
-    psql -h localhost -p {{ $port }} -d {{ $firstDatabase }} -U {{ .Values.auth.rootUser }}
-    {{- else -}}
-    export PGPASSWORD=$({{ $kubectlArgs }} get secret -o jsonpath="{.data.root-password}" {{ include "risingwave.fullname" . }} | base64 --decode)
-    psql -h localhost -p {{ $port }} -d {{ $firstDatabase }} -U {{ .Values.auth.rootUser }}
+{{- end }}
+    {{ if .Values.auth.rootPassword -}}
+    export PGPASSWORD=$({{ $kubectlArgs }} get secret {{ include "risingwave.fullname" . }} -o jsonpath="{.data.root-password}" | base64 --decode)
     {{- end }}
+    {{- if eq .Values.service.type "LoadBalancer" -}}
+    export PGHOST=$({{ $kubectlArgs }} get svc risingwave -o jsonpath="{.status.loadBalancer.ingress[0].ip} {.status.loadBalancer.ingress[0].hostname}"| awk '{print $1;}')
+    {{- end }}
+    psql {{ $psqlHostArgs -}} -p {{ $port }} -d {{ $firstDatabase }} -U {{ .Values.auth.rootUser }}
 
 For more advanced applications, refer to our documentation at: https://www.risingwave.dev
