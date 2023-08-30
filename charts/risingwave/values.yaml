@@ -315,9 +315,6 @@ stateStore:
     ## @param stateStore.gcs.bucket GCS bucket.
     ##
     bucket: ""
-    ## @param stateStore.gcs.root GCS root.
-    ##
-    root: ""
 
     authentication:
       ## @param stateStore.gcs.authentication.useServiceAccount Use GCS service account authentication.
@@ -347,9 +344,6 @@ stateStore:
     ## @param stateStore.oss.bucket OSS bucket.
     ##
     bucket: ""
-    ## @param stateStore.oss.root OSS root.
-    ##
-    root: ""
     ## @param stateStore.oss.endpoint use internal OSS endpoint. Useful when using Alibaba Cloud ECS.
     ##
     useInternalEndpoint: false
@@ -385,9 +379,6 @@ stateStore:
     ## @param stateStore.azblob.container Azure Blob Storage container.
     ##
     container: ""
-    ## @param stateStore.azblob.root Azure Blob Storage root.
-    ##
-    root: ""
 
     authentication:
       ## @param stateStore.azblob.authentication.useServiceAccount Use Azure Blob Storage service account authentication.
@@ -417,9 +408,6 @@ stateStore:
     ## @param stateStore.hdfs.nameNode HDFS name node.
     ##
     nameNode: ""
-    ## @param stateStore.hdfs.root HDFS root.
-    ##
-    root: ""
 
 ## @section RisingWave configuration values.
 ##

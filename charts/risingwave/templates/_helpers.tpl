@@ -194,11 +194,11 @@ Create the hummock connection string to use.
 {{- else if .Values.stateStore.oss.enabled }}
 {{- printf "hummock+oss://%s" .Values.stateStore.oss.bucket }}
 {{- else if .Values.stateStore.azblob.enabled }}
-{{- printf "hummock+azblob://%s@%s" .Values.stateStore.azblob.container .Values.stateStore.azblob.root }}
+{{- printf "hummock+azblob://%s" .Values.stateStore.azblob.container }}
 {{- else if .Values.stateStore.gcs.enabled }}
-{{- printf "hummock+gcs://%s@%s" .Values.stateStore.gcs.bucket .Values.stateStore.gcs.root }}
+{{- printf "hummock+gcs://%s" .Values.stateStore.gcs.bucket }}
 {{- else if .Values.stateStore.hdfs.enabled }}
-{{- printf "hummock+hdfs://%s@%s" .Values.stateStore.hdfs.nameNode  .Values.stateStore.hdfs.root }}
+{{- printf "hummock+hdfs://%s" .Values.stateStore.hdfs.nameNode }}
 {{- else }}
 {{- print "" }}
 {{- end }}
