@@ -38,7 +38,9 @@ spec:
   {{- end }}
   selector:
     {{- include "risingwave.selectorLabels" . | nindent 4 }}
-    {{- if .Values.compactMode.enabled }}
+    {{- if .Values.standalone.enabled }}
+    risingwave.risingwavelabs.com/component: standalone
+    {{- else if .Values.compactMode.enabled }}
     risingwave.risingwavelabs.com/component: compute
     {{- else }}
     risingwave.risingwavelabs.com/component: frontend
@@ -46,7 +48,7 @@ spec:
   ports:
   - name: svc
     port: {{ .Values.service.port }}
-    {{- if .Values.compactMode.enabled }}
+    {{- if or .Values.standalone.enabled .Values.compactMode.enabled }}
     targetPort: f-svc
     {{- else }}
     targetPort: svc

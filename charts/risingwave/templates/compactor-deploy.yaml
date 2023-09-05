@@ -3,6 +3,7 @@ Copyright RisingWave Labs.
 SPDX-License-Identifier: APACHE-2.0
 */}}
 
+{{- if not .Values.standalone.enabled -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -99,7 +100,7 @@ spec:
         {{- else }}
         command:
         - /risingwave/bin/risingwave
-        - frontend-node
+        - compactor-node
         {{- end }}
         ports:
         - containerPort: {{ .Values.ports.compactor.svc }}
@@ -244,3 +245,4 @@ spec:
       - {{ toYaml . | nindent 8 }}
       {{- end }}
       {{- end }}
+{{- end -}}

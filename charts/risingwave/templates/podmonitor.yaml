@@ -3,6 +3,7 @@ Copyright RisingWave Labs
 SPDX-License-Identifier: APACHE-2.0
 */}}
 
+{{- if not .Values.standalone.enabled -}}
 {{- if .Values.monitor.podMonitor.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
@@ -122,3 +123,4 @@ spec:
     {{- end }}
   {{- end }}
 {{- end }}
+{{- end -}}

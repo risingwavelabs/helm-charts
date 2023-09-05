@@ -208,6 +208,102 @@ service:
   ##
   labels: { }
 
+
+## @section RisingWave standalone mode.
+##
+
+standalone:
+  ## @param standalone.enabled Enable standalone mode. If enabled, the fields for each component will be ignore.
+  enabled: false
+
+  ## @param standalone.podLabels Labels to add to the component pods.
+  ##
+  podLabels: { }
+
+  ## @param standalone.podAnnotations Annotations to add to the component pods.
+  ##
+  podAnnotations: { }
+
+  ## @param standalone.extraEnvVars Extra environment variables to add to the component pods.
+  ##
+  extraEnvVars: [ ]
+
+  ## @param standalone.extraEnvVarsConfigMap Name of existing ConfigMap containing extra environment variables.
+  ##
+  extraEnvVarsConfigMap: ""
+
+  ## @param standalone.extraEnvVarsSecret Name of existing Secret containing extra environment variables.
+  ##
+  extraEnvVarsSecret: ""
+
+  ## @param standalone.replicas Number of replicas.
+  ##
+  replicas: 1
+
+  ## @param standalone.resources Resource requests and limits.
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  resources:
+    limits: { }
+    requests: { }
+
+  ## @param standalone.podSecurityContext Pod security context.
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  ##
+  podSecurityContext: { }
+
+  ## @param standalone.securityContext Container security context.
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+  ##
+  securityContext:
+    allowPrivilegeEscalation: false
+
+  ## @param standalone.additionalContainers Additional containers to add to the component pods.
+  ## Ref: https://kubernetes.io/docs/concepts/containers/
+  ##
+  additionalContainers: [ ]
+
+  ## @param standalone.nodeSelector Node labels for pod assignment.
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+  ##
+  nodeSelector: { }
+
+  ## @param standalone.tolerations Tolerations for pod assignment.
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  ##
+  tolerations: [ ]
+
+  ## @param standalone.affinity Affinity for pod assignment.
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+  ##
+  affinity: { }
+
+  ## @param standalone.terminationGracePeriodSeconds Termination grace period in seconds.
+  ## Defaults to 1 seconds.
+  ##
+  terminationGracePeriodSeconds: 1
+
+  ## @param standalone.schedulerName Name of an alternate scheduler.
+  ## Ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
+  ##
+  schedulerName: ""
+
+  ## @param standalone.priorityClassName Name of an alternate priority class.
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/
+  ##
+  priorityClassName: ""
+
+  ## @param standalone.runtimeClassName Runtime class of the component pods.
+  ## Ref: https://kubernetes.io/docs/concepts/containers/runtime-class/
+  ##
+  runtimeClassName: ""
+
+  ## @param standalone.shareProcessNamespace Share a single process namespace between all the containers in a pod.
+  ## When this is set containers will be able to view and signal processes from other containers in the same pod,
+  ## and the first process in each container will not be assigned PID 1.
+  ## Defaults to false.
+  ##
+  shareProcessNamespace: false
+
 ## @section RisingWave meta store values.
 ##
 
