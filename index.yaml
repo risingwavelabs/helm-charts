@@ -596,6 +596,27 @@ entries:
     version: 0.1.0
   risingwave-operator:
   - apiVersion: v2
+    appVersion: v0.5.2
+    created: "2023-09-05T08:27:05.980649627Z"
+    description: RisingWave Kubernetes Operator
+    digest: 0a763441970644b8402118b63d32dce1a4f6f98a91000338004805edd3a67d18
+    home: https://www.risingwave.com
+    icon: https://avatars.githubusercontent.com/u/77175557?s=48&v=4
+    keywords:
+    - risingwave
+    - streaming-processing
+    - cloud-native
+    - real-time
+    - operator
+    maintainers:
+    - name: RisingWave Labs
+      url: https://www.risingwave-labs.com
+    name: risingwave-operator
+    type: application
+    urls:
+    - https://github.com/risingwavelabs/helm-charts/releases/download/risingwave-operator-0.1.3/risingwave-operator-0.1.3.tgz
+    version: 0.1.3
+  - apiVersion: v2
     appVersion: v0.5.1
     created: "2023-08-11T06:20:02.058809165Z"
     description: RisingWave Kubernetes Operator
@@ -658,4 +679,4 @@ entries:
     urls:
     - https://github.com/risingwavelabs/helm-charts/releases/download/risingwave-operator-0.1.0/risingwave-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2023-09-05T07:05:25.60732437Z"
+generated: "2023-09-05T08:27:05.980706229Z"
