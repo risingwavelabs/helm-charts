@@ -118,7 +118,6 @@ spec:
             --listen-addr 127.0.0.1:{{ .Values.ports.compute.svc }}
             --prometheus-listener-addr 0.0.0.0:{{ .Values.ports.compute.metrics }}
             --advertise-addr 127.0.0.1:{{ .Values.ports.compute.svc }}
-            --metrics-level 1
             --async-stack-trace verbose
             --connector-rpc-endpoint {{ .Values.ports.connector.svc }}
             --role both
@@ -129,7 +128,6 @@ spec:
             --advertise-addr 127.0.0.1:{{ .Values.ports.frontend.svc }}
             --prometheus-listener-addr 0.0.0.0:{{ .Values.ports.frontend.metrics }}
             --health-check-listener-addr 127.0.0.1:6786
-            --metrics-level 1
             --meta-addr http://127.0.0.1:{{ .Values.ports.meta.svc }}
         {{- end }}
         ports:
@@ -243,8 +241,6 @@ spec:
           value: "$(POD_NAME).{{ include "risingwave.metaHeadlessServiceName" . }}.$(POD_NAMESPACE).svc:{{ .Values.ports.meta.svc }}"
         - name: RW_PROMETHEUS_HOST
           value: "0.0.0.0:{{ .Values.ports.meta.metrics }}"
-        - name: RW_METRICS_LEVEL
-          value: "1"
         - name: RW_STATE_STORE
           value: {{ include "risingwave.hummockConnectionString" . }}
         - name: RW_DATA_DIRECTORY
@@ -411,8 +407,6 @@ spec:
           value: "0.0.0.0:{{ .Values.ports.compactor.metrics }}"
         - name: RW_META_ADDR
           value: "http://127.0.0.1:{{ .Values.ports.meta.svc }}"
-        - name: RW_METRICS_LEVEL
-          value: "1"
         - name: RW_STATE_STORE
           value: {{ include "risingwave.hummockConnectionString" . }}
         - name: RW_DATA_DIRECTORY

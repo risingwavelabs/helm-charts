@@ -205,8 +205,6 @@ spec:
           value: "$(POD_NAME).{{ include "risingwave.metaHeadlessServiceName" . }}.$(POD_NAMESPACE).svc:{{ .Values.ports.meta.svc }}"
         - name: RW_PROMETHEUS_HOST
           value: "0.0.0.0:{{ .Values.ports.meta.metrics }}"
-        - name: RW_METRICS_LEVEL
-          value: "1"
         - name: RW_STATE_STORE
           value: {{ include "risingwave.hummockConnectionString" . }}
         - name: RW_DATA_DIRECTORY

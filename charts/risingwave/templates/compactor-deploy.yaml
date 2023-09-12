@@ -196,8 +196,6 @@ spec:
           value: "0.0.0.0:{{ .Values.ports.compactor.metrics }}"
         - name: RW_META_ADDR
           value: {{ printf "load-balance+http://%s.%s.svc:%d" (include "risingwave.metaHeadlessServiceName" .) .Release.Namespace (.Values.ports.meta.svc | int)}}
-        - name: RW_METRICS_LEVEL
-          value: "1"
         - name: RW_STATE_STORE
           value: {{ include "risingwave.hummockConnectionString" . }}
         - name: RW_DATA_DIRECTORY
