@@ -1,0 +1,39 @@
+service:
+  type: ClusterIP
+
+stateStore:
+  minio:
+    enabled: false
+
+  s3:
+    enabled: true
+    region: us-east-1
+    bucket: s3bucket
+    authentication:
+      useServiceAccount: false
+      accessKey: ak
+      secretAccessKey: sk
+
+metaComponent:
+  resources:
+    limits:
+      cpu: 1
+      memory: 2Gi
+
+frontendComponent:
+  resources:
+    limits:
+      cpu: 1
+      memory: 2Gi
+
+computeComponent:
+  resources:
+    limits:
+      cpu: 4
+      memory: 8Gi
+
+compactorComponent:
+  resources:
+    limits:
+      cpu: 2
+      memory: 4Gi
