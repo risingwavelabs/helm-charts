@@ -1,6 +1,11 @@
 service:
   type: ClusterIP
 
+serviceAccount:
+  create: true
+  name: ""
+  labels: { }
+
 stateStore:
   minio:
     enabled: false
