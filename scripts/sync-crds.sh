@@ -3,12 +3,13 @@
 set -o errexit
 
 # If argument number less than 1, exit.
-if [[ $# -gt 1 ]]; then
+if [[ $# -lt 1 ]]; then
   echo "Usage: $0 <directory> [branch|tag]"
   exit 1
 fi
 
 target_dir=$(realpath "$1")
+TARGET_FILE=$target_dir/risingwave-operator.crds.yaml
 
 # If another argument is provided, it will be used as the branch or tag name.
 # Otherwise, use the latest release tag.
@@ -20,7 +21,7 @@ if [[ $# -eq 1 ]]; then
     exit 1
   fi
 else
-  branch=$1
+  branch=$2
 fi
 
 # If branch is empty, notify and exit
@@ -40,7 +41,10 @@ cd risingwave-operator || exit 1
 # Copy each file from config/crds to the corresponding location in the charts/risingwave-operator/crds directory.
 # Additionally, add a head and tail to be a helm template.
 # shellcheck disable=SC2045
+rm -f "$TARGET_FILE"
+
 for crd_file in config/crd/bases/*.yaml; do
-  target_file=$target_dir/$(basename "$crd_file")
-  cp "$crd_file" "$target_file"
+  # target_file=$target_dir/$(basename "$crd_file")
+  # cp "$crd_file" "$target_file"
+  cat "$crd_file" >> "$TARGET_FILE"
 done
