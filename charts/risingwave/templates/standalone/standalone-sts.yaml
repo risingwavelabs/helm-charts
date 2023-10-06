@@ -119,7 +119,7 @@ spec:
             --prometheus-listener-addr 0.0.0.0:{{ .Values.ports.compute.metrics }}
             --advertise-addr 127.0.0.1:{{ .Values.ports.compute.svc }}
             --async-stack-trace verbose
-            --connector-rpc-endpoint {{ .Values.ports.connector.svc }}
+            --connector-rpc-endpoint 127.0.0.1:{{ .Values.ports.connector.svc }}
             --role both
             --meta-address http://127.0.0.1:{{ .Values.ports.meta.svc }}
         - >-
