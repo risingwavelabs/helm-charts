@@ -49,6 +49,28 @@ Keep the above command running and open a new terminal window to run the followi
 For more advanced applications, refer to our documentation at: https://www.risingwave.dev
 ```
 
+## Uninstallation
+
+To uninstall the `risingwave` release, simply run the following command:
+
+```shell
+helm uninstall risingwave
+```
+
+> WARNING: reinstalling a release with the same name without the data fully purged might result in undefined behaviours.
+> It can be the same as restarting when and only when all the data (e.g., PVC + S3) is untouched.  
+
+Note that helm won't delete the PVCs used by `etcd` or `minio` nor the data on S3 or other object storages. 
+You may be required to delete them manually. The following commands can help with the deletion of the PVCs:
+
+```shell
+# replace risingwave with the real release name when it has a different value
+kubectl delete -l app.kubernetes.io/instance=risingwave
+```
+
+Additionally, the PVs won't be reclaimed depending on the options on the storage class. 
+Please refer to the [documentation](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#reclaiming) and delete them yourselves.
+
 ## Examples
 
 Please refer to the [examples](examples) directory for examples on how to customize the values.
@@ -100,6 +122,22 @@ Rollback the upgrade:
 ```bash
 helm risingwave rollback <release-name> [chart]
 ```
+
+## FAQ
+
+### 1. Hook for creating databases failed.
+
+Example:
+
+```plain
+kubectl -n risingwave-poc logs pod/risingwave-hook-create-databases-8xvj4
+Password for user root: 
+psal: error: connection to server at "risingwave.risingwave-poc.svc"(172.20.23.179), port 4567 failed: ERROR:PasswordError: Invalid password
+```
+
+A probable cause could be reinstalling the chart without purging the data. Please refer to the [Uninstallation](#uninstallation) section 
+to fully uninstall the release before retrying.
+
 
 ## License
 
