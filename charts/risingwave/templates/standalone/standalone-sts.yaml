@@ -129,6 +129,12 @@ spec:
             --prometheus-listener-addr 0.0.0.0:{{ .Values.ports.frontend.metrics }}
             --health-check-listener-addr 127.0.0.1:6786
             --meta-addr http://127.0.0.1:{{ .Values.ports.meta.svc }}
+        - >-
+          --compactor-opts=--config-path /risingwave/config/risingwave.toml
+            --listen-addr 127.0.0.1:{{ .Values.ports.compactor.svc }}
+            --advertise-addr 127.0.0.1:{{ .Values.ports.compactor.svc }}
+            --prometheus-listener-addr 0.0.0.0:{{ .Values.ports.compactor.metrics}}
+            --meta-address http://127.0.0.1:{{ .Values.ports.meta.svc }}
         {{- end }}
         ports:
         - containerPort: {{ .Values.ports.meta.svc }}
@@ -151,6 +157,12 @@ spec:
           protocol: TCP
         - containerPort: {{ .Values.ports.compute.metrics }}
           name: c-metrics
+          protocol: TCP
+        - containerPort: {{ .Values.ports.compactor.svc }}
+          name: cp-svc
+          protocol: TCP
+        - containerPort: {{ .Values.ports.compactor.metrics }}
+          name: cp-metrics
           protocol: TCP
         envFrom:
         {{- if .Values.standalone.extraEnvVarsConfigMap }}
@@ -301,153 +313,6 @@ spec:
           periodSeconds: 10
           tcpSocket:
             port: f-svc
-        {{- end }}
-      - name: compactor
-        image: {{ include "risingwave.image" . }}
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
-        {{- if .Values.diagnosticMode.enabled }}
-        command: {{ toYaml .Values.diagnosticMode.command | nindent 8 }}
-        args: {{ toYaml .Values.diagnosticMode.args | nindent 8 }}
-        {{- else }}
-        command:
-        - /risingwave/bin/risingwave
-        - compactor-node
-        {{- end }}
-        ports:
-        - containerPort: {{ .Values.ports.compactor.svc }}
-          name: cp-svc
-          protocol: TCP
-        - containerPort: {{ .Values.ports.compactor.metrics }}
-          name: cp-metrics
-          protocol: TCP
-        envFrom:
-        {{- if .Values.compactorComponent.extraEnvVarsConfigMap }}
-        - configMapRef:
-            name: {{ .Values.compactorComponent.extraEnvVarsConfigMap }}
-        {{- end }}
-        {{- if .Values.compactorComponent.extraEnvVarsSecret }}
-        - secretRef:
-            name: {{ .Values.compactorComponent.extraEnvVarsSecret }}
-        {{- end }}
-        {{- if (include "risingwave.credentialsSecretRequired" .) }}
-        {{- $credentialsSecret := (include "risingwave.credentialsSecretName" . ) -}}
-        {{- if $credentialsSecret }}
-        - secretRef:
-            name: {{ $credentialsSecret }}
-        {{- end }}
-        {{- end }}
-        env:
-        # Disable auto region loading. Refer to the original source for more information.
-        # https://github.com/awslabs/aws-sdk-rust/blob/main/sdk/aws-config/src/imds/region.rs
-        - name: AWS_EC2_METADATA_DISABLED
-          value: "true"
-        - name: RUST_LOG
-          value: INFO
-        - name: RUST_BACKTRACE
-          value: full
-        - name: POD_IP
-          valueFrom:
-            fieldRef:
-              fieldPath: "status.podIP"
-        - name: POD_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: "metadata.name"
-        - name: POD_NAMESPACE
-          valueFrom:
-            fieldRef:
-              fieldPath: "metadata.namespace"
-        - name: CONTAINER_CPU_LIMIT
-          valueFrom:
-            resourceFieldRef:
-              resource: "limits.cpu"
-        - name: CONTAINER_MEMORY_LIMIT
-          valueFrom:
-            resourceFieldRef:
-              resource: "limits.memory"
-        {{- if .Values.stateStore.s3.enabled }}
-        - name: AWS_REGION
-          value: {{ .Values.stateStore.s3.region }}
-        {{- end }}
-        {{- if .Values.stateStore.oss.enabled }}
-        - name: OSS_REGION
-          value: {{ .Values.stateStore.oss.region }}
-        {{- end }}
-        {{- if and .Values.tags.minio .Values.stateStore.minio.enabled }}
-        - name: MINIO_USERNAME
-          valueFrom:
-            secretKeyRef:
-              key: root-user
-              name: {{ default (include "common.names.fullname" .Subcharts.minio) .Values.minio.auth.existingSecret }}
-        - name: MINIO_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              key: root-password
-              name: {{ default (include "common.names.fullname" .Subcharts.minio) .Values.minio.auth.existingSecret }}
-        {{- end }}
-        {{- if .Values.stateStore.s3.enabled }}
-        {{- if .Values.stateStore.s3.endpoint }}
-        - name: RW_S3_ENDPOINT
-          value: {{ .Values.stateStore.s3.endpoint }}
-        {{- end }}
-        {{- else if .Values.stateStore.oss.enabled }}
-        - name: OSS_ENDPOINT
-          value: {{ include "risingwave.oss.endpoint" . }}
-        {{- else if .Values.stateStore.azblob.enabled }}
-        - name: AZBLOB_ENDPOINT
-          value: {{ .Values.stateStore.azblob.endpoint }}
-        {{- end }}
-        - name: RW_CONFIG_PATH
-          value: /risingwave/config/risingwave.toml
-        - name: RW_LISTEN_ADDR
-          value: "0.0.0.0:{{ .Values.ports.compactor.svc }}"
-        - name: RW_ADVERTISE_ADDR
-          value: "$(POD_IP):{{ .Values.ports.compactor.svc }}"
-        - name: RW_PROMETHEUS_LISTENER_ADDR
-          value: "0.0.0.0:{{ .Values.ports.compactor.metrics }}"
-        - name: RW_META_ADDR
-          value: "http://127.0.0.1:{{ .Values.ports.meta.svc }}"
-        - name: RW_STATE_STORE
-          value: {{ include "risingwave.hummockConnectionString" . }}
-        - name: RW_DATA_DIRECTORY
-          value: {{ include "risingwave.stateStoreDataDirectory" . }}
-        {{- range .Values.compactorComponent.extraEnvVars }}
-        - {{ . }}
-        {{- end }}
-        resources:
-          {{- if .Values.compactorComponent.resources.limits }}
-          limits:
-            {{ toYaml .Values.compactorComponent.resources.limits | nindent 12 }}
-          {{- end }}
-          {{- if .Values.compactorComponent.resources.requests }}
-          requests:
-            {{ toYaml .Values.compactorComponent.resources.requests | nindent 12 }}
-          {{- end }}
-        volumeMounts:
-        - mountPath: /risingwave/config
-          name: config
-          readOnly: true
-        {{- if .Values.compactorComponent.securityContext }}
-        securityContext: {{ toYaml .Values.compactorComponent.securityContext | nindent 10 }}
-        {{- end }}
-        {{- if not .Values.diagnosticMode.enabled }}
-        startupProbe:
-          initialDelaySeconds: 2
-          periodSeconds: 5
-          timeoutSeconds: 5
-          failureThreshold: 12
-          tcpSocket:
-            port: cp-svc
-        livenessProbe:
-          initialDelaySeconds: 2
-          periodSeconds: 10
-          tcpSocket:
-            port: cp-svc
-        readinessProbe:
-          initialDelaySeconds: 2
-          periodSeconds: 10
-          tcpSocket:
-            port: cp-svc
         {{- end }}
       {{- if .Values.connectorComponent.enabled }}
       - name: connector
