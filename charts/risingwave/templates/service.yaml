@@ -14,13 +14,15 @@ metadata:
     {{- toYaml .Values.service.labels | nindent 4 }}
     {{- end }}
   {{- $annotations := (include "risingwave.annotations" . ) | trim }}
-  {{- if $annotations }}
+  {{- if or $annotations .Values.service.annotations }}
   annotations:
+    {{- if $annotations }}
     {{ nindent 4 $annotations }}
-  {{- end }}
+    {{- end }}
     {{- if .Values.service.annotations }}
     {{- toYaml .Values.service.annotations | nindent 4 }}
     {{- end }}
+  {{- end }}
 spec:
   type: {{ .Values.service.type }}
   externalIPs:
