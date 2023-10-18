@@ -171,12 +171,10 @@ spec:
         - secretRef:
             name: {{ .Values.standalone.extraEnvVarsSecret }}
         {{- end }}
-        {{- if (include "risingwave.credentialsSecretRequired" .) }}
         {{- $credentialsSecret := (include "risingwave.credentialsSecretName" . ) -}}
         {{- if $credentialsSecret }}
         - secretRef:
             name: {{ $credentialsSecret }}
-        {{- end }}
         {{- end }}
         {{- if .Values.metaStore.etcd.authentication.enabled }}
         - secretRef:

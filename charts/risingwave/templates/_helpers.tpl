@@ -140,35 +140,19 @@ Create the name of the AzureBlob credentials Secret to use
 {{- end }}
 {{- end }}
 
-{{- define "risingwave.credentialsSecretRequired" -}}
-{{- if and .Values.stateStore.s3.enabled (not .Values.stateStore.s3.authentication.useServiceAccount) }}
-true
-{{- else if and (not .Values.tags.minio) .Values.stateStore.minio.enabled }}
-true
-{{- else if and .Values.stateStore.oss.enabled (not .Values.stateStore.oss.authentication.useServiceAccount) }}
-true
-{{- else if and .Values.stateStore.gcs.enabled (not .Values.stateStore.gcs.authentication.useServiceAccount) }}
-true
-{{- else if and .Values.stateStore.azblob.enabled (not .Values.stateStore.azblob.authentication.useServiceAccount) }}
-true
-{{- else }}
-false
-{{- end }}
-{{- end }}
-
 {{/*
-Create the name of credential Secret to use
+Create the name of credential Secret to use. Return empty string if the Secret isn't created.
 */}}
 {{- define "risingwave.credentialsSecretName" -}}
-{{- if .Values.stateStore.s3.enabled }}
+{{- if and .Values.stateStore.s3.enabled (not .Values.stateStore.s3.authentication.useServiceAccount)  }}
 {{- include "risingwave.s3CredentialsSecretName" . }}
 {{- else if and (not .Values.tags.minio) .Values.stateStore.minio.enabled }}
 {{- include "risingwave.minioCredentialsSecretName" .}}
-{{- else if .Values.stateStore.oss.enabled }}
+{{- else if and .Values.stateStore.oss.enabled (not .Values.stateStore.oss.authentication.useServiceAccount) }}
 {{- include "risingwave.ossCredentialsSecretName" . }}
-{{- else if .Values.stateStore.azblob.enabled }}
+{{- else if and .Values.stateStore.azblob.enabled (not .Values.stateStore.azblob.authentication.useServiceAccount) }}
 {{- include "risingwave.azblobCredentialsSecretName" . }}
-{{- else if .Values.stateStore.gcs.enabled }}
+{{- else if and .Values.stateStore.gcs.enabled (not .Values.stateStore.gcs.authentication.useServiceAccount) }}
 {{- include "risingwave.gcsCredentialsSecretName" . }}
 {{- else }}
 {{- print "" }}

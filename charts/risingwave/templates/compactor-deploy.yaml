@@ -118,12 +118,10 @@ spec:
         - secretRef:
             name: {{ .Values.compactorComponent.extraEnvVarsSecret }}
         {{- end }}
-        {{- if (include "risingwave.credentialsSecretRequired" .) }}
         {{- $credentialsSecret := (include "risingwave.credentialsSecretName" . ) -}}
         {{- if $credentialsSecret }}
         - secretRef:
             name: {{ $credentialsSecret }}
-        {{- end }}
         {{- end }}
         env:
         # Disable auto region loading. Refer to the original source for more information.
