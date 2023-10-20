@@ -122,7 +122,7 @@ diagnosticMode:
 image:
   registry: ghcr.io
   repository: risingwavelabs/risingwave
-  tag: v1.2.0
+  tag: v1.3.0
   digest: ""
   ## @param image.pullPolicy RisingWave image pull policy
   ## Specify a imagePullPolicy
