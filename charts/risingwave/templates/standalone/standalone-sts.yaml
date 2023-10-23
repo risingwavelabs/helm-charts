@@ -109,9 +109,17 @@ spec:
             --dashboard-host 0.0.0.0:{{ .Values.ports.meta.dashboard }}
             --prometheus-host 0.0.0.0:{{ .Values.ports.meta.metrics }}
             --backend $(RW_BACKEND)
+            --etcd-endpoints $(RW_ETCD_ENDPOINTS)
             --state-store $(RW_STATE_STORE)
             --data-directory $(RW_DATA_DIRECTORY)
             --config-path /risingwave/config/risingwave.toml
+        {{- if .Values.tags.etcd }}
+        {{- if and (not .Values.etcd.auth.rbac.allowNoneAuthentication) .Values.etcd.auth.rbac.create }}
+            --etcd-auth
+            --etcd-username $(RW_ETCD_USERNAME)
+            --etcd-password $(RW_ETCD_PASSWORD)
+        {{- end }}
+        {{- end }}
         - >-
           --compute-opts=--config-path /risingwave/config/risingwave.toml
             --listen-addr 127.0.0.1:{{ .Values.ports.compute.svc }}
