@@ -142,6 +142,7 @@ to fully uninstall the release before retrying.
 
 The helm chart uses [an undocumented feature](https://github.com/helm/helm/pull/9957) of helm. 
 If you encountered the error above, please update the helm to 3.7+ and try again. 
+Refer to [this stackoverflow question](https://stackoverflow.com/questions/47791971/how-can-you-call-a-helm-helper-template-from-a-subchart-with-the-correct-conte) for the reason.  
 
 ## License
 
