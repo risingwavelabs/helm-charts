@@ -289,8 +289,8 @@ Create the OSS endpoint to use.
 */}}
 {{- define "risingwave.oss.endpoint" }}
 {{- if .Values.stateStore.oss.useInternalEndpoint }}
-https://oss-$(OSS_REGION)-internal.aliyuncs.com
+{{- printf "https://oss-$(OSS_REGION)-internal.aliyuncs.com" }}
 {{- else }}
-https://oss-$(OSS_REGION).aliyuncs.com
+{{- printf "https://oss-$(OSS_REGION).aliyuncs.com" }}
 {{- end }}
 {{- end }}
