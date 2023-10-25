@@ -3,6 +3,39 @@ entries:
   risingwave:
   - apiVersion: v2
     appVersion: v1.3.0
+    created: "2023-10-25T05:30:46.870905682Z"
+    dependencies:
+    - name: etcd
+      repository: https://charts.bitnami.com/bitnami
+      tags:
+      - etcd
+      version: 9.1.*
+    - condition: stateStore.minio.enabled
+      name: minio
+      repository: https://charts.bitnami.com/bitnami
+      tags:
+      - minio
+      version: 12.6.*
+    description: The distributed streaming database SQL stream processing with Postgres-like
+      experience.
+    digest: 67c5e14646a8f39e8ede650b021443a6402d43230bf088acabeba58862f7a4f0
+    home: https://www.risingwave.com
+    icon: https://avatars.githubusercontent.com/u/77175557?s=48&v=4
+    keywords:
+    - risingwave
+    - streaming-processing
+    - cloud-native
+    - real-time
+    maintainers:
+    - name: RisingWave Labs
+      url: https://www.risingwave-labs.com
+    name: risingwave
+    type: application
+    urls:
+    - https://github.com/risingwavelabs/helm-charts/releases/download/risingwave-0.1.28/risingwave-0.1.28.tgz
+    version: 0.1.28
+  - apiVersion: v2
+    appVersion: v1.3.0
     created: "2023-10-24T10:24:18.265559161Z"
     dependencies:
     - name: etcd
@@ -1030,4 +1063,4 @@ entries:
     urls:
     - https://github.com/risingwavelabs/helm-charts/releases/download/risingwave-operator-0.1.0/risingwave-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2023-10-24T10:24:18.265760062Z"
+generated: "2023-10-25T05:30:46.871168918Z"
