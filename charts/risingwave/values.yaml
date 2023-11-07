@@ -304,6 +304,16 @@ standalone:
   ##
   shareProcessNamespace: false
 
+  ## @param standalone.rustLog Customize the RUST_LOG value.
+  ## See https://rust-lang-nursery.github.io/rust-cookbook/development_tools/debugging/config_log.html for how to
+  ## configure the logging for modules.
+  ## Defaults to INFO.
+  rustLog: INFO
+
+  ## @param standalone.rustBacktrace Customize the RUST_BACKTRACE value.
+  ## Defaults to full.
+  rustBacktrace: full
+
 ## @section RisingWave meta store values.
 ##
 
@@ -628,6 +638,16 @@ metaComponent:
   ##
   shareProcessNamespace: false
 
+  ## @param metaComponent.rustLog Customize the RUST_LOG value.
+  ## See https://rust-lang-nursery.github.io/rust-cookbook/development_tools/debugging/config_log.html for how to
+  ## configure the logging for modules.
+  ## Defaults to INFO.
+  rustLog: INFO
+
+  ## @param metaComponent.rustBacktrace Customize the RUST_BACKTRACE value.
+  ## Defaults to full.
+  rustBacktrace: full
+
 frontendComponent:
   ## @param frontendComponent.podLabels Labels to add to the component pods.
   ##
@@ -716,6 +736,16 @@ frontendComponent:
   ## Defaults to false.
   ##
   shareProcessNamespace: false
+
+  ## @param frontendComponent.rustLog Customize the RUST_LOG value.
+  ## See https://rust-lang-nursery.github.io/rust-cookbook/development_tools/debugging/config_log.html for how to
+  ## configure the logging for modules.
+  ## Defaults to INFO.
+  rustLog: INFO
+
+  ## @param frontendComponent.rustBacktrace Customize the RUST_BACKTRACE value.
+  ## Defaults to full.
+  rustBacktrace: full
 
 computeComponent:
   ## @param computeComponent.podLabels Labels to add to the component pods.
@@ -806,6 +836,16 @@ computeComponent:
   ##
   shareProcessNamespace: false
 
+  ## @param computeComponent.rustLog Customize the RUST_LOG value.
+  ## See https://rust-lang-nursery.github.io/rust-cookbook/development_tools/debugging/config_log.html for how to
+  ## configure the logging for modules.
+  ## Defaults to INFO.
+  rustLog: INFO
+
+  ## @param computeComponent.rustBacktrace Customize the RUST_BACKTRACE value.
+  ## Defaults to full.
+  rustBacktrace: full
+
 compactorComponent:
   ## @param compactorComponent.podLabels Labels to add to the component pods.
   ##
@@ -894,6 +934,16 @@ compactorComponent:
   ## Defaults to false.
   ##
   shareProcessNamespace: false
+
+  ## @param compactorComponent.rustLog Customize the RUST_LOG value.
+  ## See https://rust-lang-nursery.github.io/rust-cookbook/development_tools/debugging/config_log.html for how to
+  ## configure the logging for modules.
+  ## Defaults to INFO.
+  rustLog: INFO
+
+  ## @param compactorComponent.rustBacktrace Customize the RUST_BACKTRACE value.
+  ## Defaults to full.
+  rustBacktrace: full
 
 connectorComponent:
   ## @param connectorComponent.enabled Enable the connector component.

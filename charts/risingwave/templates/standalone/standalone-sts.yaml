@@ -194,9 +194,9 @@ spec:
         - name: AWS_EC2_METADATA_DISABLED
           value: "true"
         - name: RUST_LOG
-          value: INFO
+          value: {{ .Values.standalone.rustLog }}
         - name: RUST_BACKTRACE
-          value: full
+          value: {{ .Values.standalone.rustBacktrace }}
         - name: POD_IP
           valueFrom:
             fieldRef:
