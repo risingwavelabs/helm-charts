@@ -311,13 +311,13 @@ spec:
         securityContext: {{ toYaml .Values.connectorComponent.securityContext | nindent 10 }}
         {{- end }}
         resources:
-          {{- if .Values.metaComponent.resources.limits }}
+          {{- if .Values.connectorComponent.resources.limits }}
           limits:
-            {{ toYaml .Values.metaComponent.resources.limits | nindent 12 }}
+            {{ toYaml .Values.connectorComponent.resources.limits | nindent 12 }}
           {{- end }}
-          {{- if .Values.metaComponent.resources.requests }}
+          {{- if .Values.connectorComponent.resources.requests }}
           requests:
-            {{ toYaml .Values.metaComponent.resources.requests | nindent 12 }}
+            {{ toYaml .Values.connectorComponent.resources.requests | nindent 12 }}
           {{- end }}
         ports:
         - containerPort: {{ .Values.ports.connector.svc }}
