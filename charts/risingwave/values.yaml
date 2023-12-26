@@ -1023,30 +1023,30 @@ ports:
 ##
 
 monitor:
-  ## Prometheus Service Monitor
+  ## Prometheus Pod Monitor
   ## ref: https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#endpoint
   ##
   podMonitor:
-    ## @param metrics.podMonitor.enabled Create PodMonitor Resource for scraping metrics using PrometheusOperator
+    ## @param monitor.podMonitor.enabled Create PodMonitor Resource for scraping metrics using PrometheusOperator
     ##
     enabled: false
-    ## @param metrics.podMonitor.namespace Namespace in which Prometheus is running
+    ## @param monitor.podMonitor.namespace Namespace in which Prometheus is running
     ##
     namespace: monitoring
-    ## @param metrics.podMonitor.interval Specify the interval at which metrics should be scraped
+    ## @param monitor.podMonitor.interval Specify the interval at which metrics should be scraped
     ##
     interval: 5s
-    ## @param metrics.podMonitor.scrapeTimeout Specify the timeout after which the scrape is ended
+    ## @param monitor.podMonitor.scrapeTimeout Specify the timeout after which the scrape is ended
     ##
     scrapeTimeout: 5s
-    ## @param metrics.podMonitor.additionalLabels [object] Additional labels that can be used so PodMonitors will be discovered by Prometheus
+    ## @param monitor.podMonitor.additionalLabels [object] Additional labels that can be used so PodMonitors will be discovered by Prometheus
     ## ref: https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#prometheusspec
     ##
     additionalLabels: { }
-    ## @param metrics.podMonitor.scheme Scheme to use for scraping
+    ## @param monitor.podMonitor.scheme Scheme to use for scraping
     ##
     scheme: http
-    ## @param metrics.podMonitor.tlsConfig [object] TLS configuration used for scrape endpoints used by Prometheus
+    ## @param monitor.podMonitor.tlsConfig [object] TLS configuration used for scrape endpoints used by Prometheus
     ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/master/Documentation/api.md#tlsconfig
     ## e.g:
     ## tlsConfig:
@@ -1055,7 +1055,7 @@ monitor:
     ##       name: existingSecretName
     ##
     tlsConfig: { }
-    ## @param metrics.podMonitor.relabelings [array] Prometheus relabeling rules
+    ## @param monitor.podMonitor.relabelings [array] Prometheus relabeling rules
     ##
     relabelings: [ ]
 

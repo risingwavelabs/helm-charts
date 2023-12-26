@@ -15,9 +15,6 @@ metadata:
   annotations:
     {{ nindent 4 $annotations }}
   {{- end }}
-  {{- with .Values.serviceAccount.annotations }}
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
 spec:
   {{- if .Values.manager.updateStrategy }}
   strategy:
@@ -110,7 +107,11 @@ spec:
         - --leader-elect
         - --zap-devel=true
         - --health-probe-bind-address=:8081
+        {{- if .Values.proxy.enabled }}
         - --metrics-bind-address=127.0.0.1:8080
+        {{- else }}
+        - --metrics-bind-address=:8080
+        {{- end }}
         {{- if .Values.manager.extraArgs }}
         {{- range .Values.manager.extraArgs }}
         - {{ . }}
@@ -124,6 +125,11 @@ spec:
         - containerPort: 9443
           name: webhook
           protocol: TCP
+        {{- if not .Values.proxy.enabled }}
+        - containerPort: 8080
+          name: metrics
+          protocol: TCP
+        {{- end }}
         {{- if not .Values.diagnosticMode.enabled }}
         livenessProbe:
           httpGet:
@@ -140,6 +146,7 @@ spec:
         {{- end }}
         resources:
         {{- toYaml .Values.manager.resources | nindent 10 }}
+      {{- if .Values.proxy.enabled }}
       - name: proxy
         image: {{ .Values.proxy.image }}
         imagePullPolicy: {{ .Values.proxy.imagePullPolicy }}
@@ -154,4 +161,5 @@ spec:
           protocol: TCP
       {{- if .Values.manager.additionalContainers }}
       {{- toYaml .Values.manager.additionalContainers | nindent 6 }}
+      {{- end }}
       {{- end }}

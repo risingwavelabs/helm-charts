@@ -69,7 +69,7 @@ serviceAccount:
 image:
   registry: ghcr.io
   repository: risingwavelabs/risingwave-operator
-  tag: v0.5.6
+  tag: v0.5.7
   digest: ""
   ## @param image.pullPolicy Image pull policy
   ## Specify a imagePullPolicy
@@ -207,9 +207,52 @@ manager:
   shareProcessNamespace: false
 
 proxy:
-  ## @param kube-rbac-proxy.image Image of the kube-rbac-proxy container
+  ## @param proxy.enabled If the kube-rbac-proxy is enabled.
+  ##
+  enabled: false
+  ## @param proxy.image Image of the kube-rbac-proxy container
   ##
   image: quay.io/brancz/kube-rbac-proxy:v0.14.2
-  ## @param kube-rbac-proxy.pullPolicy Image pull policy
+  ## @param proxy.pullPolicy Image pull policy
   ##
   imagePullPolicy: IfNotPresent
+
+## @section Monitor.
+##
+
+monitor:
+  ## Prometheus Pod Monitor
+  ## ref: https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#endpoint
+  ##
+  podMonitor:
+    ## @param monitor.podMonitor.enabled Create PodMonitor Resource for scraping metrics using PrometheusOperator
+    ##
+    enabled: false
+    ## @param monitor.podMonitor.namespace Namespace in which Prometheus is running
+    ##
+    namespace: monitoring
+    ## @param monitor.podMonitor.interval Specify the interval at which metrics should be scraped
+    ##
+    interval: 5s
+    ## @param monitor.podMonitor.scrapeTimeout Specify the timeout after which the scrape is ended
+    ##
+    scrapeTimeout: 5s
+    ## @param monitor.podMonitor.additionalLabels [object] Additional labels that can be used so PodMonitors will be discovered by Prometheus
+    ## ref: https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#prometheusspec
+    ##
+    additionalLabels: { }
+    ## @param monitor.podMonitor.scheme Scheme to use for scraping
+    ##
+    scheme: http
+    ## @param monitor.podMonitor.tlsConfig [object] TLS configuration used for scrape endpoints used by Prometheus
+    ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/master/Documentation/api.md#tlsconfig
+    ## e.g:
+    ## tlsConfig:
+    ##   ca:
+    ##     secret:
+    ##       name: existingSecretName
+    ##
+    tlsConfig: { }
+    ## @param monitor.podMonitor.relabelings [array] Prometheus relabeling rules
+    ##
+    relabelings: [ ]

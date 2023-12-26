@@ -14,9 +14,6 @@ metadata:
   annotations:
     {{ nindent 4 $annotations }}
   {{- end }}
-  {{- with .Values.serviceAccount.annotations }}
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
 rules:
 - apiGroups:
   - ""
