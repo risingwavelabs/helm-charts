@@ -8,14 +8,12 @@ kind: ClusterRole
 metadata:
   name: {{ include "risingwave-operator.fullname" . }}
   labels:
+    apps.kubernetes.io/component: manager
     {{- include "risingwave-operator.labels" . | nindent 4 }}
   {{- $annotations := (include "risingwave-operator.annotations" . ) | trim }}
   {{- if $annotations }}
   annotations:
     {{ nindent 4 $annotations }}
-  {{- end }}
-  {{- with .Values.serviceAccount.annotations }}
-    {{- toYaml . | nindent 4 }}
   {{- end }}
 rules:
 - apiGroups:
