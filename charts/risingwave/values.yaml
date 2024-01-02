@@ -405,7 +405,7 @@ stateStore:
       ## @param stateStore.minio.authentication.password MinIO password.
       ##
       password: ""
-      ## @param stateStore.s3.authentication.existingSecretName Use existing Secret for S3 authentication.
+      ## @param stateStore.minio.authentication.existingSecretName Use existing Secret for MinIO authentication.
       ## If set, use the existing Secret instead of creating a new one.
       ## Secret must contain MINIO_USERNAME and MINIO_PASSWORD keys.
       ##
@@ -434,7 +434,7 @@ stateStore:
       ## @param stateStore.gcs.authentication.credentials GCS credentials.
       ##
       credentials: ""
-      ## @param stateStore.s3.authentication.existingSecretName Use existing Secret for S3 authentication.
+      ## @param stateStore.gcs.authentication.existingSecretName Use existing Secret for GCS authentication.
       ## If set, use the existing Secret instead of creating a new one.
       ## Secret must contain GOOGLE_APPLICATION_CREDENTIALS key.
       ##
@@ -472,9 +472,41 @@ stateStore:
       ## @param stateStore.oss.authentication.secretAccessKey OSS secret access key.
       ##
       secretAccessKey: ""
-      ## @param stateStore.s3.authentication.existingSecretName Use existing Secret for S3 authentication.
+      ## @param stateStore.oss.authentication.existingSecretName Use existing Secret for OSS authentication.
       ## If set, use the existing Secret instead of creating a new one.
       ## Secret must contain OSS_ACCESS_KEY_ID and OSS_ACCESS_KEY_SECRET keys.
+      ##
+      existingSecretName: ""
+
+  ## @section stateStore.obs Huawei Cloud OBS values.
+  ##
+
+  obs:
+    ## @param stateStore.obs.enabled Use OSS state store. Only one state store backend can be enabled.
+    ##
+    enabled: false
+    ## @param stateStore.obs.region OSS region.
+    ##
+    region: ""
+    ## @param stateStore.obs.bucket OSS bucket.
+    ##
+    bucket: ""
+
+    authentication:
+      ## @param stateStore.obs.authentication.useServiceAccount Use OBS service account authentication.
+      ## If enabled, accessKey and secretAccessKey will be ignored.
+      ## Otherwise, accessKey and secretAccessKey are required and will be stored in a Secret.
+      ##
+      useServiceAccount: false
+      ## @param stateStore.obs.authentication.accessKey OBS access key.
+      ##
+      accessKey: ""
+      ## @param stateStore.obs.authentication.secretAccessKey OBS secret access key.
+      ##
+      secretAccessKey: ""
+      ## @param stateStore.obs.authentication.existingSecretName Use existing Secret for OBS authentication.
+      ## If set, use the existing Secret instead of creating a new one.
+      ## Secret must contain OBS_ACCESS_KEY_ID and OBS_SECRET_ACCESS_KEY keys.
       ##
       existingSecretName: ""
 
@@ -507,7 +539,7 @@ stateStore:
       ## @param stateStore.azblob.authentication.accountKey Azure Blob Storage account key.
       ##
       accountKey: ""
-      ## @param stateStore.s3.authentication.existingSecretName Use existing Secret for S3 authentication.
+      ## @param stateStore.azblob.authentication.existingSecretName Use existing Secret for Azure Blob authentication.
       ## If set, use the existing Secret instead of creating a new one.
       ## Secret must contain AZBLOB_ACCOUNT_NAME and AZBLOB_ACCOUNT_KEY keys.
       ##
