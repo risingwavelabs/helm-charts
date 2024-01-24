@@ -122,7 +122,7 @@ diagnosticMode:
 image:
   registry:
   repository: risingwavelabs/risingwave
-  tag: v1.5.4
+  tag: v1.6.0
   digest: ""
   ## @param image.pullPolicy RisingWave image pull policy
   ## Specify a imagePullPolicy
@@ -977,12 +977,13 @@ compactorComponent:
   ## Defaults to full.
   rustBacktrace: full
 
+## Deprecated. Don not use it for RisingWave v1.5+.
 connectorComponent:
   ## @param connectorComponent.enabled Enable the connector component.
   ## Connector component will be attached containers to each compute and meta pod.
-  ## Defaults to true.
+  ## Defaults to false.
   ##
-  enabled: true
+  enabled: false
 
   ## @param connectorComponent.extraEnvVars Extra environment variables to add to the connector container.
   ##
