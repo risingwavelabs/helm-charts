@@ -171,6 +171,10 @@ spec:
         - name: OSS_REGION
           value: {{ .Values.stateStore.oss.region }}
         {{- end }}
+        {{- if .Values.stateStore.obs.enabled }}
+        - name: OBS_REGION
+          value: {{ .Values.stateStore.obs.region }}
+        {{- end }}
         {{- if and .Values.tags.minio .Values.stateStore.minio.enabled }}
         - name: MINIO_USERNAME
           valueFrom:
@@ -191,6 +195,9 @@ spec:
         {{- else if .Values.stateStore.oss.enabled }}
         - name: OSS_ENDPOINT
           value: {{ include "risingwave.oss.endpoint" . }}
+        {{- else if .Values.stateStore.obs.enabled }}
+        - name: OBS_ENDPOINT
+          value: {{ include "risingwave.obs.endpoint" . }}
         {{- else if .Values.stateStore.azblob.enabled }}
         - name: AZBLOB_ENDPOINT
           value: {{ .Values.stateStore.azblob.endpoint }}

@@ -130,6 +130,17 @@ Create the name of the OSS credentials Secret to use
 {{- end }}
 
 {{/*
+Create the name of the Huawei Cloud OBS credentials Secret to use
+*/}}
+{{- define "risingwave.obsCredentialsSecretName" -}}
+{{- if .Values.stateStore.obs.authentication.existingSecretName }}
+{{- .Values.stateStore.obs.authentication.existingSecretName }}
+{{- else }}
+{{- printf "%s-obs" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
+
+{{/*
 Create the name of the AzureBlob credentials Secret to use
 */}}
 {{- define "risingwave.azblobCredentialsSecretName" -}}
@@ -154,6 +165,8 @@ Create the name of credential Secret to use. Return empty string if the Secret i
 {{- include "risingwave.azblobCredentialsSecretName" . }}
 {{- else if and .Values.stateStore.gcs.enabled (not .Values.stateStore.gcs.authentication.useServiceAccount) }}
 {{- include "risingwave.gcsCredentialsSecretName" . }}
+{{- else if and .Values.stateStore.obs.enabled (not .Values.stateStore.obs.authentication.useServiceAccount)}}
+{{- include "risingwave.obsCredentialsSecretName" . }}
 {{- else }}
 {{- print "" }}
 {{- end }}
@@ -183,6 +196,8 @@ Create the hummock connection string to use.
 {{- printf "hummock+gcs://%s@%s" .Values.stateStore.gcs.bucket .Values.stateStore.gcs.root }}
 {{- else if .Values.stateStore.hdfs.enabled }}
 {{- printf "hummock+hdfs://%s@%s" .Values.stateStore.hdfs.nameNode  .Values.stateStore.hdfs.root }}
+{{- else if .Values.stateStore.obs.enabled }}
+{{- printf "hummock+obs://%s" .Values.stateStore.obs.bucket }}
 {{- else }}
 {{- print "" }}
 {{- end }}
@@ -293,4 +308,11 @@ Create the OSS endpoint to use.
 {{- else }}
 {{- printf "https://oss-$(OSS_REGION).aliyuncs.com" }}
 {{- end }}
+{{- end }}
+
+{{/*
+Create the OBS endpoint to use.
+*/}}
+{{- define "risingwave.obs.endpoint" }}
+{{- printf "https://obs.$(OBS_REGION).myhuaweicloud.com" }}
 {{- end }}

@@ -14,6 +14,7 @@ Validate state store backends.
 {{- if .oss.enabled }}{{ $count = add1 $count }}{{- end }}
 {{- if .azblob.enabled }}{{ $count = add1 $count }}{{- end }}
 {{- if .hdfs.enabled }}{{ $count = add1 $count }}{{- end }}
+{{- if .obs.enabled}}{{ $count = add1 $count }}{{- end }}
 {{- if (eq $count 0 ) }}
 {{- fail "No state store backend is enabled, required one"}}
 {{- else if (gt $count 1) }}
@@ -126,6 +127,28 @@ Validate parameters of OSS state store.
 {{- end }}
 {{- if empty .authentication.secretAccessKey }}
 {{- fail "State store OSS authentication secret access key must be set" }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+Validate parameters of OBS state store.
+*/}}
+{{- with .Values.stateStore.obs }}
+{{- if .enabled }}
+{{- if empty .bucket }}
+{{- fail "State store OBS bucket must be set" }}
+{{- end }}
+{{- if empty .region }}
+{{- fail "State store OBS region must be set" }}
+{{- end }}
+{{- if and (empty .authentication.existingSecretName) (not .authentication.useServiceAccount) }}
+{{- if empty .authentication.accessKey }}
+{{- fail "State store OBS authentication access key must be set" }}
+{{- end }}
+{{- if empty .authentication.secretAccessKey }}
+{{- fail "State store OBS authentication secret access key must be set" }}
 {{- end }}
 {{- end }}
 {{- end }}
