@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "risingwave-extensions.fullname" . }}-test-connection"
+  labels:
+    {{- include "risingwave-extensions.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "risingwave-extensions.fullname" . }}:{{ .Values.service.port }}']
+  restartPolicy: Never
