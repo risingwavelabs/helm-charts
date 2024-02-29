@@ -73,7 +73,7 @@ spec:
               CREATE USER $PG_ROOT_USER WITH SUPERUSER PASSWORD '$PG_ROOT_PASSWORD';
               ALTER USER root WITH PASSWORD '$PG_REAL_ROOT_PASSWORD';
           {{- else }}
-              ALTER USER $PG_ROOT_USER WITH SUPERUSER PASSWORD 'PG_ROOT_PASSWORD';
+              ALTER USER $PG_ROOT_USER WITH SUPERUSER PASSWORD '$PG_ROOT_PASSWORD';
           {{- end }}
           EOSQL
           echo "Created user $PG_ROOT_USER"
