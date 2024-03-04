@@ -133,3 +133,5 @@ Temporary Items
 .apdisk
 
 .idea
+**/.debug
+**/__snapshot__

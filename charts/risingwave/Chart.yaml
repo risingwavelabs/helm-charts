@@ -29,12 +29,12 @@ appVersion: v1.6.1
 
 dependencies:
 - name: etcd
-  version: "9.1.*"
+  version: "~9.14.3"
   repository: https://charts.bitnami.com/bitnami
   tags:
   - etcd
 - name: minio
-  version: "12.6.*"
+  version: "~13.7.0"
   repository: https://charts.bitnami.com/bitnami
   condition: stateStore.minio.enabled
   tags:
