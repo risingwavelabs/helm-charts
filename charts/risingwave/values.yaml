@@ -122,7 +122,7 @@ diagnosticMode:
 image:
   registry:
   repository: risingwavelabs/risingwave
-  tag: v1.6.1
+  tag: v1.7.0
   digest: ""
   ## @param image.pullPolicy RisingWave image pull policy
   ## Specify a imagePullPolicy
@@ -1122,7 +1122,7 @@ wait: false
 postgresql:
   ## @param postgresql.image PostgreSQL image.
   ##
-  image: postgres:15.3
+  image: postgres:16.2
 
 busybox:
   ## @param busybox.image Busybox image.
