@@ -4,13 +4,12 @@ on:
   pull_request:
     branches:
     - main
-    paths:
-    - 'charts/**'
   push:
     branches:
     - main
-    paths:
-    - 'charts/**'
+  merge_group:
+    branches:
+    - main
   workflow_dispatch:
 
 jobs:
@@ -23,7 +22,7 @@ jobs:
         fetch-depth: 0
 
     - name: Install Helm
-      uses: azure/setup-helm@v3
+      uses: azure/setup-helm@v4
 
     - name: Install helm-unittests
       run: |
