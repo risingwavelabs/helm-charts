@@ -37,7 +37,8 @@ helm install --set wait=true,tags.bundle=true risingwave risingwavelabs/risingwa
 >
 > If the bundled etcd and MinIO don't suit your requirements well, just remove the `tags.bundle` and
 > set the stores accordingly. The options are under `metaStore` and `stateStore`. You can check all the possible values
-> with `helm show values risingwavelabs/risingwave`.
+> with `helm show values risingwavelabs/risingwave`. Here are some examples for both [meta store](examples/meta-stores)
+> and [state store](examples/state-stores).
 
 Example output:
 
