@@ -186,7 +186,7 @@ spec:
         {{- end }}
         {{- if .Values.metaStore.etcd.authentication.enabled }}
         - secretRef:
-            name: {{- include "risingwave.etcdCredentialsSecretName" . }}
+            name: {{ include "risingwave.etcdCredentialsSecretName" . }}
         {{- end }}
         env:
         # Disable auto region loading. Refer to the original source for more information.

@@ -1,0 +1,73 @@
+suite: Test config map
+templates:
+- templates/configmap.yaml
+chart:
+  appVersion: 1.0.0
+  version: 0.0.1
+tests:
+- it: file should not render when using existing config map
+  set:
+    existingConfigMap: "CONFIG_MAP"
+  asserts:
+  - hasDocuments:
+      count: 0
+- it: file should contain the config map
+  set:
+    configuration: |
+      [example]
+      a = b
+  asserts:
+  - containsDocument:
+      apiVersion: v1
+      kind: ConfigMap
+  - equal:
+      path: metadata.name
+      value: RELEASE-NAME-risingwave-configuration
+  - equal:
+      path: data
+      value:
+        risingwave.toml: |
+          [example]
+          a = b
+- it: config map should contain the labels and annotations
+  set:
+    configuration: |
+      [example]
+      a = b
+  asserts:
+  - isSubset:
+      path: metadata.labels
+      content:
+        helm.sh/chart: risingwave-0.0.1
+        app.kubernetes.io/name: risingwave
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/version: 1.0.0
+        app.kubernetes.io/instance: RELEASE-NAME
+  - notExists:
+      path: metadata.annotations
+- it: config map should reflect the common labels and annotations
+  set:
+    commonLabels:
+      LABEL: LABEL_V
+    commonAnnotations:
+      ANNOTATION: ANNOTATION_V
+
+    configuration: |
+      [example]
+      a = b
+  asserts:
+  - isSubset:
+      path: metadata.labels
+      content:
+        helm.sh/chart: risingwave-0.0.1
+        app.kubernetes.io/name: risingwave
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/version: 1.0.0
+        app.kubernetes.io/instance: RELEASE-NAME
+        LABEL: LABEL_V
+  - exists:
+      path: metadata.annotations
+  - isSubset:
+      path: metadata.annotations
+      content:
+        ANNOTATION: ANNOTATION_V

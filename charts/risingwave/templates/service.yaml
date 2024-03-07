@@ -17,7 +17,7 @@ metadata:
   {{- if or $annotations .Values.service.annotations }}
   annotations:
     {{- if $annotations }}
-    {{ nindent 4 $annotations }}
+    {{- nindent 4 $annotations }}
     {{- end }}
     {{- if .Values.service.annotations }}
     {{- toYaml .Values.service.annotations | nindent 4 }}
@@ -25,18 +25,23 @@ metadata:
   {{- end }}
 spec:
   type: {{ .Values.service.type }}
+  {{- if .Values.service.externalIPs }}
   externalIPs:
   {{- range .Values.service.externalIPs }}
   - {{ . }}
   {{- end }}
+  {{- end }}
   {{- if .Values.service.loadBalancerSourceRanges }}
   loadBalancerSourceRanges:
-  {{ toYaml .Values.service.loadBalancerSourceRanges | indent 2 }}
+  {{- range .Values.service.loadBalancerSourceRanges }}
+  - {{ . }}
+  {{- end }}
   {{- end }}
   externalTrafficPolicy: {{ .Values.service.externalTrafficPolicy }}
   sessionAffinity: {{ .Values.service.sessionAffinity }}
   {{- if .Values.service.sessionAffinityConfig }}
-  sessionAffinityConfig: {{- toYaml .Values.service.sessionAffinityConfig | indent 4 }}
+  sessionAffinityConfig:
+    {{- toYaml .Values.service.sessionAffinityConfig | nindent 4 }}
   {{- end }}
   selector:
     {{- include "risingwave.selectorLabels" . | nindent 4 }}
