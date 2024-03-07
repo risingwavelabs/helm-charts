@@ -236,6 +236,12 @@ standalone:
   ##
   extraEnvVarsSecret: ""
 
+  ## @param standalone.extraVolumes Extra volumes to add to the component pods.
+  extraVolumes: []
+
+  ## @param standalone.extraVolumeMounts Extra volume mounts to add to the component pods.
+  extraVolumeMounts: []
+
   ## @param standalone.replicas Number of replicas.
   ##
   replicas: 1
@@ -336,6 +342,11 @@ metaStore:
       ## @param metaStore.etcd.authentication.password Etcd password
       ##
       password: ""
+      ## @param metaStore.etcd.authentication.existingSecretName Use existing Secret for etcd authentication.
+      ## If set, use the existing Secret instead of creating a new one.
+      ## Secret must contain `username` and `password` keys.
+      ##
+      existingSecretName: ""
 
 ## @section RisingWave state store values.
 ##
@@ -602,6 +613,12 @@ metaComponent:
   ##
   extraEnvVarsSecret: ""
 
+  ## @param metaComponent.extraVolumes Extra volumes to add to the component pods.
+  extraVolumes: []
+
+  ## @param metaComponent.extraVolumeMounts Extra volume mounts to add to the component pods.
+  extraVolumeMounts: []
+
   ## @param metaComponent.replicas Number of replicas.
   ##
   replicas: 1
@@ -700,6 +717,12 @@ frontendComponent:
   ## @param frontendComponent.extraEnvVarsSecret Name of existing Secret containing extra environment variables.
   ##
   extraEnvVarsSecret: ""
+
+  ## @param frontendComponent.extraVolumes Extra volumes to add to the component pods.
+  extraVolumes: []
+
+  ## @param frontendComponent.extraVolumeMounts Extra volume mounts to add to the component pods.
+  extraVolumeMounts: []
 
   ## @param frontendComponent.replicas Number of replicas.
   ##
@@ -800,6 +823,12 @@ computeComponent:
   ##
   extraEnvVarsSecret: ""
 
+  ## @param computeComponent.extraVolumes Extra volumes to add to the component pods.
+  extraVolumes: []
+
+  ## @param computeComponent.extraVolumeMounts Extra volume mounts to add to the component pods.
+  extraVolumeMounts: []
+
   ## @param computeComponent.replicas Number of replicas.
   ##
   replicas: 1
@@ -898,6 +927,12 @@ compactorComponent:
   ## @param compactorComponent.extraEnvVarsSecret Name of existing Secret containing extra environment variables.
   ##
   extraEnvVarsSecret: ""
+
+  ## @param compactorComponent.extraVolumes Extra volumes to add to the component pods.
+  extraVolumes: []
+
+  ## @param compactorComponent.extraVolumeMounts Extra volume mounts to add to the component pods.
+  extraVolumeMounts: []
 
   ## @param compactorComponent.replicas Number of replicas.
   ##

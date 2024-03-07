@@ -54,6 +54,9 @@ spec:
       - name: config
         configMap:
           name: {{ include "risingwave.configurationConfigMapName" . }}
+      {{- if .Values.standalone.extraVolumes }}
+      {{- toYaml .Values.standalone.extraVolumes | nindent 6}}
+      {{- end }}
       restartPolicy: Always
       {{- if .Values.standalone.terminationGracePeriodSeconds }}
       terminationGracePeriodSeconds: {{ .Values.standalone.terminationGracePeriodSeconds }}
@@ -184,7 +187,7 @@ spec:
         - secretRef:
             name: {{ $credentialsSecret }}
         {{- end }}
-        {{- if .Values.metaStore.etcd.authentication.enabled }}
+        {{- if and .Values.metaStore.etcd.authentication.enabled (not .Values.metaStore.etcd.authentication.existingSecretName) }}
         - secretRef:
             name: {{ include "risingwave.etcdCredentialsSecretName" . }}
         {{- end }}
@@ -286,6 +289,19 @@ spec:
               key: {{ include "etcd.secretPasswordKey" .Subcharts.etcd }}
               name: {{ include "etcd.secretName" .Subcharts.etcd }}
         {{- end }}
+        {{- else }}
+        {{- if and .Values.metaStore.etcd.authentication.enabled .Values.metaStore.etcd.authentication.existingSecretName }}
+        - name: RW_ETCD_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: username
+              name: {{ include "risingwave.etcdCredentialsSecretName" . }}
+        - name: RW_ETCD_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: {{ include "risingwave.etcdCredentialsSecretName" . }}
+        {{- end }}
         {{- end }}
         {{- range .Values.standalone.extraEnvVars }}
         - {{ . }}
@@ -303,6 +319,9 @@ spec:
         - mountPath: /risingwave/config
           name: config
           readOnly: true
+        {{- if .Values.standalone.extraVolumeMounts }}
+        {{- toYaml .Values.standalone.extraVolumeMounts | nindent 8 }}
+        {{- end }}
         {{- if .Values.standalone.securityContext }}
         securityContext: {{ toYaml .Values.standalone.securityContext | nindent 10 }}
         {{- end }}
