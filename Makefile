@@ -11,3 +11,6 @@ test:
 
 sync-crds:
 	./scripts/sync-crds.sh charts/risingwave-operator/crds
+
+sanitize:
+	@./scripts/sanitize.sh
