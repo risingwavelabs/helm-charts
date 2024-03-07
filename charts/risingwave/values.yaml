@@ -5,16 +5,22 @@
 ## Ref: https://helm.sh/docs/topics/charts/#tags-and-condition-fields-in-dependencies
 ##
 tags:
+  ## @param tags.bundle Tag to control all bundled dependencies, including bitnami/etcd
+  ## and bitnami/minio. Please refer to tags.etcd and tags.minio for more details.
+  ## @values true, false
+  ##
+  bundle: false
+
   ## @param tags.etcd Tag to control the bitnami/etcd dependency.
   ## @values true,false
   ##
-  etcd: true
+  etcd: false
 
   ## @param tags.minio Tag to control the bitnami/minio dependency.
   ## @values true,false
   ## Note that even if it is true, when the state store isn't minio, it won't be installed.
   ##
-  minio: true
+  minio: false
 
 ## @section Values for the bitnami/etcd dependency.
 ## Ref: https://github.com/bitnami/charts/blob/main/bitnami/etcd/values.yaml
@@ -327,6 +333,10 @@ metaStore:
   ## @section metaStore.etcd only takes effect when tags.etcd is false.
   ##
   etcd:
+    ## @param metaStore.etcd.enabled Enable/disable the meta store backend.
+    ##
+    enabled: false
+
     ## @param metaStore.etcd.endpoints [array] Etcd endpoints
     ##
     endpoints: [ ]
@@ -401,7 +411,7 @@ stateStore:
   minio:
     ## @param stateStore.minio.enabled Use MinIO state store. Only one state store backend can be enabled.
     ##
-    enabled: true
+    enabled: false
     ## @param stateStore.minio.endpoint MinIO endpoint.
     ##
     endpoint: ""

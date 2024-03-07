@@ -7,171 +7,211 @@ SPDX-License-Identifier: APACHE-2.0
 Validate state store backends.
 */}}
 {{- $count := 0 -}}
+{{- $name := "" }}
+# Count without MinIO.
 {{- with .Values.stateStore }}
-{{- if .s3.enabled }}{{ $count = add1 $count }}{{- end }}
-{{- if .minio.enabled }}{{ $count = add1 $count }}{{- end }}
-{{- if .gcs.enabled }}{{ $count = add1 $count }}{{- end }}
-{{- if .oss.enabled }}{{ $count = add1 $count }}{{- end }}
-{{- if .azblob.enabled }}{{ $count = add1 $count }}{{- end }}
-{{- if .hdfs.enabled }}{{ $count = add1 $count }}{{- end }}
-{{- if .obs.enabled}}{{ $count = add1 $count }}{{- end }}
-{{- if (eq $count 0 ) }}
-{{- fail "No state store backend is enabled, required one"}}
-{{- else if (gt $count 1) }}
-{{- fail "Multiple state store backends are enabled, only one is allowed"}}
+  {{- if .s3.enabled }}{{ $count = add1 $count }}{{ $name = "S3" }}{{- end }}
+  {{- if .gcs.enabled }}{{ $count = add1 $count }}{{ $name = "GCS" }}{{- end }}
+  {{- if .oss.enabled }}{{ $count = add1 $count }}{{ $name = "OSS" }}{{- end }}
+  {{- if .azblob.enabled }}{{ $count = add1 $count }}{{ $name = "AZBLOB" }}{{- end }}
+  {{- if .hdfs.enabled }}{{ $count = add1 $count }}{{ $name = "HDFS" }}{{- end }}
+  {{- if .obs.enabled}}{{ $count = add1 $count }}{{ $name = "OBS" }}{{- end }}
 {{- end }}
+# If there's no state store and bundled minio enabled, count = 1
+{{- if (include "risingwave.bundle.minio.enabled" .) }}
+  {{- if and (eq $count 0) }}
+    {{ $count = add1 $count }}
+    {{ $name = "MinIO" }}
+  {{- else }}
+    {{- fail "Unnecessary bundled minio when $name is enabled! Try setting `tags.minio=false,tags.bundle=false` and retry!"}}
+  {{- end }}
+{{- else }}
+  {{- if .Values.stateStore.oss.enabled }}{{ $count = add1 $count }}{{ $name = "MinIO" }}{{- end }}
+{{- end }}
+{{- if (eq $count 0 ) }}
+  {{- fail "No state store backend!\n  Please set up one of S3, MinIO, GCS, OSS, AZBLOB, HDFS, and OBS under `stateStore`, or use the bundled MinIO by setting `tags.minio=true`!"}}
+{{- else if (gt $count 1) }}
+  {{- fail "More than one state store backend!"}}
 {{- end }}
 
 {{/*
 Validate the embedded MinIO.
 */}}
-{{- if and .Values.tags.minio .Values.stateStore.minio.enabled }}
-{{- if empty .Values.minio.defaultBuckets }}
-{{- fail "Create at least one default bucket in MinIO to use" }}
+{{- if (include "risingwave.bundle.minio.enabled" .) }}
+  {{- if empty .Values.minio.defaultBuckets }}
+    {{- fail "Set at least one bucket in `minio.defaultBuckets`!" }}
+  {{- end }}
 {{- end }}
+
+{{/*
+Validate meta store backends.
+*/}}
+{{- $count = 0 -}}
+{{- $name = "" }}
+# Count without etcd.
+{{- with .Values.metaStore }}
+{{/*  {{- if .etcd.enabled }}{{ $count = add1 $count }}{{ $name = "etcd" }}{{- end }}*/}}
+{{- end }}
+# If there's no state store and bundled minio enabled, count = 1
+{{- if (include "risingwave.bundle.etcd.enabled" .) }}
+  {{- if and (eq $count 0) }}
+    {{ $count = add1 $count }}
+    {{ $name = "etcd" }}
+  {{- else }}
+    {{- fail "Unnecessary bundled etcd when $name is enabled!"}}
+  {{- end }}
+{{- else }}
+  {{- if .Values.metaStore.etcd.enabled }}{{ $count = add1 $count }}{{ $name = "etcd" }}{{- end }}
+{{- end }}
+{{- if (eq $count 0 ) }}
+  {{- fail "No meta store backend!\n  Please set up an external etcd under `metaStore`, or use the bundled one by setting `tags.etcd=true`!"}}
+{{- else if (gt $count 1) }}
+  {{- fail "More than one meta store backend!"}}
 {{- end }}
 
 {{/*
 Validate parameters of etcd meta store.
 */}}
-{{- if not .Values.tags.etcd }}
-{{- if empty .Values.metaStore.etcd.endpoints }}
-{{- fail "Meta store etcd endpoints must be set" }}
-{{- end }}
-{{- if .Values.metaStore.etcd.authentication.enabled }}
-{{- if empty .Values.metaStore.etcd.authentication.username }}
-{{- fail "Meta store etcd authentication is enabled, username must be set" }}
-{{- end }}
-{{- if empty .Values.metaStore.etcd.authentication.password }}
-{{- fail "Meta store etcd authentication is enabled, password must be set" }}
-{{- end }}
-{{- end }}
+{{- if not (include "risingwave.bundle.etcd.enabled" .) }}
+  {{- if .Values.metaStore.etcd.enabled }}
+    {{- if empty .Values.metaStore.etcd.endpoints }}
+      {{- fail "Meta store etcd endpoints must be set" }}
+    {{- end }}
+    {{- if .Values.metaStore.etcd.authentication.enabled }}
+      {{- if empty .Values.metaStore.etcd.authentication.username }}
+        {{- fail "Meta store etcd authentication is enabled, username must be set" }}
+      {{- end }}
+      {{- if empty .Values.metaStore.etcd.authentication.password }}
+        {{- fail "Meta store etcd authentication is enabled, password must be set" }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
 {{- end }}
 
 {{/*
 Validate parameters of S3 state store.
 */}}
 {{- with .Values.stateStore.s3 }}
-{{- if .enabled }}
-{{- if empty .bucket }}
-{{- fail "State store S3 bucket must be set" }}
-{{- end }}
-{{- if empty .region }}
-{{- fail "State store S3 region must be set" }}
-{{- end }}
-{{- if and (empty .authentication.existingSecretName) (not .authentication.useServiceAccount) }}
-{{- if empty .authentication.accessKey }}
-{{- fail "State store S3 authentication access key must be set" }}
-{{- end }}
-{{- if empty .authentication.secretAccessKey }}
-{{- fail "State store S3 authentication secret access key must be set" }}
-{{- end }}
-{{- end }}
-{{- end }}
+  {{- if .enabled }}
+    {{- if empty .bucket }}
+      {{- fail "State store S3 bucket must be set" }}
+    {{- end }}
+    {{- if empty .region }}
+      {{- fail "State store S3 region must be set" }}
+    {{- end }}
+    {{- if and (empty .authentication.existingSecretName) (not .authentication.useServiceAccount) }}
+      {{- if empty .authentication.accessKey }}
+        {{- fail "State store S3 authentication access key must be set" }}
+      {{- end }}
+      {{- if empty .authentication.secretAccessKey }}
+        {{- fail "State store S3 authentication secret access key must be set" }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
 {{- end }}
 
 {{/*
 Validate parameters of external MinIO state store.
 */}}
-{{- if not .Values.tags.minio }}
-{{- with .Values.stateStore.minio }}
-{{- if .enabled }}
-{{- if empty .endpoint }}
-{{- fail "State store MinIO endpoint must be set" }}
-{{- end }}
-{{- if empty .bucket }}
-{{- fail "State store MinIO bucket must be set" }}
-{{- end }}
-{{- if empty .authentication.existingSecretName }}
-{{- if empty .authentication.username }}
-{{- fail "State store MinIO authentication username must be set" }}
-{{- end }}
-{{- if empty .authentication.password }}
-{{- fail "State store MinIO authentication password key must be set" }}
-{{- end }}
-{{- end }}
-{{- end }}
-{{- end }}
+{{- if not (include "risingwave.bundle.minio.enabled" .) }}
+  {{- with .Values.stateStore.minio }}
+    {{- if .enabled }}
+      {{- if empty .endpoint }}
+        {{- fail "State store MinIO endpoint must be set" }}
+      {{- end }}
+      {{- if empty .bucket }}
+        {{- fail "State store MinIO bucket must be set" }}
+      {{- end }}
+      {{- if empty .authentication.existingSecretName }}
+        {{- if empty .authentication.username }}
+          {{- fail "State store MinIO authentication username must be set" }}
+        {{- end }}
+        {{- if empty .authentication.password }}
+          {{- fail "State store MinIO authentication password key must be set" }}
+        {{- end }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
 {{- end }}
 
 {{/*
 Validate parameter of GCS state store.
 */}}
 {{- with .Values.stateStore.gcs }}
-{{- if .enabled }}
-{{- if empty .bucket }}
-{{- fail "State store GCS bucket must be set" }}
-{{- end }}
-{{- if and (empty .authentication.existingSecretName) (not .authentication.useServiceAccount) }}
-{{- if empty .authentication.credentials }}
-{{- fail "State store GCS authentication credentials must be set" }}
-{{- end }}
-{{- end }}
-{{- end }}
+  {{- if .enabled }}
+    {{- if empty .bucket }}
+      {{- fail "State store GCS bucket must be set" }}
+    {{- end }}
+    {{- if and (empty .authentication.existingSecretName) (not .authentication.useServiceAccount) }}
+      {{- if empty .authentication.credentials }}
+        {{- fail "State store GCS authentication credentials must be set" }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
 {{- end }}
 
 {{/*
 Validate parameters of OSS state store.
 */}}
 {{- with .Values.stateStore.oss }}
-{{- if .enabled }}
-{{- if empty .bucket }}
-{{- fail "State store OSS bucket must be set" }}
-{{- end }}
-{{- if empty .region }}
-{{- fail "State store OSS region must be set" }}
-{{- end }}
-{{- if and (empty .authentication.existingSecretName) (not .authentication.useServiceAccount) }}
-{{- if empty .authentication.accessKey }}
-{{- fail "State store OSS authentication access key must be set" }}
-{{- end }}
-{{- if empty .authentication.secretAccessKey }}
-{{- fail "State store OSS authentication secret access key must be set" }}
-{{- end }}
-{{- end }}
-{{- end }}
+  {{- if .enabled }}
+    {{- if empty .bucket }}
+      {{- fail "State store OSS bucket must be set" }}
+    {{- end }}
+    {{- if empty .region }}
+      {{- fail "State store OSS region must be set" }}
+    {{- end }}
+    {{- if and (empty .authentication.existingSecretName) (not .authentication.useServiceAccount) }}
+      {{- if empty .authentication.accessKey }}
+        {{- fail "State store OSS authentication access key must be set" }}
+      {{- end }}
+      {{- if empty .authentication.secretAccessKey }}
+        {{- fail "State store OSS authentication secret access key must be set" }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
 {{- end }}
 
 {{/*
 Validate parameters of OBS state store.
 */}}
 {{- with .Values.stateStore.obs }}
-{{- if .enabled }}
-{{- if empty .bucket }}
-{{- fail "State store OBS bucket must be set" }}
-{{- end }}
-{{- if empty .region }}
-{{- fail "State store OBS region must be set" }}
-{{- end }}
-{{- if and (empty .authentication.existingSecretName) (not .authentication.useServiceAccount) }}
-{{- if empty .authentication.accessKey }}
-{{- fail "State store OBS authentication access key must be set" }}
-{{- end }}
-{{- if empty .authentication.secretAccessKey }}
-{{- fail "State store OBS authentication secret access key must be set" }}
-{{- end }}
-{{- end }}
-{{- end }}
+  {{- if .enabled }}
+    {{- if empty .bucket }}
+      {{- fail "State store OBS bucket must be set" }}
+    {{- end }}
+    {{- if empty .region }}
+      {{- fail "State store OBS region must be set" }}
+    {{- end }}
+    {{- if and (empty .authentication.existingSecretName) (not .authentication.useServiceAccount) }}
+      {{- if empty .authentication.accessKey }}
+        {{- fail "State store OBS authentication access key must be set" }}
+      {{- end }}
+      {{- if empty .authentication.secretAccessKey }}
+        {{- fail "State store OBS authentication secret access key must be set" }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
 {{- end }}
 
 {{/*
 Validate parameters of AzureBlob state store.
 */}}
 {{- with .Values.stateStore.azblob }}
-{{- if .enabled }}
-{{- if empty .endpoint }}
-{{- fail "State store AzureBlob endpoint must be set" }}
-{{- end }}
-{{- if empty .container }}
-{{- fail "State store AzureBlob container must be set" }}
-{{- end }}
-{{- if and (empty .authentication.existingSecretName) (not .authentication.useServiceAccount) }}
-{{- if empty .authentication.accountKey }}
-{{- fail "State store AzureBlob authentication account key must be set" }}
-{{- end }}
-{{- if empty .authentication.accountName }}
-{{- fail "State store AzureBlob authentication account name must be set" }}
-{{- end }}
-{{- end }}
-{{- end }}
+  {{- if .enabled }}
+    {{- if empty .endpoint }}
+      {{- fail "State store AzureBlob endpoint must be set" }}
+    {{- end }}
+    {{- if empty .container }}
+      {{- fail "State store AzureBlob container must be set" }}
+    {{- end }}
+    {{- if and (empty .authentication.existingSecretName) (not .authentication.useServiceAccount) }}
+      {{- if empty .authentication.accountKey }}
+        {{- fail "State store AzureBlob authentication account key must be set" }}
+      {{- end }}
+      {{- if empty .authentication.accountName }}
+        {{- fail "State store AzureBlob authentication account name must be set" }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
 {{- end }}

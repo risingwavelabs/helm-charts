@@ -28,17 +28,21 @@ version: 0.1.44
 appVersion: v1.7.0
 
 dependencies:
+- name: common
+  repository: https://charts.bitnami.com/bitnami
+  version: 2.x.x
 - name: etcd
-  version: "~9.14.3"
+  version: 9.x.x
   repository: https://charts.bitnami.com/bitnami
   tags:
   - etcd
+  - bundle
 - name: minio
-  version: "~13.7.0"
+  version: 13.x.x
   repository: https://charts.bitnami.com/bitnami
-  condition: stateStore.minio.enabled
   tags:
   - minio
+  - bundle
 
 home: https://www.risingwave.com
 icon: https://avatars.githubusercontent.com/u/77175557?s=48&v=4

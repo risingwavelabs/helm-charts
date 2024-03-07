@@ -116,7 +116,7 @@ spec:
             --state-store $(RW_STATE_STORE)
             --data-directory $(RW_DATA_DIRECTORY)
             --config-path /risingwave/config/risingwave.toml
-        {{- if .Values.tags.etcd }}
+        {{- if (include "risingwave.bundle.etcd.enabled" .) }}
         {{- if and (not .Values.etcd.auth.rbac.allowNoneAuthentication) .Values.etcd.auth.rbac.create }}
             --etcd-auth
             --etcd-username $(RW_ETCD_USERNAME)
@@ -232,7 +232,7 @@ spec:
         - name: OBS_REGION
           value: {{ .Values.stateStore.obs.region }}
         {{- end }}
-        {{- if and .Values.tags.minio .Values.stateStore.minio.enabled }}
+        {{- if (include "risingwave.bundle.minio.enabled" .) }}
         - name: MINIO_USERNAME
           valueFrom:
             secretKeyRef:
@@ -279,7 +279,7 @@ spec:
           value: {{ include "risingwave.metaStoreEtcdEndpoints" . }}
         - name: RW_ETCD_AUTH
           value: {{ include "risingwave.metaStoreAuthRequired" . | quote }}
-        {{- if .Values.tags.etcd }}
+        {{- if (include "risingwave.bundle.etcd.enabled" .) }}
         {{- if .Values.etcd.auth.rbac.create }}
         - name: RW_ETCD_USERNAME
           value: root

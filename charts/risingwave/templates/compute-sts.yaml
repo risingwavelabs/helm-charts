@@ -171,7 +171,7 @@ spec:
         - name: OBS_REGION
           value: {{ .Values.stateStore.obs.region }}
         {{- end }}
-        {{- if and .Values.tags.minio .Values.stateStore.minio.enabled }}
+        {{- if (include "risingwave.bundle.minio.enabled" .) }}
         - name: MINIO_USERNAME
           valueFrom:
             secretKeyRef:
