@@ -184,7 +184,7 @@ spec:
         - secretRef:
             name: {{ $credentialsSecret }}
         {{- end }}
-        {{- if .Values.metaStore.etcd.authentication.enabled }}
+        {{- if and .Values.metaStore.etcd.authentication.enabled (not .Values.metaStore.etcd.authentication.existingSecretName) }}
         - secretRef:
             name: {{ include "risingwave.etcdCredentialsSecretName" . }}
         {{- end }}
@@ -285,6 +285,19 @@ spec:
             secretKeyRef:
               key: {{ include "etcd.secretPasswordKey" .Subcharts.etcd }}
               name: {{ include "etcd.secretName" .Subcharts.etcd }}
+        {{- end }}
+        {{- else }}
+        {{- if and .Values.metaStore.etcd.authentication.enabled .Values.metaStore.etcd.authentication.existingSecretName }}
+        - name: RW_ETCD_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: username
+              name: {{ include "risingwave.etcdCredentialsSecretName" . }}
+        - name: RW_ETCD_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: {{ include "risingwave.etcdCredentialsSecretName" . }}
         {{- end }}
         {{- end }}
         {{- range .Values.standalone.extraEnvVars }}

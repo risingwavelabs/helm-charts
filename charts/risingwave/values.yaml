@@ -336,6 +336,11 @@ metaStore:
       ## @param metaStore.etcd.authentication.password Etcd password
       ##
       password: ""
+      ## @param metaStore.etcd.authentication.existingSecretName Use existing Secret for etcd authentication.
+      ## If set, use the existing Secret instead of creating a new one.
+      ## Secret must contain `username` and `password` keys.
+      ##
+      existingSecretName: ""
 
 ## @section RisingWave state store values.
 ##

@@ -82,7 +82,11 @@ Create the name of the service account to use
 Create the name of the etcd credentials Secret to use
 */}}
 {{- define "risingwave.etcdCredentialsSecretName" -}}
+{{- if .Values.metaStore.etcd.authentication.existingSecretName }}
+{{- .Values.metaStore.etcd.authentication.existingSecretName }}
+{{- else }}
 {{- printf "%s-etcd" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
 {{- end }}
 
 {{/*
