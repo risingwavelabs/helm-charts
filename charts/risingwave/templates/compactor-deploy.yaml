@@ -53,6 +53,9 @@ spec:
       - name: config
         configMap:
           name: {{ include "risingwave.configurationConfigMapName" . }}
+      {{- if .Values.compactorComponent.extraVolumes }}
+      {{- toYaml .Values.compactorComponent.extraVolumes | nindent 6}}
+      {{- end }}
       restartPolicy: Always
       {{- if .Values.compactorComponent.terminationGracePeriodSeconds }}
       terminationGracePeriodSeconds: {{ .Values.compactorComponent.terminationGracePeriodSeconds }}
@@ -221,6 +224,9 @@ spec:
         - mountPath: /risingwave/config
           name: config
           readOnly: true
+        {{- if .Values.compactorComponent.extraVolumeMounts }}
+        {{- toYaml .Values.compactorComponent.extraVolumeMounts | nindent 8 }}
+        {{- end }}
         {{- if .Values.compactorComponent.securityContext }}
         securityContext: {{ toYaml .Values.compactorComponent.securityContext | nindent 10 }}
         {{- end }}
