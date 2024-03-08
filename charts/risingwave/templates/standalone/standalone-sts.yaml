@@ -55,7 +55,7 @@ spec:
         configMap:
           name: {{ include "risingwave.configurationConfigMapName" . }}
       {{- if .Values.standalone.extraVolumes }}
-      {{- toYaml .Values.standalone.extraVolumes | nindent 6}}
+      {{- toYaml .Values.standalone.extraVolumes | nindent 6 }}
       {{- end }}
       restartPolicy: Always
       {{- if .Values.standalone.terminationGracePeriodSeconds }}
@@ -74,16 +74,19 @@ spec:
       shareProcessNamespace: {{ .Values.standalone.shareProcessNamespace }}
       {{- end }}
       {{- if .Values.standalone.podSecurityContext }}
-      securityContext: {{- toYaml .Values.standalone.podSecurityContext | nindent 8 }}
+      securityContext:
+        {{- toYaml .Values.standalone.podSecurityContext | nindent 8 }}
       {{- end }}
       {{- if .Values.standalone.affinity }}
-      affinity: {{- toYaml .Values.standalone.affinity | nindent 8 }}
+      affinity:
+        {{- toYaml .Values.standalone.affinity | nindent 8 }}
       {{- end }}
       {{- if .Values.standalone.schedulerName }}
       schedulerName: {{ .Values.standalone.schedulerName }}
       {{- end }}
       {{- if .Values.standalone.tolerations }}
-      tolerations: {{- toYaml .Values.standalone.tolerations | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.standalone.tolerations | nindent 8 }}
       {{- end }}
       {{- if .Values.standalone.priorityClassName }}
       priorityClassName: {{ .Values.standalone.priorityClassName }}
@@ -142,7 +145,7 @@ spec:
           --compactor-opts=--config-path /risingwave/config/risingwave.toml
             --listen-addr 127.0.0.1:{{ .Values.ports.compactor.svc }}
             --advertise-addr 127.0.0.1:{{ .Values.ports.compactor.svc }}
-            --prometheus-listener-addr 0.0.0.0:{{ .Values.ports.compactor.metrics}}
+            --prometheus-listener-addr 0.0.0.0:{{ .Values.ports.compactor.metrics }}
             --meta-address http://127.0.0.1:{{ .Values.ports.meta.svc }}
         {{- end }}
         ports:
@@ -261,18 +264,10 @@ spec:
         {{- end }}
         - name: RW_CONFIG_PATH
           value: /risingwave/config/risingwave.toml
-        - name: RW_LISTEN_ADDR
-          value: {{ printf "0.0.0.0:%d" (.Values.ports.meta.svc | int)}}
-        - name: RW_ADVERTISE_ADDR
-          value: "$(POD_NAME).{{ include "risingwave.metaHeadlessServiceName" . }}.$(POD_NAMESPACE).svc:{{ .Values.ports.meta.svc }}"
-        - name: RW_PROMETHEUS_HOST
-          value: "0.0.0.0:{{ .Values.ports.meta.metrics }}"
         - name: RW_STATE_STORE
           value: {{ include "risingwave.hummockConnectionString" . }}
         - name: RW_DATA_DIRECTORY
           value: {{ include "risingwave.stateStoreDataDirectory" . }}
-        - name: RW_DASHBOARD_HOST
-          value: "0.0.0.0:{{ .Values.ports.meta.dashboard }}"
         - name: RW_BACKEND
           value: etcd
         - name: RW_ETCD_ENDPOINTS
@@ -303,8 +298,8 @@ spec:
               name: {{ include "risingwave.etcdCredentialsSecretName" . }}
         {{- end }}
         {{- end }}
-        {{- range .Values.standalone.extraEnvVars }}
-        - {{ . }}
+        {{- if .Values.standalone.extraEnvVars }}
+        {{- .Values.standalone.extraEnvVars | toYaml | nindent 8 }}
         {{- end }}
         resources:
           {{- if .Values.standalone.resources.limits }}
@@ -323,7 +318,8 @@ spec:
         {{- toYaml .Values.standalone.extraVolumeMounts | nindent 8 }}
         {{- end }}
         {{- if .Values.standalone.securityContext }}
-        securityContext: {{ toYaml .Values.standalone.securityContext | nindent 10 }}
+        securityContext:
+          {{- toYaml .Values.standalone.securityContext | nindent 10 }}
         {{- end }}
         {{- if not .Values.diagnosticMode.enabled }}
         startupProbe:
@@ -345,8 +341,6 @@ spec:
             port: f-svc
         {{- end }}
       {{- if .Values.standalone.additionalContainers }}
-      {{- range .Values.standalone.additionalContainers }}
-      - {{ toYaml . | nindent 8 }}
-      {{- end }}
+      {{- toYaml .Values.standalone.additionalContainers | nindent 6 }}
       {{- end }}
 {{- end }}

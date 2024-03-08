@@ -54,7 +54,7 @@ spec:
         configMap:
           name: {{ include "risingwave.configurationConfigMapName" . }}
       {{- if .Values.compactorComponent.extraVolumes }}
-      {{- toYaml .Values.compactorComponent.extraVolumes | nindent 6}}
+      {{- toYaml .Values.compactorComponent.extraVolumes | nindent 6 }}
       {{- end }}
       restartPolicy: Always
       {{- if .Values.compactorComponent.terminationGracePeriodSeconds }}
@@ -208,8 +208,8 @@ spec:
           value: {{ include "risingwave.hummockConnectionString" . }}
         - name: RW_DATA_DIRECTORY
           value: {{ include "risingwave.stateStoreDataDirectory" . }}
-        {{- range .Values.compactorComponent.extraEnvVars }}
-        - {{ . }}
+        {{- if .Values.compactorComponent.extraEnvVars }}
+        {{- .Values.compactorComponent.extraEnvVars | toYaml | nindent 8 }}
         {{- end }}
         resources:
           {{- if .Values.compactorComponent.resources.limits }}
@@ -250,8 +250,6 @@ spec:
             port: svc
         {{- end }}
       {{- if .Values.compactorComponent.additionalContainers }}
-      {{- range .Values.compactorComponent.additionalContainers }}
-      - {{ toYaml . | nindent 8 }}
-      {{- end }}
+      {{- toYaml .Values.compactorComponent.additionalContainers | nindent 6 }}
       {{- end }}
 {{- end -}}

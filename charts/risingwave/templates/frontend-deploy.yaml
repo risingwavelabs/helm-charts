@@ -55,7 +55,7 @@ spec:
         configMap:
           name: {{ include "risingwave.configurationConfigMapName" . }}
       {{- if .Values.frontendComponent.extraVolumes }}
-      {{- toYaml .Values.frontendComponent.extraVolumes | nindent 6}}
+      {{- toYaml .Values.frontendComponent.extraVolumes | nindent 6 }}
       {{- end }}
       restartPolicy: Always
       {{- if .Values.frontendComponent.terminationGracePeriodSeconds }}
@@ -161,8 +161,8 @@ spec:
           value: "0.0.0.0:{{ .Values.ports.frontend.metrics }}"
         - name: RW_META_ADDR
           value: {{ printf "load-balance+http://%s.%s.svc:%d" (include "risingwave.metaHeadlessServiceName" .) .Release.Namespace (.Values.ports.meta.svc | int)}}
-        {{- range .Values.frontendComponent.extraEnvVars }}
-        - {{ . }}
+        {{- if .Values.frontendComponent.extraEnvVars }}
+        {{- .Values.frontendComponent.extraEnvVars | toYaml | nindent 8 }}
         {{- end }}
         resources:
           {{- if .Values.frontendComponent.resources.limits }}
@@ -203,9 +203,7 @@ spec:
             port: svc
         {{- end }}
       {{- if .Values.frontendComponent.additionalContainers }}
-      {{- range .Values.frontendComponent.additionalContainers }}
-      - {{ toYaml . | nindent 8 }}
-      {{- end }}
+      {{- toYaml .Values.frontendComponent.additionalContainers | nindent 6 }}
       {{- end }}
   {{- end }}
 {{- end -}}

@@ -88,9 +88,7 @@ spec:
         {{- end }}
         env:
         {{- if .Values.manager.extraEnvVars }}
-        {{- range .Values.manager.extraEnvVars }}
-        - {{ . }}
-        {{- end }}
+        {{- .Values.manager.extraEnvVars | toYaml | nindent 8 }}
         {{- end }}
         envFrom:
         {{- if .Values.manager.extraEnvVarsSecret }}
