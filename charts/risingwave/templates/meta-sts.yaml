@@ -219,10 +219,6 @@ spec:
           value: {{ include "risingwave.stateStoreDataDirectory" . }}
         - name: RW_DASHBOARD_HOST
           value: "0.0.0.0:{{ .Values.ports.meta.dashboard }}"
-        {{- if .Values.connectorComponent.enabled }}
-        - name: RW_CONNECTOR_RPC_ENDPOINT
-          value: "{{ include "risingwave.computeHeadlessServiceName" . }}.{{ .Release.Namespace }}.svc:{{ .Values.ports.connector.svc }}"
-        {{- end }}
         - name: RW_BACKEND
           value: etcd
         - name: RW_ETCD_ENDPOINTS
