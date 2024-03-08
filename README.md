@@ -16,11 +16,29 @@ You can then run `helm search repo risingwavelabs` to see the charts.
 
 ## Deploy
 
+[//]: # (https://github.com/orgs/community/discussions/16925)
+> [!NOTE]
+>
+> The value `tags.bundle=true` tells Helm to use the sub-charts
+> [bitnami/etcd](https://artifacthub.io/packages/helm/bitnami/etcd) and
+> [bitnami/minio](https://artifacthub.io/packages/helm/bitnami/minio) to provide the persistency services
+> for RisingWave to store both metadata and stream states.
+>
+> If you would like to enable/disable them individually, try setting the values
+> `tags.etcd` and `tags.minio`. Make sure that `tags.bundle=false` when you would like to have such control.
+
 To deploy the RisingWave chart with the release name `risingwave`:
 
 ```bash
-helm install --set wait=true risingwave risingwavelabs/risingwave
+helm install --set wait=true,tags.bundle=true risingwave risingwavelabs/risingwave
 ```
+
+> [!TIP]
+>
+> If the bundled etcd and MinIO don't suit your requirements well, just remove the `tags.bundle` and
+> set the stores accordingly. The options are under `metaStore` and `stateStore`. You can check all the possible values
+> with `helm show values risingwavelabs/risingwave`. Here are some examples for both [meta store](examples/meta-stores)
+> and [state store](examples/state-stores).
 
 Example output:
 

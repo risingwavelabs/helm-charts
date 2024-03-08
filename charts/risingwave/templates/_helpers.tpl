@@ -79,6 +79,24 @@ Create the name of the service account to use
 {{- end }}
 
 {{/*
+If the bundled etcd enabled.
+*/}}
+{{- define "risingwave.bundle.etcd.enabled" -}}
+{{- if or .Values.tags.bundle .Values.tags.etcd }}
+T
+{{- end}}
+{{- end }}
+
+{{/*
+If the bundled minio enabled.
+*/}}
+{{- define "risingwave.bundle.minio.enabled" -}}
+{{- if or .Values.tags.bundle .Values.tags.minio }}
+T
+{{- end}}
+{{- end }}
+
+{{/*
 Create the name of the etcd credentials Secret to use
 */}}
 {{- define "risingwave.etcdCredentialsSecretName" -}}
@@ -161,7 +179,7 @@ Create the name of credential Secret to use. Return empty string if the Secret i
 {{- define "risingwave.credentialsSecretName" -}}
 {{- if and .Values.stateStore.s3.enabled (not .Values.stateStore.s3.authentication.useServiceAccount)  }}
 {{- include "risingwave.s3CredentialsSecretName" . }}
-{{- else if and (not .Values.tags.minio) .Values.stateStore.minio.enabled }}
+{{- else if and (not (include "risingwave.bundle.minio.enabled" .)) .Values.stateStore.minio.enabled }}
 {{- include "risingwave.minioCredentialsSecretName" .}}
 {{- else if and .Values.stateStore.oss.enabled (not .Values.stateStore.oss.authentication.useServiceAccount) }}
 {{- include "risingwave.ossCredentialsSecretName" . }}
@@ -182,9 +200,8 @@ Create the hummock connection string to use.
 {{- define "risingwave.hummockConnectionString" -}}
 {{- if .Values.stateStore.s3.enabled }}
 {{- printf "hummock+s3://%s" .Values.stateStore.s3.bucket }}
-{{- else if .Values.stateStore.minio.enabled }}
-
-{{- if .Values.tags.minio }}
+{{- else if or .Values.stateStore.minio.enabled (include "risingwave.bundle.minio.enabled" .)  }}
+{{- if (include "risingwave.bundle.minio.enabled" .) }}
 {{- $minioEndpoint := (printf "%s:%d" (include "common.names.fullname" .Subcharts.minio) (.Values.minio.service.ports.api | int)) }}
 {{- $minioBucket := (splitList "," .Values.minio.defaultBuckets | first )}}
 {{- printf "hummock+minio://$(MINIO_USERNAME):$(MINIO_PASSWORD)@%s/%s" $minioEndpoint $minioBucket }}
@@ -218,7 +235,7 @@ Create the hummock data directory.
 Create the etcd endpoints
 */}}
 {{- define "risingwave.metaStoreEtcdEndpoints" -}}
-{{- if .Values.tags.etcd }}
+{{- if (include "risingwave.bundle.etcd.enabled" .) }}
 {{- printf "%s.%s.svc:%d" (include "common.names.fullname" .Subcharts.etcd) .Release.Namespace (.Values.etcd.service.ports.client | int) }}
 {{- else }}
 {{- join "," .Values.metaStore.etcd.endpoints }}
@@ -226,7 +243,7 @@ Create the etcd endpoints
 {{- end }}
 
 {{- define "risingwave.metaStoreAuthRequired" -}}
-{{- if .Values.tags.etcd }}
+{{- if (include "risingwave.bundle.etcd.enabled" .) }}
 {{- and (not .Values.etcd.auth.rbac.allowNoneAuthentication) .Values.etcd.auth.rbac.create }}
 {{- else }}
 {{- .Values.metaStore.etcd.authentication.enabled }}

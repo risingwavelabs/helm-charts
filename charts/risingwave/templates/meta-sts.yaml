@@ -178,7 +178,7 @@ spec:
         - name: OBS_REGION
           value: {{ .Values.stateStore.obs.region }}
         {{- end }}
-        {{- if and .Values.tags.minio .Values.stateStore.minio.enabled }}
+        {{- if (include "risingwave.bundle.minio.enabled" .) }}
         - name: MINIO_USERNAME
           valueFrom:
             secretKeyRef:
@@ -229,7 +229,7 @@ spec:
           value: {{ include "risingwave.metaStoreEtcdEndpoints" . }}
         - name: RW_ETCD_AUTH
           value: {{ include "risingwave.metaStoreAuthRequired" . | quote }}
-        {{- if .Values.tags.etcd }}
+        {{- if (include "risingwave.bundle.etcd.enabled" .) }}
         {{- if .Values.etcd.auth.rbac.create }}
         - name: RW_ETCD_USERNAME
           value: root

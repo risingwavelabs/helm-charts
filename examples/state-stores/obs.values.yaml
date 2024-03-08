@@ -1,6 +1,6 @@
 stateStore:
   dataDirectory: "prefix/of/data"
-  s3:
+  obs:
     enabled: true
     region: us-east-1
     bucket: risingwave
