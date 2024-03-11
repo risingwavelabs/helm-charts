@@ -7,7 +7,7 @@ lint:
 	#$(foreach chart,$(INCUBATING_HELM_CHARTS),helm lint incubating/charts/$(chart);)
 
 test:
-	$(foreach chart,$(HELM_CHARTS),helm unittest charts/$(chart);)
+	$(foreach chart,$(HELM_CHARTS),helm unittest --strict -f 'tests/**/*_test.yaml' charts/$(chart);)
 
 sync-crds:
 	./scripts/sync-crds.sh charts/risingwave-operator/crds
