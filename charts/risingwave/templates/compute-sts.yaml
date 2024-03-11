@@ -212,10 +212,6 @@ spec:
           value: {{ include "risingwave.hummockConnectionString" . }}
         - name: RW_DATA_DIRECTORY
           value: {{ include "risingwave.stateStoreDataDirectory" . }}
-        {{- if .Values.connectorComponent.enabled }}
-        - name: RW_CONNECTOR_RPC_ENDPOINT
-          value: "127.0.0.1:{{ .Values.ports.connector.svc }}"
-        {{- end }}
         {{- if .Values.computeComponent.resources.limits }}
         {{- if .Values.computeComponent.resources.limits.cpu }}
         - name: RW_PARALLELISM
@@ -267,98 +263,6 @@ spec:
           tcpSocket:
             port: svc
         {{- end }}
-      {{- if .Values.connectorComponent.enabled }}
-      - name: connector
-        image: {{ include "risingwave.image" . }}
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
-        {{- if .Values.diagnosticMode.enabled }}
-        command: {{ toYaml .Values.diagnosticMode.command | nindent 8 }}
-        args: {{ toYaml .Values.diagnosticMode.args | nindent 8 }}
-        {{- else }}
-        command:
-        - /risingwave/bin/connector-node/start-service.sh
-        args:
-        - -p
-        - {{ .Values.ports.connector.svc | quote }}
-        {{- end }}
-        envFrom:
-        {{- if .Values.connectorComponent.extraEnvVarsConfigMap }}
-        - configMapRef:
-            name: {{ .Values.connectorComponent.extraEnvVarsConfigMap }}
-        {{- end }}
-        {{- if .Values.connectorComponent.extraEnvVarsSecret }}
-        - secretRef:
-            name: {{ .Values.connectorComponent.extraEnvVarsSecret }}
-        {{- end }}
-        env:
-        # Disable auto region loading. Refer to the original source for more information.
-        # https://github.com/awslabs/aws-sdk-rust/blob/main/sdk/aws-config/src/imds/region.rs
-        - name: AWS_EC2_METADATA_DISABLED
-          value: "true"
-        - name: POD_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: "metadata.name"
-        - name: POD_NAMESPACE
-          valueFrom:
-            fieldRef:
-              fieldPath: "metadata.namespace"
-        - name: CONTAINER_CPU_LIMIT
-          valueFrom:
-            resourceFieldRef:
-              resource: "limits.cpu"
-        - name: CONTAINER_MEMORY_LIMIT
-          valueFrom:
-            resourceFieldRef:
-              resource: "limits.memory"
-        {{- if .Values.connectorComponent.resources.limits.memory }}
-        - name: JAVA_OPTS
-          value: "-Xmx$(CONTAINER_MEMORY_LIMIT)"
-        {{- end }}
-        - name: RW_CONNECTOR_NODE_PROMETHEUS_PORT
-          value: {{ .Values.ports.connector.metrics | quote }}
-        {{- if .Values.connectorComponent.extraEnvVars }}
-        {{- .Values.connectorComponent.extraEnvVars | toYaml | nindent 8 }}
-        {{- end }}
-        {{- if .Values.metaComponent.securityContext }}
-        securityContext: {{ toYaml .Values.connectorComponent.securityContext | nindent 10 }}
-        {{- end }}
-        resources:
-          {{- if .Values.connectorComponent.resources.limits }}
-          limits:
-            {{ toYaml .Values.connectorComponent.resources.limits | nindent 12 }}
-          {{- end }}
-          {{- if .Values.connectorComponent.resources.requests }}
-          requests:
-            {{ toYaml .Values.connectorComponent.resources.requests | nindent 12 }}
-          {{- end }}
-        ports:
-        - containerPort: {{ .Values.ports.connector.svc }}
-          name: c-svc
-          protocol: TCP
-        - containerPort: {{ .Values.ports.connector.metrics }}
-          name: c-metrics
-          protocol: TCP
-        {{- if not .Values.diagnosticMode.enabled }}
-        startupProbe:
-          initialDelaySeconds: 2
-          periodSeconds: 5
-          timeoutSeconds: 5
-          failureThreshold: 12
-          tcpSocket:
-            port: c-svc
-        livenessProbe:
-          initialDelaySeconds: 2
-          periodSeconds: 10
-          tcpSocket:
-            port: c-svc
-        readinessProbe:
-          initialDelaySeconds: 2
-          periodSeconds: 10
-          tcpSocket:
-            port: c-svc
-        {{- end }}
-      {{- end }}
       {{- if .Values.compactMode.enabled }}
       - name: frontend
         image: {{ include "risingwave.image" . }}

@@ -1022,38 +1022,6 @@ compactorComponent:
   ## Defaults to full.
   rustBacktrace: full
 
-## Deprecated. Don not use it for RisingWave v1.5+.
-connectorComponent:
-  ## @param connectorComponent.enabled Enable the connector component.
-  ## Connector component will be attached containers to each compute and meta pod.
-  ## Defaults to false.
-  ##
-  enabled: false
-
-  ## @param connectorComponent.extraEnvVars Extra environment variables to add to the connector container.
-  ##
-  extraEnvVars: [ ]
-
-  ## @param connectorComponent.extraEnvVarsConfigMap Name of existing ConfigMap containing extra environment variables.
-  ##
-  extraEnvVarsConfigMap: ""
-
-  ## @param connectorComponent.extraEnvVarsSecret Name of existing Secret containing extra environment variables.
-  ##
-  extraEnvVarsSecret: ""
-
-  ## @param connectorComponent.securityContext Container security context.
-  ##
-  securityContext:
-    allowPrivilegeEscalation: false
-
-  ## @param connectorComponent.resources Resource requests and limits.
-  ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-  ##
-  resources:
-    limits: { }
-    requests: { }
-
 ## @section RisingWave container ports. No need to change in most cases.
 ##
 
@@ -1089,13 +1057,6 @@ ports:
     ## @param ports.compactor.metrics Port for the compactor metrics service.
     ##
     metrics: 1260
-  connector:
-    ## @param ports.connector.svc Port for the connector service.
-    ##
-    svc: 8090
-    ## @param ports.connector.metrics Port for the connector metrics service.
-    ##
-    metrics: 8091
 
 ## @section RisingWave monitor.
 ##
