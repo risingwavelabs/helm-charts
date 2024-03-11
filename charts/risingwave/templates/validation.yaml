@@ -75,14 +75,12 @@ Validate parameters of etcd meta store.
 {{- if not (include "risingwave.bundle.etcd.enabled" .) }}
   {{- if .Values.metaStore.etcd.enabled }}
     {{- if empty .Values.metaStore.etcd.endpoints }}
-      {{- fail "Meta store etcd endpoints must be set" }}
+      {{- fail "Meta store etcd endpoints must be set!" }}
     {{- end }}
     {{- if .Values.metaStore.etcd.authentication.enabled }}
-      {{- if empty .Values.metaStore.etcd.authentication.username }}
-        {{- fail "Meta store etcd authentication is enabled, username must be set" }}
-      {{- end }}
-      {{- if empty .Values.metaStore.etcd.authentication.password }}
-        {{- fail "Meta store etcd authentication is enabled, password must be set" }}
+      {{- if not (or .Values.metaStore.etcd.authentication.existingSecretName
+        (and .Values.metaStore.etcd.authentication.username .Values.metaStore.etcd.authentication.password)) }}
+        {{- fail "Meta store etcd's authentication is enabled, either existing secret or username/password should be provided!" }}
       {{- end }}
     {{- end }}
   {{- end }}
