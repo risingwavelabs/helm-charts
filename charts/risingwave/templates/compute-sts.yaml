@@ -58,7 +58,7 @@ spec:
         configMap:
           name: {{ include "risingwave.configurationConfigMapName" . }}
       {{- if .Values.computeComponent.extraVolumes }}
-      {{- toYaml .Values.computeComponent.extraVolumes | nindent 6}}
+      {{- toYaml .Values.computeComponent.extraVolumes | nindent 6 }}
       {{- end }}
       restartPolicy: Always
       {{- if .Values.computeComponent.terminationGracePeriodSeconds }}
@@ -226,8 +226,8 @@ spec:
           value: $(CONTAINER_MEMORY_LIMIT)
         {{- end }}
         {{- end }}
-        {{- range .Values.computeComponent.extraEnvVars }}
-        - {{ . }}
+        {{- if .Values.computeComponent.extraEnvVars }}
+        {{- .Values.computeComponent.extraEnvVars | toYaml | nindent 8 }}
         {{- end }}
         resources:
           {{- if .Values.computeComponent.resources.limits }}
@@ -317,8 +317,8 @@ spec:
         {{- end }}
         - name: RW_CONNECTOR_NODE_PROMETHEUS_PORT
           value: {{ .Values.ports.connector.metrics | quote }}
-        {{- range .Values.connectorComponent.extraEnvVars }}
-        - {{ . }}
+        {{- if .Values.connectorComponent.extraEnvVars }}
+        {{- .Values.connectorComponent.extraEnvVars | toYaml | nindent 8 }}
         {{- end }}
         {{- if .Values.metaComponent.securityContext }}
         securityContext: {{ toYaml .Values.connectorComponent.securityContext | nindent 10 }}
@@ -426,8 +426,8 @@ spec:
           value: "0.0.0.0:{{ .Values.ports.frontend.metrics }}"
         - name: RW_META_ADDR
           value: {{ printf "load-balance+http://%s.%s.svc:%d" (include "risingwave.metaHeadlessServiceName" .) .Release.Namespace (.Values.ports.meta.svc | int)}}
-        {{- range .Values.frontendComponent.extraEnvVars }}
-        - {{ . }}
+        {{- if .Values.frontendComponent.extraEnvVars }}
+        {{- .Values.frontendComponent.extraEnvVars | toYaml | nindent 8 }}
         {{- end }}
         resources:
           {{- if .Values.frontendComponent.resources.limits }}
@@ -469,8 +469,6 @@ spec:
         {{- end }}
       {{- end }}
       {{- if .Values.computeComponent.additionalContainers }}
-      {{- range .Values.computeComponent.additionalContainers }}
-      - {{ toYaml . | nindent 8 }}
-      {{- end }}
+      {{- toYaml .Values.computeComponent.additionalContainers | nindent 6 }}
       {{- end }}
 {{- end -}}

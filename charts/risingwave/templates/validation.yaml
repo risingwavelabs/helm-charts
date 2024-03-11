@@ -15,7 +15,7 @@ Validate state store backends.
   {{- if .oss.enabled }}{{ $count = add1 $count }}{{ $name = "OSS" }}{{- end }}
   {{- if .azblob.enabled }}{{ $count = add1 $count }}{{ $name = "AZBLOB" }}{{- end }}
   {{- if .hdfs.enabled }}{{ $count = add1 $count }}{{ $name = "HDFS" }}{{- end }}
-  {{- if .obs.enabled}}{{ $count = add1 $count }}{{ $name = "OBS" }}{{- end }}
+  {{- if .obs.enabled }}{{ $count = add1 $count }}{{ $name = "OBS" }}{{- end }}
 {{- end }}
 # If there's no state store and bundled minio enabled, count = 1
 {{- if (include "risingwave.bundle.minio.enabled" .) }}
@@ -23,15 +23,15 @@ Validate state store backends.
     {{ $count = add1 $count }}
     {{ $name = "MinIO" }}
   {{- else }}
-    {{- fail "Unnecessary bundled minio when $name is enabled! Try setting `tags.minio=false,tags.bundle=false` and retry!"}}
+    {{- fail "Unnecessary bundled minio when $name is enabled! Try setting `tags.minio=false,tags.bundle=false` and retry!" }}
   {{- end }}
 {{- else }}
   {{- if .Values.stateStore.oss.enabled }}{{ $count = add1 $count }}{{ $name = "MinIO" }}{{- end }}
 {{- end }}
 {{- if (eq $count 0 ) }}
-  {{- fail "No state store backend!\n  Please set up one of S3, MinIO, GCS, OSS, AZBLOB, HDFS, and OBS under `stateStore`, or use the bundled MinIO by setting `tags.minio=true`!"}}
+  {{- fail "No state store backend!\n  Please set up one of S3, MinIO, GCS, OSS, AZBLOB, HDFS, and OBS under `stateStore`, or use the bundled MinIO by setting `tags.minio=true`!" }}
 {{- else if (gt $count 1) }}
-  {{- fail "More than one state store backend!"}}
+  {{- fail "More than one state store backend!" }}
 {{- end }}
 
 {{/*
@@ -58,15 +58,15 @@ Validate meta store backends.
     {{ $count = add1 $count }}
     {{ $name = "etcd" }}
   {{- else }}
-    {{- fail "Unnecessary bundled etcd when $name is enabled!"}}
+    {{- fail "Unnecessary bundled etcd when $name is enabled!" }}
   {{- end }}
 {{- else }}
   {{- if .Values.metaStore.etcd.enabled }}{{ $count = add1 $count }}{{ $name = "etcd" }}{{- end }}
 {{- end }}
 {{- if (eq $count 0 ) }}
-  {{- fail "No meta store backend!\n  Please set up an external etcd under `metaStore`, or use the bundled one by setting `tags.etcd=true`!"}}
+  {{- fail "No meta store backend!\n  Please set up an external etcd under `metaStore`, or use the bundled one by setting `tags.etcd=true`!" }}
 {{- else if (gt $count 1) }}
-  {{- fail "More than one meta store backend!"}}
+  {{- fail "More than one meta store backend!" }}
 {{- end }}
 
 {{/*

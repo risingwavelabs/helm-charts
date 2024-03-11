@@ -58,7 +58,7 @@ spec:
         configMap:
           name: {{ include "risingwave.configurationConfigMapName" . }}
       {{- if .Values.metaComponent.extraVolumes }}
-      {{- toYaml .Values.metaComponent.extraVolumes | nindent 6}}
+      {{- toYaml .Values.metaComponent.extraVolumes | nindent 6 }}
       {{- end }}
       restartPolicy: Always
       {{- if .Values.metaComponent.terminationGracePeriodSeconds }}
@@ -253,8 +253,8 @@ spec:
               name: {{ include "risingwave.etcdCredentialsSecretName" . }}
         {{- end }}
         {{- end }}
-        {{- range .Values.metaComponent.extraEnvVars }}
-        - {{ . }}
+        {{- if .Values.metaComponent.extraEnvVars }}
+        {{- .Values.metaComponent.extraEnvVars | toYaml | nindent 8 }}
         {{- end }}
         resources:
           {{- if .Values.metaComponent.resources.limits }}
@@ -295,8 +295,6 @@ spec:
             port: svc
         {{- end }}
       {{- if .Values.metaComponent.additionalContainers }}
-      {{- range .Values.metaComponent.additionalContainers }}
-      - {{ toYaml . | nindent 8 }}
-      {{- end }}
+      {{- toYaml .Values.metaComponent.additionalContainers | nindent 6 }}
       {{- end }}
 {{- end -}}
