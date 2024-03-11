@@ -1,0 +1,123 @@
+suite: Test etcd existing secret validation
+templates:
+- templates/validation.yaml
+chart:
+  appVersion: 1.0.0
+  version: 0.0.1
+tests:
+- it: no authentication should pass
+  set:
+    tags:
+      minio: true
+
+    metaStore:
+      etcd:
+        enabled: true
+        endpoints:
+        - dummy
+        authentication:
+          enabled: false
+  asserts:
+  - notFailedTemplate: { }
+- it: existing secret should pass
+  set:
+    tags:
+      minio: true
+
+    metaStore:
+      etcd:
+        enabled: true
+        endpoints:
+        - dummy
+        authentication:
+          enabled: true
+          existingSecretName: a
+  asserts:
+  - notFailedTemplate: { }
+- it: username/password should pass
+  set:
+    tags:
+      minio: true
+
+    metaStore:
+      etcd:
+        enabled: true
+        endpoints:
+        - dummy
+        authentication:
+          enabled: true
+          username: a
+          password: b
+  asserts:
+  - notFailedTemplate: { }
+- it: no credentials should fail
+  set:
+    tags:
+      minio: true
+
+    metaStore:
+      etcd:
+        enabled: true
+        endpoints:
+        - dummy
+        authentication:
+          enabled: true
+  asserts:
+  - failedTemplate:
+      errorMessage: "Meta store etcd's authentication is enabled, either existing secret or username/password should be provided!"
+- it: username only should fail
+  set:
+    tags:
+      minio: true
+
+    metaStore:
+      etcd:
+        enabled: true
+        endpoints:
+        - dummy
+        authentication:
+          enabled: true
+          username: a
+  asserts:
+  - failedTemplate:
+      errorMessage: "Meta store etcd's authentication is enabled, either existing secret or username/password should be provided!"
+- it: password only should fail
+  set:
+    tags:
+      minio: true
+
+    metaStore:
+      etcd:
+        enabled: true
+        endpoints:
+        - dummy
+        authentication:
+          enabled: true
+          password: a
+  asserts:
+  - failedTemplate:
+      errorMessage: "Meta store etcd's authentication is enabled, either existing secret or username/password should be provided!"
+- it: no endpoints should fail
+  set:
+    tags:
+      minio: true
+
+    metaStore:
+      etcd:
+        enabled: true
+  asserts:
+  - failedTemplate:
+      errorMessage: "Meta store etcd endpoints must be set!"
+- it: multiple endpoints should pass
+  set:
+    tags:
+      minio: true
+
+    metaStore:
+      etcd:
+        enabled: true
+        endpoints:
+        - a
+        - b
+  asserts:
+  - notFailedTemplate: { }

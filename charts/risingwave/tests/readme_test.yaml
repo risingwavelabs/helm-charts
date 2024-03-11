@@ -1,0 +1,21 @@
+suite: Test values for readme
+templates:
+- "**/*.yaml"
+chart:
+  appVersion: 1.0.0
+  version: 0.0.1
+tests:
+- it: empty values failed
+  templates:
+    - validation.yaml
+  asserts:
+  - failedTemplate:
+      errorMessage: "No state store backend!"
+- it: readme values pass
+  set:
+    tags:
+      bundle: true
+
+    wait: true
+  asserts:
+    - notFailedTemplate: {}
