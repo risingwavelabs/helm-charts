@@ -286,7 +286,7 @@ spec:
         {{- end }}
         {{- else }}
         {{- if and .Values.metaStore.etcd.authentication.enabled .Values.metaStore.etcd.authentication.existingSecretName }}
-        - name: RW_ETCD_PASSWORD
+        - name: RW_ETCD_USERNAME
           valueFrom:
             secretKeyRef:
               key: username
