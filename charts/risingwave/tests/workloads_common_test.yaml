@@ -1,0 +1,60 @@
+suite: Test common settings of workload objects
+templates:
+- templates/meta-sts.yaml
+- templates/compute-sts.yaml
+- templates/frontend-deploy.yaml
+- templates/compactor-deploy.yaml
+chart:
+  appVersion: 1.0.0
+  version: 0.0.1
+tests:
+- it: workloads should contains labels and annotations
+  asserts:
+  - isSubset:
+      path: metadata.labels
+      content:
+        helm.sh/chart: risingwave-0.0.1
+        app.kubernetes.io/name: risingwave
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/version: 1.0.0
+        app.kubernetes.io/instance: RELEASE-NAME
+  - notExists:
+      path: metadata.annotations
+- it: workloads should reflect common labels and annotations
+  set:
+    commonLabels:
+      LABEL: LABEL_V
+    commonAnnotations:
+      ANNOTATION: ANNOTATION_V
+  asserts:
+  - isSubset:
+      path: metadata.labels
+      content:
+        helm.sh/chart: risingwave-0.0.1
+        app.kubernetes.io/name: risingwave
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/version: 1.0.0
+        app.kubernetes.io/instance: RELEASE-NAME
+        LABEL: LABEL_V
+  - exists:
+      path: metadata.annotations
+  - isSubset:
+      path: metadata.annotations
+      content:
+        ANNOTATION: ANNOTATION_V
+- it: workloads have a config volume
+  asserts:
+  - contains:
+      path: spec.template.spec.volumes
+      content:
+        name: config
+        configMap:
+          name: RELEASE-NAME-risingwave-configuration
+- it: workloads have a volume mount that mounts `config` to '/risingwave/config'
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].volumeMounts
+      content:
+        mountPath: /risingwave/config
+        name: config
+        readOnly: true

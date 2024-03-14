@@ -1,0 +1,572 @@
+suite: Test state store env vars (meta/compute/compactor)
+templates:
+- templates/meta-sts.yaml
+- templates/compute-sts.yaml
+- templates/compactor-deploy.yaml
+chart:
+  appVersion: 1.0.0
+  version: 0.0.1
+tests:
+# Tests for S3.
+- it: envs must match hummock string (s3)
+  set:
+    stateStore:
+      s3:
+        enabled: true
+        bucket: b
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: RW_STATE_STORE
+        value: hummock+s3://b
+- it: envs must not contain s3 related ones (s3 -)
+  set:
+    stateStore:
+      s3:
+        enabled: false
+    metaComponent:
+      extraEnvVarsSecret: dummy
+    computeComponent:
+      extraEnvVarsSecret: dummy
+    compactorComponent:
+      extraEnvVarsSecret: dummy
+  asserts:
+  - notContains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: AWS_REGION
+      any: true
+  - notContains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: RW_S3_ENDPOINT
+      any: true
+  - notContains:
+      path: spec.template.spec.containers[0].envFrom
+      content:
+        secretRef:
+          name: RELEASE-NAME-risingwave-s3
+      any: true
+- it: envs must not contain s3 credentials on service account (s3)
+  set:
+    stateStore:
+      s3:
+        enabled: true
+        authentication:
+          useServiceAccount: true
+    metaComponent:
+      extraEnvVarsSecret: dummy
+    computeComponent:
+      extraEnvVarsSecret: dummy
+    compactorComponent:
+      extraEnvVarsSecret: dummy
+  asserts:
+  - notContains:
+      path: spec.template.spec.containers[0].envFrom
+      content:
+        secretRef:
+          name: RELEASE-NAME-risingwave-s3
+      any: true
+- it: envs must contain necessary ones (s3)
+  set:
+    stateStore:
+      s3:
+        enabled: true
+        region: r
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: AWS_REGION
+        value: r
+  - notContains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: RW_S3_ENDPOINT
+      any: true
+- it: envs must contain RW_S3_ENDPOINT (s3 compatible)
+  set:
+    stateStore:
+      s3:
+        enabled: true
+        endpoint: ep
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: RW_S3_ENDPOINT
+        value: ep
+- it: envs must reflect existing secret (s3)
+  set:
+    stateStore:
+      s3:
+        enabled: true
+        authentication:
+          existingSecretName: s
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].envFrom
+      content:
+        secretRef:
+          name: s
+# Tests for MinIO.
+- it: envs must match hummock string (minio)
+  set:
+    stateStore:
+      minio:
+        enabled: true
+        endpoint: ep
+        bucket: b
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: RW_STATE_STORE
+        value: hummock+minio://$(MINIO_USERNAME):$(MINIO_PASSWORD)@ep/b
+- it: envs must not contain minio related ones (minio -)
+  set:
+    stateStore:
+      minio:
+        enabled: false
+    metaComponent:
+      extraEnvVarsSecret: dummy
+    computeComponent:
+      extraEnvVarsSecret: dummy
+    compactorComponent:
+      extraEnvVarsSecret: dummy
+  asserts:
+  - notContains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: MINIO_USERNAME
+      any: true
+  - notContains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: MINIO_USERNAME
+      any: true
+  - notContains:
+      path: spec.template.spec.containers[0].envFrom
+      content:
+        secretRef:
+          name: RELEASE-NAME-risingwave-minio
+      any: true
+- it: envs must contain necessary ones (minio)
+  set:
+    stateStore:
+      minio:
+        enabled: true
+        authentication:
+          username: u
+          password: p
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].envFrom
+      content:
+        secretRef:
+          name: RELEASE-NAME-risingwave-minio
+  - notContains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: MINIO_USERNAME
+      any: true
+  - notContains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: MINIO_PASSWORD
+      any: true
+- it: envs must reflect existing secret (minio)
+  set:
+    stateStore:
+      minio:
+        enabled: true
+        authentication:
+          existingSecretName: s
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].envFrom
+      content:
+        secretRef:
+          name: s
+# Tests for Aliyun OSS.
+- it: envs must match hummock string (oss)
+  set:
+    stateStore:
+      oss:
+        enabled: true
+        bucket: b
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: RW_STATE_STORE
+        value: hummock+oss://b
+- it: envs must not contain oss related ones (oss -)
+  set:
+    stateStore:
+      oss:
+        enabled: false
+    metaComponent:
+      extraEnvVarsSecret: dummy
+    computeComponent:
+      extraEnvVarsSecret: dummy
+    compactorComponent:
+      extraEnvVarsSecret: dummy
+  asserts:
+  - notContains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: OSS_ENDPOINT
+      any: true
+  - notContains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: OSS_REGION
+      any: true
+  - notContains:
+      path: spec.template.spec.containers[0].envFrom
+      content:
+        secretRef:
+          name: RELEASE-NAME-risingwave-oss
+      any: true
+- it: envs must not contain oss credentials on service account (oss)
+  set:
+    stateStore:
+      oss:
+        enabled: true
+        authentication:
+          useServiceAccount: true
+    metaComponent:
+      extraEnvVarsSecret: dummy
+    computeComponent:
+      extraEnvVarsSecret: dummy
+    compactorComponent:
+      extraEnvVarsSecret: dummy
+  asserts:
+  - notContains:
+      path: spec.template.spec.containers[0].envFrom
+      content:
+        secretRef:
+          name: RELEASE-NAME-risingwave-oss
+      any: true
+- it: envs must contain necessary ones (oss)
+  set:
+    stateStore:
+      oss:
+        enabled: true
+        region: r
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: OSS_REGION
+        value: r
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: OSS_ENDPOINT
+        value: https://oss-$(OSS_REGION).aliyuncs.com
+- it: envs must reflect internal endpoints (oss)
+  set:
+    stateStore:
+      oss:
+        enabled: true
+        region: r
+        useInternalEndpoint: true
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: OSS_REGION
+        value: r
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: OSS_ENDPOINT
+        value: https://oss-$(OSS_REGION)-internal.aliyuncs.com
+- it: envs must reflect existing secret (oss)
+  set:
+    stateStore:
+      oss:
+        enabled: true
+        authentication:
+          existingSecretName: s
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].envFrom
+      content:
+        secretRef:
+          name: s
+# Tests for AzureBlob.
+- it: envs must match hummock string (azblob)
+  set:
+    stateStore:
+      azblob:
+        enabled: true
+        container: c
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: RW_STATE_STORE
+        value: hummock+azblob://c
+- it: envs must not contain azblob related ones (azblob -)
+  set:
+    stateStore:
+      azblob:
+        enabled: false
+    metaComponent:
+      extraEnvVarsSecret: dummy
+    computeComponent:
+      extraEnvVarsSecret: dummy
+    compactorComponent:
+      extraEnvVarsSecret: dummy
+  asserts:
+  - notContains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: AZBLOB_ENDPOINT
+      any: true
+  - notContains:
+      path: spec.template.spec.containers[0].envFrom
+      content:
+        secretRef:
+          name: RELEASE-NAME-risingwave-azblob
+      any: true
+- it: envs must not contain azblob credentials on service account (azblob)
+  set:
+    stateStore:
+      azblob:
+        enabled: true
+        authentication:
+          useServiceAccount: true
+    metaComponent:
+      extraEnvVarsSecret: dummy
+    computeComponent:
+      extraEnvVarsSecret: dummy
+    compactorComponent:
+      extraEnvVarsSecret: dummy
+  asserts:
+  - notContains:
+      path: spec.template.spec.containers[0].envFrom
+      content:
+        secretRef:
+          name: RELEASE-NAME-risingwave-azblob
+      any: true
+- it: envs must contain necessary ones (azblob)
+  set:
+    stateStore:
+      azblob:
+        enabled: true
+        endpoint: ep
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: AZBLOB_ENDPOINT
+        value: ep
+  - contains:
+      path: spec.template.spec.containers[0].envFrom
+      content:
+        secretRef:
+          name: RELEASE-NAME-risingwave-azblob
+- it: envs must reflect existing secret (azblob)
+  set:
+    stateStore:
+      azblob:
+        enabled: true
+        authentication:
+          existingSecretName: s
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].envFrom
+      content:
+        secretRef:
+          name: s
+# Tests for GCS.
+- it: envs must match hummock string (gcs)
+  set:
+    stateStore:
+      gcs:
+        enabled: true
+        bucket: b
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: RW_STATE_STORE
+        value: hummock+gcs://b
+- it: envs must not contain gcs related ones (gcs -)
+  set:
+    stateStore:
+      gcs:
+        enabled: false
+    metaComponent:
+      extraEnvVarsSecret: dummy
+    computeComponent:
+      extraEnvVarsSecret: dummy
+    compactorComponent:
+      extraEnvVarsSecret: dummy
+  asserts:
+  - notContains:
+      path: spec.template.spec.containers[0].envFrom
+      content:
+        secretRef:
+          name: RELEASE-NAME-risingwave-gcs
+      any: true
+- it: envs must not contain gcs credentials on service account (gcs)
+  set:
+    stateStore:
+      gcs:
+        enabled: true
+        authentication:
+          useServiceAccount: true
+    metaComponent:
+      extraEnvVarsSecret: dummy
+    computeComponent:
+      extraEnvVarsSecret: dummy
+    compactorComponent:
+      extraEnvVarsSecret: dummy
+  asserts:
+  - notContains:
+      path: spec.template.spec.containers[0].envFrom
+      content:
+        secretRef:
+          name: RELEASE-NAME-risingwave-gcs
+      any: true
+- it: envs must contain necessary ones (gcs)
+  set:
+    stateStore:
+      gcs:
+        enabled: true
+        bucket: b
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].envFrom
+      content:
+        secretRef:
+          name: RELEASE-NAME-risingwave-gcs
+- it: envs must reflect existing secret (gcs)
+  set:
+    stateStore:
+      gcs:
+        enabled: true
+        authentication:
+          existingSecretName: s
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].envFrom
+      content:
+        secretRef:
+          name: s
+# Tests for HDFS.
+- it: envs must match hummock string (hdfs)
+  set:
+    stateStore:
+      hdfs:
+        enabled: true
+        nameNode: nn
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: RW_STATE_STORE
+        value: hummock+hdfs://nn
+# Tests for HuaweiCloud OBS.
+- it: envs must match hummock string (obs)
+  set:
+    stateStore:
+      obs:
+        enabled: true
+        bucket: b
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: RW_STATE_STORE
+        value: hummock+obs://b
+- it: envs must not contain obs related ones (obs -)
+  set:
+    stateStore:
+      obs:
+        enabled: false
+    metaComponent:
+      extraEnvVarsSecret: dummy
+    computeComponent:
+      extraEnvVarsSecret: dummy
+    compactorComponent:
+      extraEnvVarsSecret: dummy
+  asserts:
+  - notContains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: OBS_REGION
+      any: true
+  - notContains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: OBS_ENDPOINT
+      any: true
+  - notContains:
+      path: spec.template.spec.containers[0].envFrom
+      content:
+        secretRef:
+          name: RELEASE-NAME-risingwave-gcs
+      any: true
+- it: envs must not contain obs credentials on service account (obs)
+  set:
+    stateStore:
+      obs:
+        enabled: true
+        authentication:
+          useServiceAccount: true
+    metaComponent:
+      extraEnvVarsSecret: dummy
+    computeComponent:
+      extraEnvVarsSecret: dummy
+    compactorComponent:
+      extraEnvVarsSecret: dummy
+  asserts:
+  - notContains:
+      path: spec.template.spec.containers[0].envFrom
+      content:
+        secretRef:
+          name: RELEASE-NAME-risingwave-obs
+      any: true
+- it: envs must contain necessary ones (obs)
+  set:
+    stateStore:
+      obs:
+        enabled: true
+        bucket: b
+        region: r
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: OBS_REGION
+        value: r
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: OBS_ENDPOINT
+        value: https://obs.$(OBS_REGION).myhuaweicloud.com
+  - contains:
+      path: spec.template.spec.containers[0].envFrom
+      content:
+        secretRef:
+          name: RELEASE-NAME-risingwave-obs
+- it: envs must reflect existing secret (obs)
+  set:
+    stateStore:
+      obs:
+        enabled: true
+        authentication:
+          existingSecretName: s
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].envFrom
+      content:
+        secretRef:
+          name: s

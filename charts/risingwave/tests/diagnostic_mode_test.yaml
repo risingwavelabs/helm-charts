@@ -1,0 +1,80 @@
+suite: Test diagnose mode
+templates:
+- templates/meta-sts.yaml
+- templates/compute-sts.yaml
+- templates/frontend-deploy.yaml
+- templates/compactor-deploy.yaml
+- templates/standalone/standalone-sts.yaml
+chart:
+  appVersion: 1.0.0
+  version: 0.0.1
+set:
+  diagnosticMode:
+    enabled: true
+    command:
+    - sleep
+    args:
+    - infinity
+tests:
+- it: pods must not have probes (cluster)
+  templates:
+  - templates/meta-sts.yaml
+  - templates/compute-sts.yaml
+  - templates/frontend-deploy.yaml
+  - templates/compactor-deploy.yaml
+  asserts:
+  - hasDocuments:
+      count: 1
+  - notExists:
+      path: spec.template.spec.livenessProbe
+  - notExists:
+      path: spec.template.spec.readinessProbe
+  - notExists:
+      path: spec.template.spec.startupProbe
+- it: pods must not have probes (standalone)
+  set:
+    standalone.enabled: true
+  templates:
+  - templates/standalone/standalone-sts.yaml
+  asserts:
+  - hasDocuments:
+      count: 1
+  - notExists:
+      path: spec.template.spec.livenessProbe
+  - notExists:
+      path: spec.template.spec.readinessProbe
+  - notExists:
+      path: spec.template.spec.startupProbe
+- it: pods must start with debug command and arguments (cluster)
+  templates:
+  - templates/meta-sts.yaml
+  - templates/compute-sts.yaml
+  - templates/frontend-deploy.yaml
+  - templates/compactor-deploy.yaml
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: spec.template.spec.containers[0].command
+      value:
+      - sleep
+  - equal:
+      path: spec.template.spec.containers[0].args
+      value:
+      - infinity
+- it: pods must start with debug command and arguments (standalone)
+  set:
+    standalone.enabled: true
+  templates:
+  - templates/standalone/standalone-sts.yaml
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: spec.template.spec.containers[0].command
+      value:
+      - sleep
+  - equal:
+      path: spec.template.spec.containers[0].args
+      value:
+      - infinity
