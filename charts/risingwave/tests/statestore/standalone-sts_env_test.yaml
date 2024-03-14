@@ -1,11 +1,13 @@
 suite: Test state store env vars (meta/compute/compactor)
 templates:
-- templates/meta-sts.yaml
-- templates/compute-sts.yaml
-- templates/compactor-deploy.yaml
+- templates/standalone/standalone-sts.yaml
 chart:
   appVersion: 1.0.0
   version: 0.0.1
+set:
+  standalone:
+    enabled: true
+    extraEnvVarsSecret: dummy
 tests:
 # Tests for S3.
 - it: envs must match hummock string (s3)
@@ -25,12 +27,6 @@ tests:
     stateStore:
       s3:
         enabled: false
-    metaComponent:
-      extraEnvVarsSecret: dummy
-    computeComponent:
-      extraEnvVarsSecret: dummy
-    compactorComponent:
-      extraEnvVarsSecret: dummy
   asserts:
   - notContains:
       path: spec.template.spec.containers[0].env
@@ -55,12 +51,6 @@ tests:
         enabled: true
         authentication:
           useServiceAccount: true
-    metaComponent:
-      extraEnvVarsSecret: dummy
-    computeComponent:
-      extraEnvVarsSecret: dummy
-    compactorComponent:
-      extraEnvVarsSecret: dummy
   asserts:
   - notContains:
       path: spec.template.spec.containers[0].envFrom
@@ -129,12 +119,6 @@ tests:
     stateStore:
       minio:
         enabled: false
-    metaComponent:
-      extraEnvVarsSecret: dummy
-    computeComponent:
-      extraEnvVarsSecret: dummy
-    compactorComponent:
-      extraEnvVarsSecret: dummy
   asserts:
   - notContains:
       path: spec.template.spec.containers[0].env
@@ -207,12 +191,6 @@ tests:
     stateStore:
       oss:
         enabled: false
-    metaComponent:
-      extraEnvVarsSecret: dummy
-    computeComponent:
-      extraEnvVarsSecret: dummy
-    compactorComponent:
-      extraEnvVarsSecret: dummy
   asserts:
   - notContains:
       path: spec.template.spec.containers[0].env
@@ -237,12 +215,6 @@ tests:
         enabled: true
         authentication:
           useServiceAccount: true
-    metaComponent:
-      extraEnvVarsSecret: dummy
-    computeComponent:
-      extraEnvVarsSecret: dummy
-    compactorComponent:
-      extraEnvVarsSecret: dummy
   asserts:
   - notContains:
       path: spec.template.spec.containers[0].envFrom
@@ -316,12 +288,6 @@ tests:
     stateStore:
       azblob:
         enabled: false
-    metaComponent:
-      extraEnvVarsSecret: dummy
-    computeComponent:
-      extraEnvVarsSecret: dummy
-    compactorComponent:
-      extraEnvVarsSecret: dummy
   asserts:
   - notContains:
       path: spec.template.spec.containers[0].env
@@ -341,12 +307,6 @@ tests:
         enabled: true
         authentication:
           useServiceAccount: true
-    metaComponent:
-      extraEnvVarsSecret: dummy
-    computeComponent:
-      extraEnvVarsSecret: dummy
-    compactorComponent:
-      extraEnvVarsSecret: dummy
   asserts:
   - notContains:
       path: spec.template.spec.containers[0].envFrom
@@ -402,12 +362,6 @@ tests:
     stateStore:
       gcs:
         enabled: false
-    metaComponent:
-      extraEnvVarsSecret: dummy
-    computeComponent:
-      extraEnvVarsSecret: dummy
-    compactorComponent:
-      extraEnvVarsSecret: dummy
   asserts:
   - notContains:
       path: spec.template.spec.containers[0].envFrom
@@ -422,12 +376,6 @@ tests:
         enabled: true
         authentication:
           useServiceAccount: true
-    metaComponent:
-      extraEnvVarsSecret: dummy
-    computeComponent:
-      extraEnvVarsSecret: dummy
-    compactorComponent:
-      extraEnvVarsSecret: dummy
   asserts:
   - notContains:
       path: spec.template.spec.containers[0].envFrom
@@ -491,12 +439,6 @@ tests:
     stateStore:
       obs:
         enabled: false
-    metaComponent:
-      extraEnvVarsSecret: dummy
-    computeComponent:
-      extraEnvVarsSecret: dummy
-    compactorComponent:
-      extraEnvVarsSecret: dummy
   asserts:
   - notContains:
       path: spec.template.spec.containers[0].env
@@ -521,12 +463,6 @@ tests:
         enabled: true
         authentication:
           useServiceAccount: true
-    metaComponent:
-      extraEnvVarsSecret: dummy
-    computeComponent:
-      extraEnvVarsSecret: dummy
-    compactorComponent:
-      extraEnvVarsSecret: dummy
   asserts:
   - notContains:
       path: spec.template.spec.containers[0].envFrom
