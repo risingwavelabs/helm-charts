@@ -1,5 +1,8 @@
 HELM_CHARTS=$(shell ls charts)
 
+helm-dependency-update:
+	@$(foreach chart,$(HELM_CHARTS),helm dependency update charts/$(chart);)
+
 lint:
 	# for each in $(HELM_CHARTS), do helm lint
 	@$(foreach chart,$(HELM_CHARTS),helm lint --strict --set tags.bundle=true charts/$(chart);)
