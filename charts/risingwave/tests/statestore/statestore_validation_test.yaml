@@ -1,0 +1,545 @@
+suite: Test state store backends validation
+templates:
+- templates/validation.yaml
+chart:
+  appVersion: 1.0.0
+  version: 0.0.1
+set:
+  tags.etcd: true
+tests:
+- it: bundled minio should pass
+  set:
+    tags.minio: true
+  asserts:
+  - notFailedTemplate: { }
+- it: bundled minio should pass (bundle)
+  set:
+    tags.bundle: true
+  asserts:
+  - notFailedTemplate: { }
+- it: no state store should fail
+  asserts:
+  - failedTemplate:
+      errorMessage: "No state store backend!"
+- it: bundled minio and s3 should not be set together
+  set:
+    tags.bundle: true
+    stateStore:
+      s3:
+        enabled: true
+  asserts:
+  - failedTemplate:
+      errorMessage: "Unnecessary bundled minio when S3 is enabled! Try setting `tags.minio=false,tags.bundle=false` and retry!"
+- it: more than one state store backends should fail (s3 + minio)
+  set:
+    stateStore:
+      s3:
+        enabled: true
+      minio:
+        enabled: true
+  asserts:
+  - failedTemplate:
+      errorMessage: "More than one state store backends!"
+- it: more than one state store backends should fail (s3 + gcs)
+  set:
+    stateStore:
+      s3:
+        enabled: true
+      gcs:
+        enabled: true
+  asserts:
+  - failedTemplate:
+      errorMessage: "More than one state store backends!"
+- it: bundled minio must have at least one default bucket
+  set:
+    tags.minio: true
+    minio:
+      defaultBuckets: ""
+  asserts:
+  - failedTemplate:
+      errorMessage: "Set at least one bucket in `minio.defaultBuckets`!"
+#  Tests for AWS S3.
+- it: s3 empty bucket should fail
+  set:
+    stateStore:
+      s3:
+        enabled: true
+  asserts:
+  - failedTemplate:
+      errorMessage: "Bucket .stateStore.s3.bucket must be set!"
+- it: s3 empty region should fail
+  set:
+    stateStore:
+      s3:
+        enabled: true
+        bucket: x
+  asserts:
+  - failedTemplate:
+      errorMessage: "Region .stateStore.s3.region must be set!"
+- it: s3 empty authentication credentials should fail (no IRSA)
+  set:
+    stateStore:
+      s3:
+        enabled: true
+        bucket: x
+        region: r
+  asserts:
+  - failedTemplate:
+      errorMessage: "Either use IAM role for Service account or AccessKey/SecretAccessKey must be provided!"
+- it: s3 irsa should pass
+  set:
+    stateStore:
+      s3:
+        enabled: true
+        bucket: x
+        region: r
+        authentication:
+          useServiceAccount: true
+  asserts:
+  - notFailedTemplate: { }
+- it: s3 existing secret should pass
+  set:
+    stateStore:
+      s3:
+        enabled: true
+        bucket: x
+        region: r
+        authentication:
+          existingSecretName: a
+  asserts:
+  - notFailedTemplate: { }
+- it: s3 ak/sk should pass
+  set:
+    stateStore:
+      s3:
+        enabled: true
+        bucket: x
+        region: r
+        authentication:
+          accessKey: ak
+          secretAccessKey: sk
+  asserts:
+  - notFailedTemplate: { }
+- it: s3 missing ak should fail
+  set:
+    stateStore:
+      s3:
+        enabled: true
+        bucket: x
+        region: r
+        authentication:
+          secretAccessKey: sk
+  asserts:
+  - failedTemplate:
+      errorMessage: "Either use IAM role for Service account or AccessKey/SecretAccessKey must be provided!"
+- it: s3 missing sk should fail
+  set:
+    stateStore:
+      s3:
+        enabled: true
+        bucket: x
+        region: r
+        authentication:
+          accessKey: ak
+  asserts:
+  - failedTemplate:
+      errorMessage: "Either use IAM role for Service account or AccessKey/SecretAccessKey must be provided!"
+# Test for external MinIO
+- it: no validation triggered on bundled minio enabled
+  set:
+    tags.minio: true
+    stateStore:
+      minio:
+        enabled: true
+        endpoint: ""
+  asserts:
+  - notFailedTemplate: { }
+- it: minio empty endpoint should fail
+  set:
+    stateStore:
+      minio:
+        enabled: true
+        endpoint: ""
+  asserts:
+  - failedTemplate:
+      errorMessage: "Endpoint .stateStore.minio.endpoint must be set!"
+- it: minio empty bucket should fail
+  set:
+    stateStore:
+      minio:
+        enabled: true
+        endpoint: ep
+        bucket: ""
+  asserts:
+  - failedTemplate:
+      errorMessage: "Bucket .stateStore.minio.bucket must be set!"
+- it: minio empty authentication credentials should fail
+  set:
+    stateStore:
+      minio:
+        enabled: true
+        endpoint: ep
+        bucket: b
+  asserts:
+  - failedTemplate:
+      errorMessage: "Username/password must be provided!"
+- it: minio missing username should fail
+  set:
+    stateStore:
+      minio:
+        enabled: true
+        endpoint: ep
+        bucket: b
+      authentication:
+        password: p
+  asserts:
+  - failedTemplate:
+      errorMessage: "Username/password must be provided!"
+- it: minio missing password should fail
+  set:
+    stateStore:
+      minio:
+        enabled: true
+        endpoint: ep
+        bucket: b
+      authentication:
+        username: a
+  asserts:
+  - failedTemplate:
+      errorMessage: "Username/password must be provided!"
+- it: minio username/password should pass
+  set:
+    stateStore:
+      minio:
+        enabled: true
+        endpoint: ep
+        bucket: b
+        authentication:
+          username: u
+          password: p
+  asserts:
+  - notFailedTemplate: { }
+- it: minio existing secret should pass
+  set:
+    stateStore:
+      minio:
+        enabled: true
+        endpoint: ep
+        bucket: b
+        authentication:
+          existingSecretName: s
+  asserts:
+  - notFailedTemplate: { }
+# Tests for GCS.
+- it: gcs empty bucket should fail
+  set:
+    stateStore:
+      gcs:
+        enabled: true
+        bucket: ""
+  asserts:
+  - failedTemplate:
+      errorMessage: "Bucket .stateStore.gcs.bucket must be set!"
+- it: gcs empty credentials should fail
+  set:
+    stateStore:
+      gcs:
+        enabled: true
+        bucket: b
+  asserts:
+  - failedTemplate:
+      errorMessage: "Credentials must be provided!"
+- it: gcs credentials should pass
+  set:
+    stateStore:
+      gcs:
+        enabled: true
+        bucket: b
+        authentication:
+          credentials: c
+  asserts:
+  - notFailedTemplate: { }
+- it: gcs existing secret should pass
+  set:
+    stateStore:
+      gcs:
+        enabled: true
+        bucket: b
+        authentication:
+          existingSecretName: s
+  asserts:
+  - notFailedTemplate: { }
+- it: gcs use service account should pass
+  set:
+    stateStore:
+      gcs:
+        enabled: true
+        bucket: b
+        authentication:
+          useServiceAccount: true
+  asserts:
+  - notFailedTemplate: { }
+# Tests for Aliyun OSS.
+- it: oss empty bucket should fail
+  set:
+    stateStore:
+      oss:
+        enabled: true
+        bucket: ""
+  asserts:
+  - failedTemplate:
+      errorMessage: "Bucket .stateStore.oss.bucket must be set!"
+- it: oss empty region should fail
+  set:
+    stateStore:
+      oss:
+        enabled: true
+        bucket: b
+        region: ""
+  asserts:
+  - failedTemplate:
+      errorMessage: "Region .stateStore.oss.region must be set!"
+- it: oss empty credentials should fail
+  set:
+    stateStore:
+      oss:
+        enabled: true
+        bucket: b
+        region: r
+  asserts:
+  - failedTemplate:
+      errorMessage: "Either use ServiceAccount to provide credentials, or AccessKey/SecretAccessKey must be provided!"
+- it: oss missing ak should fail
+  set:
+    stateStore:
+      oss:
+        enabled: true
+        bucket: b
+        region: r
+        authentication:
+          secretAccessKey: sk
+  asserts:
+  - failedTemplate:
+      errorMessage: "Either use ServiceAccount to provide credentials, or AccessKey/SecretAccessKey must be provided!"
+- it: oss missing sk should fail
+  set:
+    stateStore:
+      oss:
+        enabled: true
+        bucket: b
+        region: r
+        authentication:
+          accessKey: ak
+  asserts:
+  - failedTemplate:
+      errorMessage: "Either use ServiceAccount to provide credentials, or AccessKey/SecretAccessKey must be provided!"
+- it: oss use service account should pass
+  set:
+    stateStore:
+      oss:
+        enabled: true
+        bucket: b
+        region: r
+        authentication:
+          useServiceAccount: true
+  asserts:
+  - notFailedTemplate: { }
+- it: oss existing secret should pass
+  set:
+    stateStore:
+      oss:
+        enabled: true
+        bucket: b
+        region: r
+        authentication:
+          existingSecretName: s
+  asserts:
+  - notFailedTemplate: { }
+- it: oss ak/sk should pass
+  set:
+    stateStore:
+      oss:
+        enabled: true
+        bucket: b
+        region: r
+        authentication:
+          accessKey: ak
+          secretAccessKey: sk
+  asserts:
+  - notFailedTemplate: { }
+# Test for HuaweiCloud OBS.
+- it: obs empty bucket should fail
+  set:
+    stateStore:
+      obs:
+        enabled: true
+        bucket: ""
+  asserts:
+  - failedTemplate:
+      errorMessage: "Bucket .stateStore.obs.bucket must be set!"
+- it: obs empty region should fail
+  set:
+    stateStore:
+      obs:
+        enabled: true
+        bucket: b
+        region: ""
+  asserts:
+  - failedTemplate:
+      errorMessage: "Region .stateStore.obs.region must be set!"
+- it: obs empty credentials should fail
+  set:
+    stateStore:
+      obs:
+        enabled: true
+        bucket: b
+        region: r
+  asserts:
+  - failedTemplate:
+      errorMessage: "Either use ServiceAccount to provide credentials, or AccessKey/SecretAccessKey must be provided!"
+- it: obs missing ak should fail
+  set:
+    stateStore:
+      obs:
+        enabled: true
+        bucket: b
+        region: r
+        authentication:
+          secretAccessKey: sk
+  asserts:
+  - failedTemplate:
+      errorMessage: "Either use ServiceAccount to provide credentials, or AccessKey/SecretAccessKey must be provided!"
+- it: obs missing sk should fail
+  set:
+    stateStore:
+      obs:
+        enabled: true
+        bucket: b
+        region: r
+        authentication:
+          accessKey: ak
+  asserts:
+  - failedTemplate:
+      errorMessage: "Either use ServiceAccount to provide credentials, or AccessKey/SecretAccessKey must be provided!"
+- it: obs use service account should pass
+  set:
+    stateStore:
+      obs:
+        enabled: true
+        bucket: b
+        region: r
+        authentication:
+          useServiceAccount: true
+  asserts:
+  - notFailedTemplate: { }
+- it: obs existing secret should pass
+  set:
+    stateStore:
+      obs:
+        enabled: true
+        bucket: b
+        region: r
+        authentication:
+          existingSecretName: s
+  asserts:
+  - notFailedTemplate: { }
+- it: obs ak/sk should pass
+  set:
+    stateStore:
+      obs:
+        enabled: true
+        bucket: b
+        region: r
+        authentication:
+          accessKey: ak
+          secretAccessKey: sk
+  asserts:
+  - notFailedTemplate: { }
+# Tests for AzureBlob.
+- it: azblob empty endpoint should fail
+  set:
+    stateStore:
+      azblob:
+        enabled: true
+        endpoint: ""
+  asserts:
+  - failedTemplate:
+      errorMessage: "Endpoint .stateStore.azblob.endpoint must be set!"
+- it: azblob empty container should fail
+  set:
+    stateStore:
+      azblob:
+        enabled: true
+        endpoint: ep
+        container: ""
+  asserts:
+  - failedTemplate:
+      errorMessage: "Container .stateStore.azblob.container must be set!"
+- it: azblob empty credentials should fail
+  set:
+    stateStore:
+      azblob:
+        enabled: true
+        endpoint: ep
+        container: c
+  asserts:
+  - failedTemplate:
+      errorMessage: "Either use ServiceAccount to provide credentials, or AccountName/AccountKey must be provided!"
+- it: azblob missing account key should fail
+  set:
+    stateStore:
+      azblob:
+        enabled: true
+        endpoint: ep
+        container: c
+        authentication:
+          accountName: an
+  asserts:
+  - failedTemplate:
+      errorMessage: "Either use ServiceAccount to provide credentials, or AccountName/AccountKey must be provided!"
+- it: azblob missing account name should fail
+  set:
+    stateStore:
+      azblob:
+        enabled: true
+        endpoint: ep
+        container: c
+        authentication:
+          accountKey: ak
+  asserts:
+  - failedTemplate:
+      errorMessage: "Either use ServiceAccount to provide credentials, or AccountName/AccountKey must be provided!"
+- it: azblob use service account should pass
+  set:
+    stateStore:
+      azblob:
+        enabled: true
+        endpoint: ep
+        container: c
+        authentication:
+          useServiceAccount: true
+  asserts:
+  - notFailedTemplate: { }
+- it: azblob existing secret should pass
+  set:
+    stateStore:
+      azblob:
+        enabled: true
+        endpoint: ep
+        container: c
+        authentication:
+          existingSecretName: s
+  asserts:
+  - notFailedTemplate: { }
+- it: azblob credentials should pass
+  set:
+    stateStore:
+      azblob:
+        enabled: true
+        endpoint: ep
+        container: c
+        authentication:
+          accountName: an
+          accountKey: ak
+  asserts:
+  - notFailedTemplate: { }

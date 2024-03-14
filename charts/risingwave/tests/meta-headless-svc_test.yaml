@@ -1,0 +1,124 @@
+suite: Test meta serverless service
+templates:
+- templates/meta-headless-svc.yaml
+chart:
+  appVersion: 1.0.0
+  version: 0.0.1
+tests:
+- it: file doesn't render on standalone mode
+  set:
+    standalone.enabled: true
+  asserts:
+  - hasDocuments:
+      count: 0
+- it: file should render in normal cases
+  asserts:
+  - hasDocuments:
+      count: 1
+  - containsDocument:
+      apiVersion: v1
+      kind: Service
+  - equal:
+      path: metadata.name
+      value: RELEASE-NAME-risingwave-meta-headless
+- it: service should contains labels and annotations
+  asserts:
+  - isSubset:
+      path: metadata.labels
+      content:
+        helm.sh/chart: risingwave-0.0.1
+        app.kubernetes.io/name: risingwave
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/version: 1.0.0
+        app.kubernetes.io/instance: RELEASE-NAME
+        risingwave.risingwavelabs.com/component: meta
+  - notExists:
+      path: metadata.annotations
+- it: service should reflect common labels and annotations
+  set:
+    commonLabels:
+      LABEL: LABEL_V
+    commonAnnotations:
+      ANNOTATION: ANNOTATION_V
+  asserts:
+  - isSubset:
+      path: metadata.labels
+      content:
+        helm.sh/chart: risingwave-0.0.1
+        app.kubernetes.io/name: risingwave
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/version: 1.0.0
+        app.kubernetes.io/instance: RELEASE-NAME
+        risingwave.risingwavelabs.com/component: meta
+        LABEL: LABEL_V
+  - exists:
+      path: metadata.annotations
+  - isSubset:
+      path: metadata.annotations
+      content:
+        ANNOTATION: ANNOTATION_V
+- it: service should has `clusterIP=None`
+  asserts:
+  - equal:
+      path: spec.clusterIP
+      value: None
+- it: service should have correct selector
+  asserts:
+  - equal:
+      path: spec.selector
+      value:
+        app.kubernetes.io/name: risingwave
+        app.kubernetes.io/instance: RELEASE-NAME
+        risingwave.risingwavelabs.com/component: meta
+- it: service should contain expecting ports
+  asserts:
+  - lengthEqual:
+      path: spec.ports
+      count: 3
+  - contains:
+      path: spec.ports
+      content:
+        name: svc
+        port: 5690
+        targetPort: svc
+  - contains:
+      path: spec.ports
+      content:
+        name: dashboard
+        port: 5691
+        targetPort: dashboard
+  - contains:
+      path: spec.ports
+      content:
+        name: metrics
+        port: 1250
+        targetPort: metrics
+- it: service should reflect port changes
+  set:
+    ports:
+      meta:
+        svc: 1
+        dashboard: 2
+        metrics: 3
+  asserts:
+  - lengthEqual:
+      path: spec.ports
+      count: 3
+  - contains:
+      path: spec.ports
+      content:
+        name: svc
+        port: 1
+        targetPort: svc
+  - contains:
+      path: spec.ports
+      content:
+        name: dashboard
+        port: 2
+        targetPort: dashboard
+  - contains:
+      path: spec.ports
+      content:
+        name: metrics
+        port: 3
+        targetPort: metrics
