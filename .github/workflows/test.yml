@@ -26,6 +26,10 @@ jobs:
       run: |
         helm plugin install https://github.com/helm-unittest/helm-unittest.git
 
+    - name: Run Helm Lint
+      run: |
+        make lint
+
     - name: Run Unit Tests
       run: |
         make test

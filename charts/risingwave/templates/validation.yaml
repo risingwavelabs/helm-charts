@@ -23,15 +23,15 @@ Validate state store backends.
     {{ $count = add1 $count }}
     {{ $name = "MinIO" }}
   {{- else }}
-    {{- fail "Unnecessary bundled minio when $name is enabled! Try setting `tags.minio=false,tags.bundle=false` and retry!" }}
+    {{- printf "Unnecessary bundled minio when %s is enabled! Try setting `tags.minio=false,tags.bundle=false` and retry!" $name | fail }}
   {{- end }}
 {{- else }}
-  {{- if .Values.stateStore.oss.enabled }}{{ $count = add1 $count }}{{ $name = "MinIO" }}{{- end }}
+  {{- if .Values.stateStore.minio.enabled }}{{ $count = add1 $count }}{{ $name = "MinIO" }}{{- end }}
 {{- end }}
 {{- if (eq $count 0 ) }}
   {{- fail "No state store backend!\n  Please set up one of S3, MinIO, GCS, OSS, AZBLOB, HDFS, and OBS under `stateStore`, or use the bundled MinIO by setting `tags.minio=true`!" }}
 {{- else if (gt $count 1) }}
-  {{- fail "More than one state store backend!" }}
+  {{- fail "More than one state store backends!" }}
 {{- end }}
 
 {{/*
@@ -58,7 +58,7 @@ Validate meta store backends.
     {{ $count = add1 $count }}
     {{ $name = "etcd" }}
   {{- else }}
-    {{- fail "Unnecessary bundled etcd when $name is enabled!" }}
+    {{- printf "Unnecessary bundled etcd when %s is enabled!" $name | fail }}
   {{- end }}
 {{- else }}
   {{- if .Values.metaStore.etcd.enabled }}{{ $count = add1 $count }}{{ $name = "etcd" }}{{- end }}
@@ -66,7 +66,7 @@ Validate meta store backends.
 {{- if (eq $count 0 ) }}
   {{- fail "No meta store backend!\n  Please set up an external etcd under `metaStore`, or use the bundled one by setting `tags.etcd=true`!" }}
 {{- else if (gt $count 1) }}
-  {{- fail "More than one meta store backend!" }}
+  {{- fail "More than one meta store backends!" }}
 {{- end }}
 
 {{/*
@@ -92,17 +92,14 @@ Validate parameters of S3 state store.
 {{- with .Values.stateStore.s3 }}
   {{- if .enabled }}
     {{- if empty .bucket }}
-      {{- fail "State store S3 bucket must be set" }}
+      {{- fail "Bucket .stateStore.s3.bucket must be set!" }}
     {{- end }}
     {{- if empty .region }}
-      {{- fail "State store S3 region must be set" }}
+      {{- fail "Region .stateStore.s3.region must be set!" }}
     {{- end }}
     {{- if and (empty .authentication.existingSecretName) (not .authentication.useServiceAccount) }}
-      {{- if empty .authentication.accessKey }}
-        {{- fail "State store S3 authentication access key must be set" }}
-      {{- end }}
-      {{- if empty .authentication.secretAccessKey }}
-        {{- fail "State store S3 authentication secret access key must be set" }}
+      {{- if or (empty .authentication.accessKey) (empty .authentication.secretAccessKey)}}
+        {{- fail "Either use IAM role for Service account or AccessKey/SecretAccessKey must be provided!\nCheck .stateStore.s3.authentication for details!" }}
       {{- end }}
     {{- end }}
   {{- end }}
@@ -115,17 +112,14 @@ Validate parameters of external MinIO state store.
   {{- with .Values.stateStore.minio }}
     {{- if .enabled }}
       {{- if empty .endpoint }}
-        {{- fail "State store MinIO endpoint must be set" }}
+        {{- fail "Endpoint .stateStore.minio.endpoint must be set!" }}
       {{- end }}
       {{- if empty .bucket }}
-        {{- fail "State store MinIO bucket must be set" }}
+        {{- fail "Bucket .stateStore.minio.bucket must be set!" }}
       {{- end }}
       {{- if empty .authentication.existingSecretName }}
-        {{- if empty .authentication.username }}
-          {{- fail "State store MinIO authentication username must be set" }}
-        {{- end }}
-        {{- if empty .authentication.password }}
-          {{- fail "State store MinIO authentication password key must be set" }}
+        {{- if or (empty .authentication.username) (empty .authentication.password) }}
+          {{- fail "Username/password must be provided!\nCheck .stateStore.minio.authentication for details!" }}
         {{- end }}
       {{- end }}
     {{- end }}
@@ -138,11 +132,11 @@ Validate parameter of GCS state store.
 {{- with .Values.stateStore.gcs }}
   {{- if .enabled }}
     {{- if empty .bucket }}
-      {{- fail "State store GCS bucket must be set" }}
+      {{- fail "Bucket .stateStore.gcs.bucket must be set!" }}
     {{- end }}
-    {{- if and (empty .authentication.existingSecretName) (not .authentication.useServiceAccount) }}
-      {{- if empty .authentication.credentials }}
-        {{- fail "State store GCS authentication credentials must be set" }}
+    {{- if not .authentication.useServiceAccount }}
+      {{- if and (empty .authentication.credentials) (empty .authentication.existingSecretName) }}
+        {{- fail "Credentials must be provided!\nCheck .stateStore.gcs.authentication for details!" }}
       {{- end }}
     {{- end }}
   {{- end }}
@@ -154,17 +148,14 @@ Validate parameters of OSS state store.
 {{- with .Values.stateStore.oss }}
   {{- if .enabled }}
     {{- if empty .bucket }}
-      {{- fail "State store OSS bucket must be set" }}
+      {{- fail "Bucket .stateStore.oss.bucket must be set!" }}
     {{- end }}
     {{- if empty .region }}
-      {{- fail "State store OSS region must be set" }}
+      {{- fail "Region .stateStore.oss.region must be set!" }}
     {{- end }}
-    {{- if and (empty .authentication.existingSecretName) (not .authentication.useServiceAccount) }}
-      {{- if empty .authentication.accessKey }}
-        {{- fail "State store OSS authentication access key must be set" }}
-      {{- end }}
-      {{- if empty .authentication.secretAccessKey }}
-        {{- fail "State store OSS authentication secret access key must be set" }}
+    {{- if not .authentication.useServiceAccount }}
+      {{- if and (empty .authentication.existingSecretName) (or (empty .authentication.accessKey) (empty .authentication.secretAccessKey)) }}
+        {{- fail "Either use ServiceAccount to provide credentials, or AccessKey/SecretAccessKey must be provided!\nCheck .stateStore.oss.authentication for details!" }}
       {{- end }}
     {{- end }}
   {{- end }}
@@ -176,17 +167,14 @@ Validate parameters of OBS state store.
 {{- with .Values.stateStore.obs }}
   {{- if .enabled }}
     {{- if empty .bucket }}
-      {{- fail "State store OBS bucket must be set" }}
+      {{- fail "Bucket .stateStore.obs.bucket must be set!" }}
     {{- end }}
     {{- if empty .region }}
-      {{- fail "State store OBS region must be set" }}
+      {{- fail "Region .stateStore.obs.region must be set!" }}
     {{- end }}
     {{- if and (empty .authentication.existingSecretName) (not .authentication.useServiceAccount) }}
-      {{- if empty .authentication.accessKey }}
-        {{- fail "State store OBS authentication access key must be set" }}
-      {{- end }}
-      {{- if empty .authentication.secretAccessKey }}
-        {{- fail "State store OBS authentication secret access key must be set" }}
+      {{- if or (empty .authentication.accessKey) (empty .authentication.secretAccessKey) }}
+        {{- fail "Either use ServiceAccount to provide credentials, or AccessKey/SecretAccessKey must be provided!\nCheck .stateStore.obs.authentication for details!" }}
       {{- end }}
     {{- end }}
   {{- end }}
@@ -198,17 +186,14 @@ Validate parameters of AzureBlob state store.
 {{- with .Values.stateStore.azblob }}
   {{- if .enabled }}
     {{- if empty .endpoint }}
-      {{- fail "State store AzureBlob endpoint must be set" }}
+      {{- fail "Endpoint .stateStore.azblob.endpoint must be set!" }}
     {{- end }}
     {{- if empty .container }}
-      {{- fail "State store AzureBlob container must be set" }}
+      {{- fail "Container .stateStore.azblob.container must be set!" }}
     {{- end }}
     {{- if and (empty .authentication.existingSecretName) (not .authentication.useServiceAccount) }}
-      {{- if empty .authentication.accountKey }}
-        {{- fail "State store AzureBlob authentication account key must be set" }}
-      {{- end }}
-      {{- if empty .authentication.accountName }}
-        {{- fail "State store AzureBlob authentication account name must be set" }}
+      {{- if or (empty .authentication.accountName) (empty .authentication.accountKey) }}
+        {{- fail "Either use ServiceAccount to provide credentials, or AccountName/AccountKey must be provided!\nCheck .stateStore.azblob.authentication for details!" }}
       {{- end }}
     {{- end }}
   {{- end }}

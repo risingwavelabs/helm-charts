@@ -1,0 +1,17 @@
+suite: Test cluster workloads (standalone mode)
+templates:
+- templates/meta-sts.yaml
+- templates/frontend-deploy.yaml
+- templates/compute-sts.yaml
+- templates/compactor-deploy.yaml
+chart:
+  appVersion: 1.0.0
+  version: 0.0.1
+tests:
+- it: cluster workloads should not render
+  set:
+    standalone:
+      enabled: true
+  asserts:
+  - hasDocuments:
+      count: 0
