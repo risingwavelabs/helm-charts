@@ -1,4 +1,4 @@
-suite: Test state store env vars (meta/compute/compactor)
+suite: Test state store env vars (standalone)
 templates:
 - templates/standalone/standalone-sts.yaml
 chart:

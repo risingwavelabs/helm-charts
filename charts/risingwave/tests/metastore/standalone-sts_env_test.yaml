@@ -1,4 +1,4 @@
-suite: Test meta store env vars (meta-sts)
+suite: Test meta store env vars (standalone)
 templates:
 - templates/standalone/standalone-sts.yaml
 chart:
