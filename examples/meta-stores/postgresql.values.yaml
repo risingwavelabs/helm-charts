@@ -1,0 +1,11 @@
+metaStore:
+  postgresql:
+    enabled: true
+    host: postgresql.example
+    port: 5432
+    database: risingwave
+    options:
+      currentSchema: my_schema
+    authentication:
+      username: "root"
+      password: "123456"

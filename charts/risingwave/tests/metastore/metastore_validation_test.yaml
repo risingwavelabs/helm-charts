@@ -1,0 +1,313 @@
+suite: Test etcd existing secret validation
+templates:
+- templates/validation.yaml
+chart:
+  appVersion: 1.0.0
+  version: 0.0.1
+set:
+  tags:
+    minio: true
+tests:
+- it: no meta store backend should fail
+  asserts:
+  - failedTemplate:
+      errorMessage: "No meta store backend!"
+- it: multiple backends should fail
+  set:
+    metaStore:
+      etcd:
+        enabled: true
+      mysql:
+        enabled: true
+  asserts:
+  - failedTemplate:
+      errorMessage: "More than one meta store backends!"
+# Tests for etcd.
+- it: no authentication should pass (etcd)
+  set:
+    metaStore:
+      etcd:
+        enabled: true
+        endpoints:
+        - dummy
+        authentication:
+          enabled: false
+  asserts:
+  - notFailedTemplate: { }
+- it: existing secret should pass (etcd)
+  set:
+    metaStore:
+      etcd:
+        enabled: true
+        endpoints:
+        - dummy
+        authentication:
+          enabled: true
+          existingSecretName: a
+  asserts:
+  - notFailedTemplate: { }
+- it: username/password should pass (etcd)
+  set:
+    metaStore:
+      etcd:
+        enabled: true
+        endpoints:
+        - dummy
+        authentication:
+          enabled: true
+          username: a
+          password: b
+  asserts:
+  - notFailedTemplate: { }
+- it: no credentials should fail (etcd)
+  set:
+    metaStore:
+      etcd:
+        enabled: true
+        endpoints:
+        - dummy
+        authentication:
+          enabled: true
+  asserts:
+  - failedTemplate:
+      errorMessage: "Meta store etcd's authentication is enabled, either existing secret or username/password should be provided!"
+- it: username only should fail (etcd)
+  set:
+    metaStore:
+      etcd:
+        enabled: true
+        endpoints:
+        - dummy
+        authentication:
+          enabled: true
+          username: a
+  asserts:
+  - failedTemplate:
+      errorMessage: "Meta store etcd's authentication is enabled, either existing secret or username/password should be provided!"
+- it: password only should fail (etcd)
+  set:
+    metaStore:
+      etcd:
+        enabled: true
+        endpoints:
+        - dummy
+        authentication:
+          enabled: true
+          password: a
+  asserts:
+  - failedTemplate:
+      errorMessage: "Meta store etcd's authentication is enabled, either existing secret or username/password should be provided!"
+- it: no endpoints should fail (etcd)
+  set:
+    metaStore:
+      etcd:
+        enabled: true
+  asserts:
+  - failedTemplate:
+      errorMessage: "Endpoints .metaStore.etcd.endpoints must be set!"
+- it: multiple endpoints should pass (etcd)
+  set:
+    metaStore:
+      etcd:
+        enabled: true
+        endpoints:
+        - a
+        - b
+  asserts:
+  - notFailedTemplate: { }
+# Tests for sqlite.
+- it: empty path should fail (sqlite)
+  set:
+    metaStore:
+      sqlite:
+        enabled: true
+        path: ""
+  asserts:
+  - failedTemplate:
+      errorMessage: "DB path .metaStore.sqlite.path must be set!"
+# Tests for PostgreSQL.
+- it: empty host should fail (postgres)
+  set:
+    metaStore:
+      postgresql:
+        enabled: true
+        host: ""
+  asserts:
+  - failedTemplate:
+      errorMessage: "Host .metaStore.postgresql.host must be set!"
+- it: empty port should fail (postgres)
+  set:
+    metaStore:
+      postgresql:
+        enabled: true
+        host: host
+        port: 0
+  asserts:
+  - failedTemplate:
+      errorMessage: "Port .metaStore.postgresql.port must be set!"
+- it: empty database should fail (postgres)
+  set:
+    metaStore:
+      postgresql:
+        enabled: true
+        host: host
+        port: 5432
+        database: ""
+  asserts:
+  - failedTemplate:
+      errorMessage: "Database .metaStore.postgresql.database must be set!"
+- it: empty credentials should fail (postgres)
+  set:
+    metaStore:
+      postgresql:
+        enabled: true
+        host: host
+        port: 5432
+        database: "risingwave"
+  asserts:
+  - failedTemplate:
+      errorMessage: "Credentials to connect PostgreSQL must be provided!"
+- it: missing username should fail (postgres)
+  set:
+    metaStore:
+      postgresql:
+        enabled: true
+        host: host
+        port: 5432
+        database: "risingwave"
+        authentication:
+          password: p
+  asserts:
+  - failedTemplate:
+      errorMessage: "Credentials to connect PostgreSQL must be provided!"
+- it: missing password should fail (postgres)
+  set:
+    metaStore:
+      postgresql:
+        enabled: true
+        host: host
+        port: 5432
+        database: "risingwave"
+        authentication:
+          username: u
+  asserts:
+  - failedTemplate:
+      errorMessage: "Credentials to connect PostgreSQL must be provided!"
+- it: existing secret name should pass (postgres)
+  set:
+    metaStore:
+      postgresql:
+        enabled: true
+        host: host
+        port: 5432
+        database: "risingwave"
+        authentication:
+          existingSecretName: s
+  asserts:
+  - notFailedTemplate: { }
+- it: username/password should pass (postgres)
+  set:
+    metaStore:
+      postgresql:
+        enabled: true
+        host: host
+        port: 5432
+        database: "risingwave"
+        authentication:
+          username: u
+          password: p
+  asserts:
+  - notFailedTemplate: { }
+# Tests for MySQL.
+- it: empty host should fail (mysql)
+  set:
+    metaStore:
+      mysql:
+        enabled: true
+        host: ""
+  asserts:
+  - failedTemplate:
+      errorMessage: "Host .metaStore.mysql.host must be set!"
+- it: empty port should fail (mysql)
+  set:
+    metaStore:
+      mysql:
+        enabled: true
+        host: host
+        port: 0
+  asserts:
+  - failedTemplate:
+      errorMessage: "Port .metaStore.mysql.port must be set!"
+- it: empty database should fail (mysql)
+  set:
+    metaStore:
+      mysql:
+        enabled: true
+        host: host
+        port: 3306
+        database: ""
+  asserts:
+  - failedTemplate:
+      errorMessage: "Database .metaStore.mysql.database must be set!"
+- it: empty credentials should fail (mysql)
+  set:
+    metaStore:
+      mysql:
+        enabled: true
+        host: host
+        port: 5432
+        database: "risingwave"
+  asserts:
+  - failedTemplate:
+      errorMessage: "Credentials to connect MySQL must be provided!"
+- it: missing username should fail (mysql)
+  set:
+    metaStore:
+      mysql:
+        enabled: true
+        host: host
+        port: 5432
+        database: "risingwave"
+        authentication:
+          password: p
+  asserts:
+  - failedTemplate:
+      errorMessage: "Credentials to connect MySQL must be provided!"
+- it: missing password should fail (mysql)
+  set:
+    metaStore:
+      mysql:
+        enabled: true
+        host: host
+        port: 5432
+        database: "risingwave"
+        authentication:
+          username: u
+  asserts:
+  - failedTemplate:
+      errorMessage: "Credentials to connect MySQL must be provided!"
+- it: existing secret name should pass (mysql)
+  set:
+    metaStore:
+      mysql:
+        enabled: true
+        host: host
+        port: 5432
+        database: "risingwave"
+        authentication:
+          existingSecretName: s
+  asserts:
+  - notFailedTemplate: { }
+- it: username/password should pass (mysql)
+  set:
+    metaStore:
+      mysql:
+        enabled: true
+        host: host
+        port: 5432
+        database: "risingwave"
+        authentication:
+          username: u
+          password: p
+  asserts:
+  - notFailedTemplate: { }

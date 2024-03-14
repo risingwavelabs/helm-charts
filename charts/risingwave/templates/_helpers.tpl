@@ -97,13 +97,36 @@ T
 {{- end }}
 
 {{/*
-Create the name of the etcd credentials Secret to use
+Create the name of the etcd credentials Secret to use.
 */}}
 {{- define "risingwave.etcdCredentialsSecretName" -}}
 {{- if .Values.metaStore.etcd.authentication.existingSecretName }}
 {{- .Values.metaStore.etcd.authentication.existingSecretName }}
 {{- else }}
 {{- printf "%s-etcd" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
+
+
+{{/*
+Create the name of the PostgreSQL credentials Secret to use.
+*/}}
+{{- define "risingwave.postgresCredentialsSecretName" -}}
+{{- if .Values.metaStore.postgresql.authentication.existingSecretName }}
+{{- .Values.metaStore.postgresql.authentication.existingSecretName }}
+{{- else }}
+{{- printf "%s-postgres" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
+
+{{/*
+Create the name of the MySQL credentials Secret to use.
+*/}}
+{{- define "risingwave.mysqlCredentialsSecretName" -}}
+{{- if .Values.metaStore.mysql.authentication.existingSecretName }}
+{{- .Values.metaStore.mysql.authentication.existingSecretName }}
+{{- else }}
+{{- printf "%s-mysql" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
 {{- end }}
 {{- end }}
 
@@ -200,6 +223,49 @@ Create the meta backend type string to use.
 {{- define "risingwave.metaBackend" -}}
 {{- if or (include "risingwave.bundle.etcd.enabled" .) .Values.metaStore.etcd.enabled }}
 {{- print "etcd" }}
+{{- else if or .Values.metaStore.sqlite.enabled .Values.metaStore.postgresql.enabled .Values.metaStore.mysql.enabled }}
+{{- print "sql" }}
+{{- else }}
+{{- print "" }}
+{{- end }}
+{{- end }}
+
+
+{{/*
+Convert connection options.
+*/}}
+{{- define "common.convertConnectionOptions" -}}
+{{- $list := list -}}
+{{- range $k, $v := . -}}
+{{- $list = append $list (printf "%s=%s" $k (urlquery $v)) -}}
+{{- end -}}
+{{ join "&" $list }}
+{{- end -}}
+
+{{/*
+Create the SQL endpoint string to use.
+*/}}
+{{- define "risingwave.sqlEndpoint" -}}
+{{- if .Values.metaStore.sqlite.enabled }}
+{{- printf "sqlite://%s?mode=rwc" .Values.metaStore.sqlite.path }}
+{{- else if .Values.metaStore.postgresql.enabled }}
+{{- if .Values.metaStore.postgresql.options }}
+{{- printf "postgres://$(RW_POSTGRES_USERNAME):$(RW_POSTGRES_PASSWORD)@%s:%d/%s?%s"
+    .Values.metaStore.postgresql.host (.Values.metaStore.postgresql.port | int) .Values.metaStore.postgresql.database
+    (include "common.convertConnectionOptions" .Values.metaStore.postgresql.options) }}
+{{- else }}
+{{- printf "postgres://$(RW_POSTGRES_USERNAME):$(RW_POSTGRES_PASSWORD)@%s:%d/%s"
+    .Values.metaStore.postgresql.host (.Values.metaStore.postgresql.port | int) .Values.metaStore.postgresql.database }}
+{{- end }}
+{{- else if .Values.metaStore.mysql.enabled }}
+{{- if .Values.metaStore.mysql.options }}
+{{- printf "mysql://$(RW_MYSQL_USERNAME):$(RW_MYSQL_PASSWORD)@%s:%d/%s?%s"
+    .Values.metaStore.mysql.host (.Values.metaStore.mysql.port | int) .Values.metaStore.mysql.database
+    (include "common.convertConnectionOptions" .Values.metaStore.mysql.options) }}
+{{- else }}
+{{- printf "mysql://$(RW_MYSQL_USERNAME):$(RW_MYSQL_PASSWORD)@%s:%d/%s"
+    .Values.metaStore.mysql.host (.Values.metaStore.mysql.port | int) .Values.metaStore.mysql.database }}
+{{- end }}
 {{- else }}
 {{- print "" }}
 {{- end }}
@@ -230,6 +296,8 @@ Create the hummock connection string to use.
 {{- printf "hummock+hdfs://%s" .Values.stateStore.hdfs.nameNode }}
 {{- else if .Values.stateStore.obs.enabled }}
 {{- printf "hummock+obs://%s" .Values.stateStore.obs.bucket }}
+{{- else if .Values.stateStore.localFs.enabled }}
+{{- printf "hummock+fs://%s" .Values.stateStore.localFs.path }}
 {{- else }}
 {{- print "" }}
 {{- end }}

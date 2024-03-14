@@ -1,0 +1,5 @@
+stateStore:
+  dataDirectory: "prefix/of/data"
+  localFs:
+    enabled: true
+    path: /data

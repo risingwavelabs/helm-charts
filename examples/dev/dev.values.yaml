@@ -1,0 +1,29 @@
+metaStore:
+  sqlite:
+    enabled: true
+    path: /data/metastore/risingwave.db
+
+stateStore:
+  localFs:
+    enabled: true
+    path: /data/statestore
+
+standalone:
+  enabled: true
+
+  extraVolumeMounts:
+  - name: data
+    mountPath: /data/metastore
+    subPath: metastore
+  - name: data
+    mountPath: /data/statestore
+    subPath: statestore
+
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 50Gi

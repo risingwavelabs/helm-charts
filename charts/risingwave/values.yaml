@@ -326,6 +326,14 @@ standalone:
   ## Defaults to full.
   rustBacktrace: full
 
+  ## @param standalone.volumeClaimTemplates Persistent volume claim templates that can be referenced.
+  volumeClaimTemplates: []
+
+  ## @param standalone.persistentVolumeClaimRetentionPolicy Policy that controls how PVCs are deleted.
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Delete
+    whenScaled: Delete
+
 ## @section RisingWave meta store values.
 ##
 
@@ -355,6 +363,96 @@ metaStore:
       ## @param metaStore.etcd.authentication.existingSecretName Use existing Secret for etcd authentication.
       ## If set, use the existing Secret instead of creating a new one.
       ## Secret must contain `username` and `password` keys.
+      ##
+      existingSecretName: ""
+
+  ## @section metaStore.sqlite Values for sqlite backend.
+  sqlite:
+    ## @param metaStore.sqlite.enabled Enable/disable the meta store backend.
+    ##
+    enabled: false
+
+    ## @param metaStore.sqlite.path Path to the sqlite file. Defaults to risingwave.db.
+    ## Note that the file is not in a persistent volume by default. If you would like to persist
+    ## the file during pod restarts, please create and mount a pvc and change the path.
+    ##
+    path: risingwave.db
+
+  ## @section metaStore.mysql Values for PostgreSQL backend.
+  postgresql:
+    ## @param metaStore.postgresql.enabled Enable/disable the meta store backend.
+    ##
+    enabled: false
+
+    ## @param metaStore.postgresql.host Host of the PostgreSQL server.
+    ##
+    host: ""
+
+    ## @param metaStore.postgresql.port Port of the PostgreSQL server. Defaults to 5432.
+    ##
+    port: 5432
+
+    ## @param metaStore.postgresql.database Database of the PostgreSQL server.
+    ##
+    database: ""
+
+    ## @param metaStore.postgresql.options Options to connect.
+    ##
+    options: {}
+
+    ## @param metaStore.postgresql.authentication Authentication information.
+    ##
+    authentication:
+      ## @param metaStore.postgresql.authentication.username Username to connect the DB.
+      ## If existingSecretName is specified, the field is ignored.
+      ##
+      username: ""
+      ## @param metaStore.postgresql.authentication.password Password to connect the DB.
+      ## If existingSecretName is specified, the field is ignored.
+      ##
+      password: ""
+      ## @param metaStore.postgresql.authentication.existingSecretName Existing secret name.
+      ## The Secret must contain `username` and `password` keys.
+      ## If it is specified, username and password above are ignored.
+      ##
+      existingSecretName: ""
+
+  ## @section metaStore.mysql Values for MySQL backend.
+  mysql:
+    ## @param metaStore.mysql.enabled Enable/disable the meta store backend.
+    ##
+    enabled: false
+
+    ## @param metaStore.mysql.host Host of the MySQL server.
+    ##
+    host: ""
+
+    ## @param metaStore.mysql.port Port of the MySQL server. Defaults to 3306.
+    ##
+    port: 3306
+
+    ## @param metaStore.mysql.database Database of the MySQL server.
+    ##
+    database: ""
+
+    ## @param metaStore.mysql.options Options to connect.
+    ##
+    options: {}
+
+    ## @param metaStore.mysql.authentication Authentication information.
+    ##
+    authentication:
+      ## @param metaStore.mysql.authentication.username Username to connect the DB.
+      ## If existingSecretName is specified, the field is ignored.
+      ##
+      username: ""
+      ## @param metaStore.mysql.authentication.password Password to connect the DB.
+      ## If existingSecretName is specified, the field is ignored.
+      ##
+      password: ""
+      ## @param metaStore.mysql.authentication.existingSecretName Existing secret name.
+      ## The Secret must contain `username` and `password` keys.
+      ## If it is specified, username and password above are ignored.
       ##
       existingSecretName: ""
 
@@ -571,6 +669,20 @@ stateStore:
     ##
     nameNode: ""
 
+  ## @section stateStore.localFs Local FS values.
+  ##
+
+  localFs:
+    ## @param stateStore.localFs.enabled Use local file system. For test purpose only.
+    ##
+    enabled: false
+
+    ## @param stateStore.localFs.path Local path.
+    ## Note: the path is non-persistent by default.
+    ##   If you would like to persist data, please create and mount PVCs to the path.
+    ##
+    path: data
+
 ## @section RisingWave configuration values.
 ##
 
@@ -697,6 +809,14 @@ metaComponent:
   ## @param metaComponent.rustBacktrace Customize the RUST_BACKTRACE value.
   ## Defaults to full.
   rustBacktrace: full
+
+  ## @param metaComponent.volumeClaimTemplates Persistent volume claim templates that can be referenced.
+  volumeClaimTemplates: [ ]
+
+  ## @param metaComponent.persistentVolumeClaimRetentionPolicy Policy that controls how PVCs are deleted.
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Delete
+    whenScaled: Delete
 
 frontendComponent:
   ## @param frontendComponent.podLabels Labels to add to the component pods.
@@ -907,6 +1027,14 @@ computeComponent:
   ## @param computeComponent.rustBacktrace Customize the RUST_BACKTRACE value.
   ## Defaults to full.
   rustBacktrace: full
+
+  ## @param computeComponent.volumeClaimTemplates Persistent volume claim templates that can be referenced.
+  volumeClaimTemplates: [ ]
+
+  ## @param computeComponent.persistentVolumeClaimRetentionPolicy Policy that controls how PVCs are deleted.
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Delete
+    whenScaled: Delete
 
 compactorComponent:
   ## @param compactorComponent.podLabels Labels to add to the component pods.

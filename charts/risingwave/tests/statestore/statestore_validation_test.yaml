@@ -543,3 +543,20 @@ tests:
           accountKey: ak
   asserts:
   - notFailedTemplate: { }
+- it: local fs empty path should fail
+  set:
+    stateStore:
+      localFs:
+        enabled: true
+        path: ""
+  asserts:
+  - failedTemplate:
+      errorMessage: "Path .stateStore.localFs.path must be set!"
+- it: local fs should pass
+  set:
+    stateStore:
+      localFs:
+        enabled: true
+        path: "/"
+  asserts:
+  - notFailedTemplate: { }

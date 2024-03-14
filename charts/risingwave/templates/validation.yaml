@@ -16,6 +16,7 @@ Validate state store backends.
   {{- if .azblob.enabled }}{{ $count = add1 $count }}{{ $name = "AZBLOB" }}{{- end }}
   {{- if .hdfs.enabled }}{{ $count = add1 $count }}{{ $name = "HDFS" }}{{- end }}
   {{- if .obs.enabled }}{{ $count = add1 $count }}{{ $name = "OBS" }}{{- end }}
+  {{- if .localFs.enabled }}{{ $count = add1 $count }}{{ $name = "LocalFS" }}{{- end }}
 {{- end }}
 # If there's no state store and bundled minio enabled, count = 1
 {{- if (include "risingwave.bundle.minio.enabled" .) }}
@@ -51,6 +52,9 @@ Validate meta store backends.
 # Count without etcd.
 {{- with .Values.metaStore }}
 {{/*  {{- if .etcd.enabled }}{{ $count = add1 $count }}{{ $name = "etcd" }}{{- end }}*/}}
+{{- if .sqlite.enabled }}{{ $count = add1 $count }}{{ $name = "sqlite" }}{{- end }}
+{{- if .mysql.enabled }}{{ $count = add1 $count }}{{ $name = "mysql" }}{{- end }}
+{{- if .postgresql.enabled }}{{ $count = add1 $count }}{{ $name = "postgresql" }}{{- end }}
 {{- end }}
 # If there's no state store and bundled minio enabled, count = 1
 {{- if (include "risingwave.bundle.etcd.enabled" .) }}
@@ -75,12 +79,65 @@ Validate parameters of etcd meta store.
 {{- if not (include "risingwave.bundle.etcd.enabled" .) }}
   {{- if .Values.metaStore.etcd.enabled }}
     {{- if empty .Values.metaStore.etcd.endpoints }}
-      {{- fail "Meta store etcd endpoints must be set!" }}
+      {{- fail "Endpoints .metaStore.etcd.endpoints must be set!" }}
     {{- end }}
     {{- if .Values.metaStore.etcd.authentication.enabled }}
       {{- if not (or .Values.metaStore.etcd.authentication.existingSecretName
         (and .Values.metaStore.etcd.authentication.username .Values.metaStore.etcd.authentication.password)) }}
         {{- fail "Meta store etcd's authentication is enabled, either existing secret or username/password should be provided!" }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+
+{{/*
+Validate parameters of sqlite meta store.
+*/}}
+{{- if .Values.metaStore.sqlite.enabled }}
+  {{- if empty .Values.metaStore.sqlite.path }}
+    {{- fail "DB path .metaStore.sqlite.path must be set!" }}
+  {{- end }}
+{{- end }}
+
+{{/*
+Validate parameters of PostgreSQL meta store.
+*/}}
+{{- if .Values.metaStore.postgresql.enabled }}
+  {{- if empty .Values.metaStore.postgresql.host }}
+    {{- fail "Host .metaStore.postgresql.host must be set!" }}
+  {{- end }}
+  {{- if empty .Values.metaStore.postgresql.port }}
+    {{- fail "Port .metaStore.postgresql.port must be set!" }}
+  {{- end }}
+  {{- if empty .Values.metaStore.postgresql.database }}
+    {{- fail "Database .metaStore.postgresql.database must be set!" }}
+  {{- end }}
+  {{- with .Values.metaStore.postgresql.authentication }}
+    {{- if not .existingSecretName }}
+      {{- if or (empty .username) (empty .password) }}
+        {{- fail "Credentials to connect PostgreSQL must be provided!\nCheck .metaStore.postgresql.authentication for details!" }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+
+{{/*
+Validate parameters of MySQL meta store.
+*/}}
+{{- if .Values.metaStore.mysql.enabled }}
+  {{- if empty .Values.metaStore.mysql.host }}
+    {{- fail "Host .metaStore.mysql.host must be set!" }}
+  {{- end }}
+  {{- if empty .Values.metaStore.mysql.port }}
+    {{- fail "Port .metaStore.mysql.port must be set!" }}
+  {{- end }}
+  {{- if empty .Values.metaStore.mysql.database }}
+    {{- fail "Database .metaStore.mysql.database must be set!" }}
+  {{- end }}
+  {{- with .Values.metaStore.mysql.authentication }}
+    {{- if not .existingSecretName }}
+      {{- if or (empty .username) (empty .password) }}
+        {{- fail "Credentials to connect MySQL must be provided!\nCheck .metaStore.mysql.authentication for details!" }}
       {{- end }}
     {{- end }}
   {{- end }}
@@ -196,5 +253,14 @@ Validate parameters of AzureBlob state store.
         {{- fail "Either use ServiceAccount to provide credentials, or AccountName/AccountKey must be provided!\nCheck .stateStore.azblob.authentication for details!" }}
       {{- end }}
     {{- end }}
+  {{- end }}
+{{- end }}
+
+{{/*
+Validate parameters of LocalFS state store.
+*/}}
+{{- if .Values.stateStore.localFs.enabled }}
+  {{- if empty .Values.stateStore.localFs.path }}
+    {{- fail "Path .stateStore.localFs.path must be set!" }}
   {{- end }}
 {{- end }}

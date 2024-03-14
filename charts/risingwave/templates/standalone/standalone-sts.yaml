@@ -28,6 +28,14 @@ spec:
       maxUnavailable: "100%"
   podManagementPolicy: Parallel
   minReadySeconds: 0
+  {{- if .Values.standalone.volumeClaimTemplates }}
+  volumeClaimTemplates:
+  {{- toYaml .Values.standalone.volumeClaimTemplates | nindent 2 }}
+  {{- end }}
+  {{- if .Values.standalone.persistentVolumeClaimRetentionPolicy }}
+  persistentVolumeClaimRetentionPolicy:
+  {{- toYaml .Values.standalone.persistentVolumeClaimRetentionPolicy | nindent 4 }}
+  {{- end }}
   template:
     metadata:
       labels:
@@ -115,7 +123,12 @@ spec:
             --dashboard-host 0.0.0.0:{{ .Values.ports.meta.dashboard }}
             --prometheus-host 0.0.0.0:{{ .Values.ports.meta.metrics }}
             --backend $(RW_BACKEND)
+            {{- if .Values.metaStore.etcd.enabled }}
             --etcd-endpoints $(RW_ETCD_ENDPOINTS)
+            {{- end }}
+            {{- if eq (include "risingwave.metaBackend" . ) "sql" }}
+            --sql-endpoint $(RW_SQL_ENDPOINT)
+            {{- end }}
             --state-store $(RW_STATE_STORE)
             --data-directory $(RW_DATA_DIRECTORY)
             --config-path /risingwave/config/risingwave.toml
@@ -193,6 +206,14 @@ spec:
         {{- if and .Values.metaStore.etcd.authentication.enabled (not .Values.metaStore.etcd.authentication.existingSecretName) }}
         - secretRef:
             name: {{ include "risingwave.etcdCredentialsSecretName" . }}
+        {{- end }}
+        {{- if .Values.metaStore.postgresql.enabled }}
+        - secretRef:
+            name: {{ include "risingwave.postgresCredentialsSecretName" . }}
+        {{- end }}
+        {{- if .Values.metaStore.mysql.enabled }}
+        - secretRef:
+            name: {{ include "risingwave.mysqlCredentialsSecretName" . }}
         {{- end }}
         env:
         # Disable auto region loading. Refer to the original source for more information.
@@ -299,6 +320,35 @@ spec:
               key: password
               name: {{ include "risingwave.etcdCredentialsSecretName" . }}
         {{- end }}
+        {{- end }}
+        # SQL meta backend.
+        {{- if and .Values.metaStore.postgresql.enabled .Values.metaStore.postgresql.authentication.existingSecretName }}
+        - name: RW_POSTGRES_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: username
+              name: {{ .Values.metaStore.postgresql.authentication.existingSecretName }}
+        - name: RW_POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: {{ .Values.metaStore.postgresql.authentication.existingSecretName }}
+        {{- end }}
+        {{- if and .Values.metaStore.mysql.enabled .Values.metaStore.mysql.authentication.existingSecretName }}
+        - name: RW_MYSQL_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: username
+              name: {{ .Values.metaStore.mysql.authentication.existingSecretName }}
+        - name: RW_MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: {{ .Values.metaStore.mysql.authentication.existingSecretName }}
+        {{- end }}
+        {{- if eq (include "risingwave.metaBackend" . ) "sql" }}
+        - name: RW_SQL_ENDPOINT
+          value: {{ include "risingwave.sqlEndpoint" . }}
         {{- end }}
         {{- if .Values.standalone.extraEnvVars }}
         {{- .Values.standalone.extraEnvVars | toYaml | nindent 8 }}

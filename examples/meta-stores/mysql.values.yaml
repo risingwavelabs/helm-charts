@@ -1,0 +1,9 @@
+metaStore:
+  mysql:
+    enabled: true
+    host: mysql.example
+    port: 3306
+    database: risingwave
+    authentication:
+      username: "root"
+      password: "123456"

@@ -13,7 +13,7 @@ test:
 	@$(foreach chart,$(HELM_CHARTS),helm unittest --strict -f 'tests/**/*_test.yaml' charts/$(chart);)
 
 define test-uncommitted-for-chart
-	$(eval uncommitted_files := $(shell git diff --name-status head -- charts/$(1)/tests | grep -v '^D' | awk '{print $$2}' | sed -e "s/charts\/$(1)\///g"))
+	$(eval uncommitted_files := $(shell git diff --name-status head -- charts/$(1)/tests | grep -v '^D' | awk '{print $$NF}' | sed -e "s/charts\/$(1)\///g"))
 	if [ "$(uncommitted_files)" != "" ]; then \
 		helm unittest --strict $(addprefix -f ,$(uncommitted_files)) charts/$(1); \
 	fi
