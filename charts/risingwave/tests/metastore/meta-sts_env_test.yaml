@@ -104,9 +104,8 @@ tests:
       content:
         name: RW_ETCD_AUTH
         value: "false"
-  - equal:
+  - isNullOrEmpty:
       path: spec.template.spec.containers[0].envFrom
-      value: null
   - notContains:
       path: spec.template.spec.containers[0].env
       content:
@@ -155,9 +154,8 @@ tests:
           enabled: true
           existingSecretName: s
   asserts:
-  - equal:
+  - isNullOrEmpty:
       path: spec.template.spec.containers[0].envFrom
-      value: null
   - contains:
       path: spec.template.spec.containers[0].env
       content:
