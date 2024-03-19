@@ -220,11 +220,13 @@ spec:
         - name: RW_DASHBOARD_HOST
           value: "0.0.0.0:{{ .Values.ports.meta.dashboard }}"
         - name: RW_BACKEND
-          value: etcd
+          value: {{ include "risingwave.metaBackend" . }}
+        {{- if or .Values.metaStore.etcd.enabled (include "risingwave.bundle.etcd.enabled" .) }}
         - name: RW_ETCD_ENDPOINTS
           value: {{ include "risingwave.metaStoreEtcdEndpoints" . }}
         - name: RW_ETCD_AUTH
           value: {{ include "risingwave.metaStoreAuthRequired" . | quote }}
+        {{- end }}
         {{- if (include "risingwave.bundle.etcd.enabled" .) }}
         {{- if .Values.etcd.auth.rbac.create }}
         - name: RW_ETCD_USERNAME
