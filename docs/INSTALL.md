@@ -3,7 +3,12 @@ Installation Guide
 
 ## Prerequisites
 
-1. Add the Helm Repository
+- Kubernetes cluster (version >= 1.24)
+- [Helm](https://helm.sh/docs/intro/install/) (version >= 3.7)
+
+## Add the Helm Repository
+
+1. Add the Helm repository
 
     ```shell
     helm repo add risingwavelabs https://risingwavelabs.github.io/helm-charts/ --force-update
