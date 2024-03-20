@@ -84,7 +84,7 @@ Almost all possible fields on the raw workloads are exposed.
 
 ### Customize Meta Store
 
-> [!CRUCIAL]
+> [!CAUTION]
 >
 > Data in meta store must be persistent. Otherwise, the RisingWave will be broken on a restart. For example, it could
 > refuse to start when there's a mismatch between meta store and state store.
