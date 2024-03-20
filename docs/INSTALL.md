@@ -109,7 +109,7 @@ Prerequisites:
 3. **Verify the Installation** After the installation is complete, you can verify the RisingWave Operator resources:
 
    ```shell
-   kubectl -n risingwave-operator get all
+   kubectl -n risingwave-operator-system get all
    ```
 
    You should see the RisingWave Operator pod, service, and other resources in the output.
