@@ -84,7 +84,7 @@ Prerequisites:
 - [Install cert-manager](https://cert-manager.io/docs/installation/helm/). The RisingWave Operator installation relies
   on cert-manager to issue certificates for admission webhooks.
 
->[!WARNING]
+>[!IMPORTANT]
 >
 > Note that RisingWave Operator is a cluster level installation. The behaviour is undefined when there are more than one
 > operator installed in the same Kubernetes cluster.
@@ -98,15 +98,13 @@ Prerequisites:
 
 2. **Install the RisingWave Operator Helm Chart** Install the RisingWave Operator with default configuration.
 
-   >[!NOTE]
-   >
-   > The default values should already be good enough in most cases. However, customization is possible by providing a
-   > configuration. Please refer to the [configuration guide](CONFIGURATION.md) for more details.
-
    ```shell
    helm install risingwave-operator risingwavelabs/risingwave-operator \
      --namespace risingwave-operator-system --create-namespace
    ```
+
+   The default values should already be good enough in most cases. However, customization is possible by providing a
+   configuration. Please refer to the [configuration guide](CONFIGURATION.md) for more details.
 
 3. **Verify the Installation** After the installation is complete, you can verify the RisingWave Operator resources:
 
@@ -122,6 +120,11 @@ Prerequisites:
 
 ## Uninstalling RisingWave Operator
 
+>[!WARNING]
+>
+> Note that all RisingWave resources as well as the running RisingWave pods will be removed automatically when
+deleting the RisingWave CRDs.
+
 1. **Uninstall the Helm Release** Uninstall the Risingwave Operator release with Helm.
 
    ```shell
@@ -131,11 +134,6 @@ Prerequisites:
    ```
 
 2. **Uninstall the RisingWave CRDs** Delete the RisingWave CRDs because helm won't uninstall them by design.
-
-   >[!NOTE]
-   > 
-   > Note that all RisingWave resources as well as the running RisingWave pods will be removed automatically when
-   deleting the RisingWave CRDs.
 
    ```shell
    kubectl delete crd risingwavescaleviews.risingwave.risingwavelabs.com
