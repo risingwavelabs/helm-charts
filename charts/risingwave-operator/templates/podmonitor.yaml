@@ -35,20 +35,20 @@ spec:
   podMetricsEndpoints:
   - port: metrics
     path: /metrics
-      {{- if .Values.monitor.podMonitor.interval }}
+    {{- if .Values.monitor.podMonitor.interval }}
     interval: {{ .Values.monitor.podMonitor.interval }}
-      {{- end }}
-      {{- if .Values.monitor.podMonitor.scrapeTimeout }}
+    {{- end }}
+    {{- if .Values.monitor.podMonitor.scrapeTimeout }}
     scrapeTimeout: {{ .Values.monitor.podMonitor.scrapeTimeout }}
-      {{- end }}
-      {{- if .Values.monitor.podMonitor.scheme }}
+    {{- end }}
+    {{- if .Values.monitor.podMonitor.scheme }}
     scheme: {{ .Values.monitor.podMonitor.scheme }}
-      {{- end }}
-      {{- if .Values.monitor.podMonitor.tlsConfig }}
+    {{- end }}
+    {{- if .Values.monitor.podMonitor.tlsConfig }}
     tlsConfig: {{- include "common.tplvalues.render" ( dict "value" .Values.monitor.podMonitor.tlsConfig "context" $ ) | nindent 8 }}
-      {{- end }}
-    relabelings:
+    {{- end }}
     {{- if .Values.monitor.podMonitor.relabelings }}
+    relabelings:
     {{- include "common.tplvalues.render" (dict "value" .Values.monitor.podMonitor.relabelings "context" $) | nindent 4 }}
     {{- end }}
 {{- end }}

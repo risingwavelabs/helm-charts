@@ -15,9 +15,6 @@ metadata:
   {{- if $annotations }}
     {{ nindent 4 $annotations }}
   {{- end }}
-  {{- with .Values.serviceAccount.annotations }}
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
 webhooks:
 - admissionReviewVersions:
   - v1

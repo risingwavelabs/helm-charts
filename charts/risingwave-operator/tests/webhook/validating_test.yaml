@@ -1,0 +1,64 @@
+suite: Test ValidatingWebhookConfiguration
+chart:
+  appVersion: 1.0.0
+  version: 0.0.1
+templates:
+- webhook/validating.yaml
+tests:
+- it: validating webhook configuration should always render
+  asserts:
+  - hasDocuments:
+      count: 1
+  - containsDocument:
+      apiVersion: admissionregistration.k8s.io/v1
+      kind: ValidatingWebhookConfiguration
+  - equal:
+      path: metadata.name
+      value: RELEASE-NAME-risingwave-operator
+- it: validating webhook configuration should have admission review versions
+  asserts:
+  - equal:
+      path: webhooks
+      value:
+      - admissionReviewVersions:
+        - v1
+        clientConfig:
+          service:
+            name: RELEASE-NAME-risingwave-operator
+            namespace: NAMESPACE
+            path: /validate-risingwave-risingwavelabs-com-v1alpha1-risingwave
+        failurePolicy: Fail
+        name: validating-risingwaves.risingwavelabs.com
+        rules:
+        - apiGroups:
+          - risingwave.risingwavelabs.com
+          apiVersions:
+          - v1alpha1
+          operations:
+          - CREATE
+          - UPDATE
+          - DELETE
+          resources:
+          - risingwaves
+        sideEffects: None
+      - admissionReviewVersions:
+        - v1
+        clientConfig:
+          service:
+            name: RELEASE-NAME-risingwave-operator
+            namespace: NAMESPACE
+            path: /validate-risingwave-risingwavelabs-com-v1alpha1-risingwavescaleview
+        failurePolicy: Fail
+        name: validating-risingwavescaleviews.risingwavelabs.com
+        rules:
+        - apiGroups:
+          - risingwave.risingwavelabs.com
+          apiVersions:
+          - v1alpha1
+          operations:
+          - CREATE
+          - UPDATE
+          - DELETE
+          resources:
+          - risingwavescaleviews
+        sideEffects: None

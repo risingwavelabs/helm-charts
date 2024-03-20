@@ -1,0 +1,20 @@
+suite: Test Diagnostic Mode
+templates:
+- deployment.yaml
+chart:
+  appVersion: 1.0.0
+  version: 0.0.1
+set:
+  diagnosticMode:
+    enabled: true
+tests:
+- it: pods must not have probes
+  asserts:
+  - hasDocuments:
+      count: 1
+  - notExists:
+      path: spec.template.spec.livenessProbe
+  - notExists:
+      path: spec.template.spec.readinessProbe
+  - notExists:
+      path: spec.template.spec.startupProbe
