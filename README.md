@@ -1,3 +1,5 @@
+![RisingWave](https://raw.githubusercontent.com/risingwavelabs/risingwave/main/.github/RisingWave-logo-light.svg)
+
 Helm Charts for RisingWave
 ---
 
