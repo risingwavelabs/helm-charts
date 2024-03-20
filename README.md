@@ -89,4 +89,4 @@ Contributions are welcome! Please see our [Contributing Guide](CONTRIBUTING.md) 
 
 ## License
 
-This project is licensed under the [Apache 2.0 License]((LICENSE).
+This project is licensed under the [Apache 2.0 License](LICENSE).
