@@ -54,10 +54,18 @@ helm install risingwave risingwavelabs/risingwave \
 Prerequisites:
 - [Install cert-manager](https://cert-manager.io/docs/installation/helm/)
 
-```shell
-helm install risingwave-operator risingwavelabs/risingwave-operator \
-  --namespace risingwave-operator-system --create-namespace
-```
+1. Create a dedicated namespace for RisingWave Operator.
+
+   ```shell
+   kubectl create namespace risingwave-operator-system
+   ```
+   
+2. Install the RisingWave Operator Helm Chart.
+
+   ```shell
+   helm install risingwave-operator risingwavelabs/risingwave-operator \
+     --namespace risingwave-operator-system --create-namespace
+   ```
 
 ## Documentation
 
