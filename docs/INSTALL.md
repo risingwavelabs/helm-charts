@@ -65,8 +65,8 @@ Installation Guide
 
    ```shell
    # The first `risingwave` is the namespace, and the second is the release name. The command template looks like
-   #   kubectl --namespace <namespace> delete -l app.kubernetes.io/instance=<release-name>
-   kubectl --namespace risingwave delete -l app.kubernetes.io/instance=risingwave
+   #   kubectl --namespace <namespace> delete pvc -l app.kubernetes.io/instance=<release-name>
+   kubectl --namespace risingwave delete pvc -l app.kubernetes.io/instance=risingwave
    ```
 
 3. **Delete the Namespace (optional)** Delete the namespace to release all resources.
