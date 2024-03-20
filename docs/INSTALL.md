@@ -31,21 +31,40 @@ Installation Guide
 2. **Configure the RisingWave** Create a `values.yaml` file configure the RisingWave according to your requirements.
    Example:
 
-    ```yaml
-    # Configure meta store.
-    metaStore:
-      sqlite:
-        enabled: true
-    
-    # Configure state store.
-    stateStore:
-      localFs:
-        enabled: true
+   ```yaml
+   # Configure meta store backend.
+   metaStore:
+     sqlite:
+       enabled: true
+       path: /data/metastore/risingwave.db
    
-    # Enable standalone mode.
-    standalone:
-      enabled: true
-    ```
+   # Configure state store backend.
+   stateStore:
+     localFs:
+       enabled: true
+       path: /data/statestore
+   
+   # Enable standalone mode. Mount the PVC to data path.
+   standalone:
+     enabled: true
+   
+     extraVolumeMounts:
+     - name: data
+       mountPath: /data/metastore
+       subPath: metastore
+     - name: data
+       mountPath: /data/statestore
+       subPath: statestore
+   
+     volumeClaimTemplates:
+     - metadata:
+         name: data
+       spec:
+         accessModes: [ "ReadWriteOnce" ]
+         resources:
+           requests:
+             storage: 50Gi
+   ```
 
    For more details in configurations, please refer to the [configuration guide](CONFIGURATION.md).
 
