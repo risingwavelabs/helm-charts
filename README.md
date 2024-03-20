@@ -22,17 +22,17 @@ Helm Charts for RisingWave
 
 ### Add Helm Repository
 
-1. Add the Helm Repository
+Add the Helm Repository
 
-    ```shell
-    helm repo add risingwavelabs https://risingwavelabs.github.io/helm-charts/ --force-update
-    ```
+ ```shell
+ helm repo add risingwavelabs https://risingwavelabs.github.io/helm-charts/ --force-update
+ ```
 
-2. Update the local Helm chart repository cache
+Update the local Helm chart repository cache
 
-    ```shell
-    helm repo update
-    ```
+ ```shell
+ helm repo update
+ ```
 
 ### Install RisingWave
 
@@ -54,18 +54,22 @@ helm install risingwave risingwavelabs/risingwave \
 Prerequisites:
 - [Install cert-manager](https://cert-manager.io/docs/installation/helm/)
 
-1. Create a dedicated namespace for RisingWave Operator.
+>[!NOTE]
+> 
+> CustomResourceDefinitions are included in the RisingWave Operator Helm Chart and will be installed by default.
 
-   ```shell
-   kubectl create namespace risingwave-operator-system
-   ```
-   
-2. Install the RisingWave Operator Helm Chart.
+Create a dedicated namespace for RisingWave Operator.
 
-   ```shell
-   helm install risingwave-operator risingwavelabs/risingwave-operator \
-     --namespace risingwave-operator-system --create-namespace
-   ```
+```shell
+kubectl create namespace risingwave-operator-system
+```
+
+Install the RisingWave Operator Helm Chart.
+
+```shell
+helm install risingwave-operator risingwavelabs/risingwave-operator \
+  --namespace risingwave-operator-system --create-namespace
+```
 
 ## Documentation
 
