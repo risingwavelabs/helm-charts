@@ -33,6 +33,10 @@ helm show values risingwavelabs/risingwave-operator
 
 ## Configuration for RisingWave
 
+### Examples in Facets
+
+We have provided [a bunch of example values](/examples) in several perspectives. Check them to get started quickly!
+
 ### Cluster Mode v.s. Standalone Mode
 
 ### Customize Pods of Different Components
