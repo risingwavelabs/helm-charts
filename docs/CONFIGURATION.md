@@ -103,8 +103,8 @@ Customize the `metaStore` section to configure the meta store backends. Currentl
 | PostgreSQL | metaStore.postgresql | remote   |
 | MySQL      | metaStore.mysql      | remote   |
 
-In the backends, `SQLite` is the only one that stores data locally. Make sure it is configured to persistent path (e.g.,
-in a persistent volume), otherwise please expect a data loss on restart.
+In the backends, `SQLite` is the only one that stores data locally. Make sure it is configured to a persistent path (
+e.g., in a persistent volume), otherwise please expect a data loss on restart.
 
 For the details of a backend, please check the values of the corresponding section.
 
@@ -132,8 +132,8 @@ supported:
 | MinIO                      | stateStore.minio   | remote   |
 | Local File System          | stateStore.localFs | local    |
 
-In the backends, `Local File System` is the only one that stores data locally. Make sure it is configured to persistent path (e.g.,
-in a persistent volume), otherwise please expect a data loss on restart.
+In the backends, `Local File System` is the only one that stores data locally. Make sure it is configured to a
+persistent path (e.g., in a persistent volume), otherwise please expect a data loss on restart.
 
 For the details of a backend, please check the values of the corresponding section.
 
