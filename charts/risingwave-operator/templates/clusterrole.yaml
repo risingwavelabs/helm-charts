@@ -35,17 +35,6 @@ rules:
   - apps
   resources:
   - deployments
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - apps
-  resources:
   - statefulsets
   verbs:
   - create
@@ -59,17 +48,6 @@ rules:
   - apps.kruise.io
   resources:
   - clonesets
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - apps.kruise.io
-  resources:
   - statefulsets
   verbs:
   - create
@@ -97,6 +75,7 @@ rules:
   - pods
   verbs:
   - create
+  - delete
   - get
   - list
   - patch
@@ -111,6 +90,7 @@ rules:
   - delete
   - get
   - list
+  - patch
   - update
   - watch
 - apiGroups:

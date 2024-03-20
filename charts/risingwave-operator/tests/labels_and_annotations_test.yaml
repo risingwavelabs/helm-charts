@@ -1,0 +1,64 @@
+suite: Test Common Labels and Annotations
+chart:
+  appVersion: 1.0.0
+  version: 0.0.1
+templates:
+- '**/*.yaml'
+set:
+  serviceAccount:
+    create: true
+
+  monitor:
+    podMonitor:
+      enabled: true
+tests:
+- it: objects should have labels by default
+  asserts:
+  - isSubset:
+      path: metadata.labels
+      content:
+        app.kubernetes.io/name: risingwave-operator
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/version: 1.0.0
+        app.kubernetes.io/managed-by: Helm
+- it: objects except webhooks should not have annotations by default
+  templates:
+  - certs/certificate.yaml
+  - certs/issuer.yaml
+  - proxy/clusterrole.yaml
+  - proxy/clusterrolebinding.yaml
+  - clusterrole.yaml
+  - clusterrolebinding.yaml
+  - deployment.yaml
+  - podmonitor.yaml
+  - role.yaml
+  - rolebinding.yaml
+  - service.yaml
+  - serviceaccount.yaml
+  asserts:
+  - notExists:
+      path: metadata.annotations
+- it: webhook objects should have annotations by default
+  templates:
+  - webhook/mutating.yaml
+  - webhook/validating.yaml
+  asserts:
+  - isSubset:
+      path: metadata.annotations
+      content:
+        cert-manager.io/inject-ca-from: NAMESPACE/RELEASE-NAME-risingwave-operator
+- it: objects should reflect common labels and annotations
+  set:
+    commonLabels:
+      label_a: label_a_value
+    commonAnnotations:
+      annotation_a: annotation_a_value
+  asserts:
+  - isSubset:
+      path: metadata.labels
+      content:
+        label_a: label_a_value
+  - isSubset:
+      path: metadata.annotations
+      content:
+        annotation_a: annotation_a_value

@@ -1,0 +1,34 @@
+suite: Test Certificate
+chart:
+  appVersion: 1.0.0
+  version: 0.0.1
+templates:
+- certs/certificate.yaml
+tests:
+- it: certificate always renders
+  asserts:
+  - hasDocuments:
+      count: 1
+  - containsDocument:
+      apiVersion: cert-manager.io/v1
+      kind: Certificate
+  - equal:
+      path: metadata.name
+      value: RELEASE-NAME-risingwave-operator
+- it: certificate should reflect dns names and issuer
+  set:
+    clusterDomain: remote
+  asserts:
+  - equal:
+      path: spec.dnsNames
+      value:
+      - RELEASE-NAME-risingwave-operator.NAMESPACE.svc
+      - RELEASE-NAME-risingwave-operator.NAMESPACE.svc.remote
+  - equal:
+      path: spec.issuerRef
+      value:
+        name: RELEASE-NAME-risingwave-operator
+        kind: Issuer
+  - equal:
+      path: spec.secretName
+      value: RELEASE-NAME-risingwave-operator

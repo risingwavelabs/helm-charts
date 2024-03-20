@@ -1,0 +1,60 @@
+suite: Test MutatingWebhookConfiguration
+chart:
+  appVersion: 1.0.0
+  version: 0.0.1
+templates:
+- webhook/mutating.yaml
+tests:
+- it: mutating webhook configuration should always render
+  asserts:
+  - hasDocuments:
+      count: 1
+  - containsDocument:
+      apiVersion: admissionregistration.k8s.io/v1
+      kind: MutatingWebhookConfiguration
+  - equal:
+      path: metadata.name
+      value: RELEASE-NAME-risingwave-operator
+- it: mutating webhook configuration should have admission review versions
+  asserts:
+  - equal:
+      path: webhooks
+      value:
+      - admissionReviewVersions:
+        - v1
+        clientConfig:
+          service:
+            name: RELEASE-NAME-risingwave-operator
+            namespace: NAMESPACE
+            path: /mutate-risingwave-risingwavelabs-com-v1alpha1-risingwave
+        failurePolicy: Fail
+        name: mutating-risingwaves.risingwavelabs.com
+        rules:
+        - apiGroups:
+          - risingwave.risingwavelabs.com
+          apiVersions:
+          - v1alpha1
+          operations:
+          - CREATE
+          resources:
+          - risingwaves
+        sideEffects: None
+      - admissionReviewVersions:
+        - v1
+        clientConfig:
+          service:
+            name: RELEASE-NAME-risingwave-operator
+            namespace: NAMESPACE
+            path: /mutate-risingwave-risingwavelabs-com-v1alpha1-risingwavescaleview
+        failurePolicy: Fail
+        name: mutating-risingwavescaleviews.risingwavelabs.com
+        rules:
+        - apiGroups:
+          - risingwave.risingwavelabs.com
+          apiVersions:
+          - v1alpha1
+          operations:
+          - CREATE
+          resources:
+          - risingwavescaleviews
+        sideEffects: None

@@ -1,0 +1,78 @@
+suite: Test PodMonitor
+chart:
+  appVersion: 1.0.0
+  version: 0.0.1
+templates:
+- podmonitor.yaml
+tests:
+- it: pod monitor doesn't render by default
+  asserts:
+  - hasDocuments:
+      count: 0
+- it: pod monitor renders when enabled
+  set:
+    monitor:
+      podMonitor:
+        enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - containsDocument:
+      apiVersion: monitoring.coreos.com/v1
+      kind: PodMonitor
+  - equal:
+      path: metadata.name
+      value: RELEASE-NAME-risingwave-operator
+- it: pod monitor selects operator pods and scrapes from metrics pod
+  set:
+    monitor:
+      podMonitor:
+        enabled: true
+        interval: 15s
+        scrapeTimeout: 15s
+        scheme: https
+        tlsConfig:
+          ca:
+            secret:
+              name: existingSecretName
+        relabelings:
+        - action: replace
+          sourceLabels:
+          - __meta_kubernetes_pod_node_name
+          targetLabel: instance
+  asserts:
+  - equal:
+      path: spec.podTargetLabels
+      value:
+      - app.kubernetes.io/name
+      - app.kubernetes.io/instance
+      - apps.kubernetes.io/component
+  - equal:
+      path: spec.namespaceSelector
+      value:
+        matchNames:
+        - NAMESPACE
+  - equal:
+      path: spec.selector
+      value:
+        matchLabels:
+          app.kubernetes.io/name: risingwave-operator
+          app.kubernetes.io/instance: RELEASE-NAME
+          apps.kubernetes.io/component: manager
+  - contains:
+      path: spec.podMetricsEndpoints
+      content:
+        port: metrics
+        path: /metrics
+        interval: 15s
+        scrapeTimeout: 15s
+        scheme: https
+        tlsConfig:
+          ca:
+            secret:
+              name: existingSecretName
+        relabelings:
+        - action: replace
+          sourceLabels:
+          - __meta_kubernetes_pod_node_name
+          targetLabel: instance

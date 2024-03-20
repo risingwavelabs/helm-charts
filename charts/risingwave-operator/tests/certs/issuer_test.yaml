@@ -1,0 +1,23 @@
+suite: Test Issuer
+chart:
+  appVersion: 1.0.0
+  version: 0.0.1
+templates:
+- certs/issuer.yaml
+tests:
+- it: issuer always renders
+  asserts:
+  - hasDocuments:
+      count: 1
+  - containsDocument:
+      apiVersion: cert-manager.io/v1
+      kind: Issuer
+  - equal:
+      path: metadata.name
+      value: RELEASE-NAME-risingwave-operator
+- it: issuer is self signed
+  asserts:
+  - equal:
+      path: spec
+      value:
+        selfSigned: { }
