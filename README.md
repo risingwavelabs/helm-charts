@@ -79,7 +79,7 @@ helm install risingwave-operator risingwavelabs/risingwave-operator \
 
 ## Contributing
 
-Contributions are welcome! Please see our Contributing Guide for more information.
+Contributions are welcome! Please see our [Contributing Guide](CONTRIBUTING.md) for more information.
 
 ## License
 
