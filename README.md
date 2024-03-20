@@ -46,7 +46,7 @@ Update the local Helm chart repository cache
 > 
 > The following command installs a standalone RisingWave with local persistency. It will create a PersistentVolumeClaim 
 > with StatefulSet and the data will be persisted in the provisioned PersistentVolume. Therefore, it requires the 
-> Kubernetes cluster to allow dynamic provisioning of PVs. Please download the revise the values file if it doesn't suit
+> Kubernetes cluster to allow dynamic provisioning of PVs. Please download and revise the values file if it doesn't suit
 > you well.
 
 ```shell
