@@ -1,4 +1,10 @@
-![RisingWave](https://raw.githubusercontent.com/risingwavelabs/risingwave/main/.github/RisingWave-logo-light.svg)
+<p align="center">
+  <picture>
+    <source srcset="https://raw.githubusercontent.com/risingwavelabs/risingwave/main/.github/RisingWave-logo-dark.svg" width="500px" media="(prefers-color-scheme: dark)">
+    <img src="https://raw.githubusercontent.com/risingwavelabs/risingwave/main/.github/RisingWave-logo-light.svg" width="500px">
+  </picture>
+</p>
+
 
 Helm Charts for RisingWave
 ---
