@@ -135,6 +135,13 @@ supported:
 In the backends, `Local File System` is the only one that stores data locally. Make sure it is configured to a
 persistent path (e.g., in a persistent volume), otherwise please expect a data loss on restart.
 
+A prefix of objects / path can be configured with `stateStore.dataDirectory`. For example, setting it to `hummock` with
+
+```yaml
+stateStore:
+  dataDirectory: hummock
+```
+
 For the details of a backend, please check the values of the corresponding section.
 
 ### Bundled etcd/MinIO as Stores
