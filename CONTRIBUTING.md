@@ -6,9 +6,9 @@ Thank you for your interest in contributing to the RisingWave Helm Charts projec
 
 There are many ways to contribute to this project:
 
-- **Report Bugs**: If you encounter any issues or bugs, please open a new [issue](https://github.com/risingwave/helm-charts/issues/new/choose) and provide detailed information about the problem, including steps to reproduce, expected behavior, and any relevant logs or error messages.
+- **Report Bugs**: If you encounter any issues or bugs, please open a new [issue](https://github.com/risingwavelabs/helm-charts/issues/new/choose) and provide detailed information about the problem, including steps to reproduce, expected behavior, and any relevant logs or error messages.
 
-- **Request Features**: If you have an idea for a new feature or enhancement, please open a new [issue](https://github.com/risingwave/helm-charts/issues/new/choose) and describe your proposed change in detail.
+- **Request Features**: If you have an idea for a new feature or enhancement, please open a new [issue](https://github.com/risingwavelabs/helm-charts/issues/new/choose) and describe your proposed change in detail.
 
 - **Submit Pull Requests**: If you'd like to contribute code changes or documentation improvements, please follow the steps outlined below.
 
@@ -34,7 +34,7 @@ There are many ways to contribute to this project:
 - Follow the existing coding style and conventions used in the project.
 - Write clear and concise comments to explain your code changes.
 - Make sure your code changes are thoroughly tested and do not introduce new bugs or regressions.
-- Write unit tests if possible. We used [helm-unittest](https://github.com/helm-unittest/helm-unittest) to run the tests.
+- Write unit tests if possible. We use [helm-unittest](https://github.com/helm-unittest/helm-unittest) to run the tests.
 
 ## Documentation
 
