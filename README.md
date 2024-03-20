@@ -45,7 +45,7 @@ Helm Charts for RisingWave
 
 ```shell
 helm install risingwave risingwavelabs/risingwave \
-  # --set wait=true                               # Uncomment to wait before RisingWave's ready
+  # --set wait=true       # Uncomment to wait before RisingWave's ready
   -f https://raw.githubusercontent.com/risingwavelabs/helm-charts/main/examples/dev/dev.values.yaml
 ```
 
