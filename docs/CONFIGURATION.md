@@ -52,7 +52,7 @@ In order to better utilize resources and support an easier deployment, RisingWav
 combines all the four components in one process. Helm chart for RisingWave supports it natively.
 
 By default, helm chart for RisingWave installs a distributed mode RisingWave. However, if one favors standalone mode for
-development/test, the following can help turn it on:
+development/test, the following values can help turn it on:
 
 ```yaml
 standalone:
@@ -80,7 +80,8 @@ Most of the pod related values are under these sections:
 | frontendComponent  | Frontend   | Customizing the Deployment for frontend pods   | 
 | compactorComponent | Compactor  | Customizing the Deployment for compactor pods  |
 
-Almost all possible fields on the raw workloads are exposed.
+Almost all possible fields on the raw workloads are exposed,
+including `replicas`, `resources`, `nodeSelector`, `affinity`, `tolerations` and others.
 
 ### Customize Meta Store
 
@@ -91,7 +92,7 @@ Almost all possible fields on the raw workloads are exposed.
 
 > [!WARNING]
 >
-> Meta store backend is supposed to changeless in almost all cases. Please don't change it while upgrading!
+> Meta store backend is supposed to immutable in almost all cases. Please don't change it while upgrading!
 
 Customize the `metaStore` section to configure the meta store backends. Currently, the following backends are supported:
 
@@ -102,7 +103,10 @@ Customize the `metaStore` section to configure the meta store backends. Currentl
 | PostgreSQL | metaStore.postgresql | remote   |
 | MySQL      | metaStore.mysql      | remote   |
 
-In the backends, `SQLite` is the only one that stores
+In the backends, `SQLite` is the only one that stores data locally. Make sure it is configured to persistent path (e.g.,
+in a persistent volume), otherwise please expect a data loss on restart.
+
+For the details of a backend, please check the values of the corresponding section.
 
 ### Customize State Store
 
@@ -113,7 +117,7 @@ In the backends, `SQLite` is the only one that stores
 
 > [!WARNING]
 >
-> State store backend is supposed to changeless in almost all cases. Please don't change it while upgrading!
+> State store backend is supposed to immutable in almost all cases. Please don't change it while upgrading!
 
 Customize the `stateStore` section to configure the state store backends. Currently, the following backends are
 supported:
@@ -127,6 +131,9 @@ supported:
 | HDFS                       | stateStore.hdfs    | remote   |
 | MinIO                      | stateStore.minio   | remote   |
 | Local File System          | stateStore.localFs | local    |
+
+In the backends, `Local File System` is the only one that stores data locally. Make sure it is configured to persistent path (e.g.,
+in a persistent volume), otherwise please expect a data loss on restart.
 
 For the details of a backend, please check the values of the corresponding section.
 
@@ -150,7 +157,7 @@ But note that `tags.bundle` must be `false` when you want such control.
 >
 > etcd is recommended as the default meta store backend. Simply using the following values to deploy it with RisingWave
 > so that you can focus on setting the state store.
-> 
+>
 > ```yaml
 > tags:
 >   etcd: true
