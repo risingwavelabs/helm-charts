@@ -73,8 +73,8 @@ Installation Guide
 
    ```shell
    # `risingwave` is the namespace. The command template looks like
-   #   kubectl delete <namespace>
-   kubectl delete risingwave
+   #   kubectl delete namespace <namespace>
+   kubectl delete namespace risingwave
    ```
 
 ## Installing RisingWave Operator
