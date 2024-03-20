@@ -84,7 +84,7 @@ Prerequisites:
 - [Install cert-manager](https://cert-manager.io/docs/installation/helm/). The RisingWave Operator installation relies
   on cert-manager to issue certificates for admission webhooks.
 
->[!WARN]
+>[!WARNING]
 >
 > Note that RisingWave Operator is a cluster level installation. The behaviour is undefined when there are more than one
 > operator installed in the same Kubernetes cluster.
@@ -133,6 +133,7 @@ Prerequisites:
 2. **Uninstall the RisingWave CRDs** Delete the RisingWave CRDs because helm won't uninstall them by design.
 
    >[!NOTE]
+   > 
    > Note that all RisingWave resources as well as the running RisingWave pods will be removed automatically when
    deleting the RisingWave CRDs.
 
