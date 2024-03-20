@@ -1,6 +1,20 @@
 Installation Guide
 ---
 
+## Prerequisites
+
+1. Add the Helm Repository
+
+    ```shell
+    helm repo add risingwavelabs https://risingwavelabs.github.io/helm-charts/ --force-update
+    ```
+
+2. Update the local Helm chart repository cache
+
+    ```shell
+    helm repo update
+    ```
+
 ## Installing RisingWave
 
 1. **Create a Namespace for RisingWave** It's recommended to create a dedicated namespace for RisingWave resources.
