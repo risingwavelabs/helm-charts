@@ -28,17 +28,18 @@ spec:
       apps.kubernetes.io/component: manager
   template:
     metadata:
-      annotations:
-        {{- include "risingwave-operator.annotations" . | nindent 8 }}
-        {{- with .Values.manager.podAnnotations }}
-          {{- toYaml . | nindent 8 }}
-        {{- end }}
       labels:
-        {{- include "risingwave-operator.labels" . | nindent 8 }}
+        {{- include "risingwave-operator.selectorLabels" . | nindent 8 }}
         apps.kubernetes.io/component: manager
         {{- with .Values.manager.podLabels }}
           {{- toYaml . | nindent 8 }}
         {{- end }}
+      {{- if .Values.manager.podAnnotations }}
+      annotations:
+        {{- with .Values.manager.podAnnotations }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- end }}
     spec:
       serviceAccountName: {{ include "risingwave-operator.serviceAccountName" . }}
       automountServiceAccountToken: {{ .Values.serviceAccount.automountServiceAccountToken }}
@@ -86,10 +87,11 @@ spec:
         securityContext:
           {{- toYaml .Values.manager.securityContext | nindent 10 }}
         {{- end }}
-        env:
         {{- if .Values.manager.extraEnvVars }}
+        env:
         {{- .Values.manager.extraEnvVars | toYaml | nindent 8 }}
         {{- end }}
+        {{- if or .Values.manager.extraEnvVarsSecret .Values.manager.extraEnvVarsConfigMap }}
         envFrom:
         {{- if .Values.manager.extraEnvVarsSecret }}
         - secretRef:
@@ -98,6 +100,7 @@ spec:
         {{- if .Values.manager.extraEnvVarsConfigMap }}
         - configMapRef:
             name: {{ .Values.manager.extraEnvVarsConfigMap }}
+        {{- end }}
         {{- end }}
         command:
         - /manager
@@ -142,8 +145,10 @@ spec:
           initialDelaySeconds: 5
           periodSeconds: 10
         {{- end }}
+        {{- if .Values.manager.resources }}
         resources:
         {{- toYaml .Values.manager.resources | nindent 10 }}
+        {{- end }}
       {{- if .Values.proxy.enabled }}
       - name: proxy
         image: {{ .Values.proxy.image }}
@@ -157,7 +162,7 @@ spec:
         - containerPort: 8443
           name: metrics
           protocol: TCP
+      {{- end }}
       {{- if .Values.manager.additionalContainers }}
       {{- toYaml .Values.manager.additionalContainers | nindent 6 }}
-      {{- end }}
       {{- end }}

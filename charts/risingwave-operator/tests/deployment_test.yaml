@@ -19,3 +19,320 @@ tests:
   asserts:
   - notExists:
       path: spec.strategy
+- it: deployment reflects update strategy
+  set:
+    manager:
+      updateStrategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxUnavailable: 1
+  asserts:
+  - equal:
+      path: spec.strategy
+      value:
+        type: RollingUpdate
+        rollingUpdate:
+          maxUnavailable: 1
+- it: deployment reflects replica count
+  set:
+    manager:
+      replicaCount: 2
+  asserts:
+  - equal:
+      path: spec.replicas
+      value: 2
+- it: deployment reflects min ready seconds
+  set:
+    manager:
+      minReadySeconds: 10
+  asserts:
+  - equal:
+      path: spec.minReadySeconds
+      value: 10
+- it: deployment has expected selectors
+  asserts:
+  - equal:
+      path: spec.selector
+      value:
+        matchLabels:
+          apps.kubernetes.io/component: manager
+          app.kubernetes.io/name: risingwave-operator
+          app.kubernetes.io/instance: RELEASE-NAME
+- it: deployment's template has expected labels and annotations by default
+  asserts:
+  - equal:
+      path: spec.template.metadata
+      value:
+        labels:
+          apps.kubernetes.io/component: manager
+          app.kubernetes.io/name: risingwave-operator
+          app.kubernetes.io/instance: RELEASE-NAME
+- it: deployment's template reflect extra labels and annotations
+  set:
+    manager:
+      podLabels:
+        label_a: label_a_value
+      podAnnotations:
+        annotation_a: annotation_a_value
+  asserts:
+  - equal:
+      path: spec.template.metadata
+      value:
+        labels:
+          apps.kubernetes.io/component: manager
+          app.kubernetes.io/name: risingwave-operator
+          app.kubernetes.io/instance: RELEASE-NAME
+          label_a: label_a_value
+        annotations:
+          annotation_a: annotation_a_value
+- it: deployment's template has default spec
+  set:
+    image:
+      registry: ""
+      repository: risingwavelabs/risingwave-operator
+      tag: v1
+    manager:
+      resources:
+        limits:
+          cpu: 500m
+          memory: 256Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
+  asserts:
+  - equal:
+      path: spec.template.spec
+      value:
+        serviceAccountName: RELEASE-NAME-risingwave-operator
+        automountServiceAccountToken: true
+        shareProcessNamespace: false
+        terminationGracePeriodSeconds: 1
+        nodeSelector:
+          kubernetes.io/os: linux
+        securityContext:
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
+        volumes:
+        - name: cert
+          secret:
+            defaultMode: 420
+            secretName: RELEASE-NAME-risingwave-operator
+        containers:
+        - name: manager
+          image: risingwavelabs/risingwave-operator:v1
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            capabilities:
+              drop:
+              - ALL
+            allowPrivilegeEscalation: false
+          command:
+          - /manager
+          args:
+          - --leader-elect
+          - --zap-devel=true
+          - --health-probe-bind-address=:8081
+          - --metrics-bind-address=:8080
+          volumeMounts:
+          - mountPath: /tmp/k8s-webhook-server/serving-certs
+            name: cert
+            readOnly: true
+          ports:
+          - containerPort: 9443
+            name: webhook
+            protocol: TCP
+          - containerPort: 8080
+            name: metrics
+            protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8081
+            initialDelaySeconds: 5
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8081
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            limits:
+              cpu: 500m
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+- it: deployment's template reflects service account `automountServiceAccountToken`
+  set:
+    serviceAccount:
+      automountServiceAccountToken: false
+  asserts:
+  - equal:
+      path: spec.template.spec.automountServiceAccountToken
+      value: false
+- it: deployment's template reflects share process namespace
+  set:
+    manager:
+      shareProcessNamespace: true
+  asserts:
+  - equal:
+      path: spec.template.spec.shareProcessNamespace
+      value: true
+- it: deployment's template reflects runtime class name
+  set:
+    manager:
+      runtimeClassName: a
+  asserts:
+  - equal:
+      path: spec.template.spec.runtimeClassName
+      value: a
+- it: deployment's template reflects priority class name
+  set:
+    manager:
+      priorityClassName: a
+  asserts:
+  - equal:
+      path: spec.template.spec.priorityClassName
+      value: a
+- it: deployment's template reflects scheduler name
+  set:
+    manager:
+      schedulerName: a
+  asserts:
+  - equal:
+      path: spec.template.spec.schedulerName
+      value: a
+- it: deployment's template reflects termination grace period seconds
+  set:
+    manager:
+      terminationGracePeriodSeconds: 10
+  asserts:
+  - equal:
+      path: spec.template.spec.terminationGracePeriodSeconds
+      value: 10
+- it: deployment's template reflects topology spread constraints
+  set:
+    manager:
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app: foo
+        matchLabelKeys:
+        - pod-template-hash
+  asserts:
+  - equal:
+      path: spec.template.spec.topologySpreadConstraints
+      value:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app: foo
+        matchLabelKeys:
+        - pod-template-hash
+- it: deployment's template reflects node selector
+  set:
+    manager:
+      nodeSelector:
+        a: b
+  asserts:
+  - equal:
+      path: spec.template.spec.nodeSelector
+      value:
+        a: b
+        kubernetes.io/os: linux
+- it: deployment's template reflects affinity
+  set:
+    manager:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: topology.kubernetes.io/zone
+                operator: In
+                values:
+                - antarctica-east1
+                - antarctica-west1
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            preference:
+              matchExpressions:
+              - key: another-node-label-key
+                operator: In
+                values:
+                - another-node-label-value
+  asserts:
+  - equal:
+      path: spec.template.spec.affinity
+      value:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: topology.kubernetes.io/zone
+                operator: In
+                values:
+                - antarctica-east1
+                - antarctica-west1
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            preference:
+              matchExpressions:
+              - key: another-node-label-key
+                operator: In
+                values:
+                - another-node-label-value
+- it: deployment's template reflects tolerations
+  set:
+    manager:
+      tolerations:
+      - key: "key1"
+        operator: "Equal"
+        value: "value1"
+        effect: "NoSchedule"
+  asserts:
+  - equal:
+      path: spec.template.spec.tolerations
+      value:
+      - key: "key1"
+        operator: "Equal"
+        value: "value1"
+        effect: "NoSchedule"
+- it: deployment's template reflects proxy support
+  set:
+    proxy:
+      enabled: true
+      image: proxy
+      imagePullPolicy: IfNotPresent
+  asserts:
+  - contains:
+      path:  spec.template.spec.containers[0].args
+      content:
+        --metrics-bind-address=127.0.0.1:8080
+  - notContains:
+      path:  spec.template.spec.containers[0].ports
+      content:
+        name: metrics
+      any: true
+  - contains:
+      path: spec.template.spec.containers
+      content:
+        name: proxy
+        image: proxy
+        imagePullPolicy: IfNotPresent
+        args:
+        - --secure-listen-address=0.0.0.0:8443
+        - --upstream=http://127.0.0.1:8080/
+        - --logtostderr=true
+        - --v=10
+        ports:
+        - containerPort: 8443
+          name: metrics
+          protocol: TCP
