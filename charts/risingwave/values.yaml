@@ -128,7 +128,7 @@ diagnosticMode:
 image:
   registry:
   repository: risingwavelabs/risingwave
-  tag: v1.7.1
+  tag: v1.7.2
   digest: ""
   ## @param image.pullPolicy RisingWave image pull policy
   ## Specify a imagePullPolicy
