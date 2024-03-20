@@ -29,6 +29,14 @@ spec:
       maxUnavailable: "100%"
   podManagementPolicy: Parallel
   minReadySeconds: 0
+  {{- if .Values.metaComponent.volumeClaimTemplates }}
+  volumeClaimTemplates:
+  {{- toYaml .Values.metaComponent.volumeClaimTemplates | nindent 2 }}
+  {{- end }}
+  {{- if .Values.metaComponent.persistentVolumeClaimRetentionPolicy }}
+  persistentVolumeClaimRetentionPolicy:
+  {{- toYaml .Values.metaComponent.persistentVolumeClaimRetentionPolicy | nindent 4 }}
+  {{- end }}
   template:
     metadata:
       labels:
@@ -136,6 +144,14 @@ spec:
         {{- if and .Values.metaStore.etcd.authentication.enabled (not .Values.metaStore.etcd.authentication.existingSecretName) }}
         - secretRef:
             name: {{ include "risingwave.etcdCredentialsSecretName" . }}
+        {{- end }}
+        {{- if .Values.metaStore.postgresql.enabled }}
+        - secretRef:
+            name: {{ include "risingwave.postgresCredentialsSecretName" . }}
+        {{- end }}
+        {{- if .Values.metaStore.mysql.enabled }}
+        - secretRef:
+            name: {{ include "risingwave.mysqlCredentialsSecretName" . }}
         {{- end }}
         env:
         # Disable auto region loading. Refer to the original source for more information.
@@ -253,6 +269,35 @@ spec:
         {{- end }}
         {{- if .Values.metaComponent.extraEnvVars }}
         {{- .Values.metaComponent.extraEnvVars | toYaml | nindent 8 }}
+        {{- end }}
+        # SQL meta backend.
+        {{- if and .Values.metaStore.postgresql.enabled .Values.metaStore.postgresql.authentication.existingSecretName }}
+        - name: RW_POSTGRES_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: username
+              name: {{ .Values.metaStore.postgresql.authentication.existingSecretName }}
+        - name: RW_POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: {{ .Values.metaStore.postgresql.authentication.existingSecretName }}
+        {{- end }}
+        {{- if and .Values.metaStore.mysql.enabled .Values.metaStore.mysql.authentication.existingSecretName }}
+        - name: RW_MYSQL_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: username
+              name: {{ .Values.metaStore.mysql.authentication.existingSecretName }}
+        - name: RW_MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: {{ .Values.metaStore.mysql.authentication.existingSecretName }}
+        {{- end }}
+        {{- if eq (include "risingwave.metaBackend" . ) "sql" }}
+        - name: RW_SQL_ENDPOINT
+          value: {{ include "risingwave.sqlEndpoint" . }}
         {{- end }}
         resources:
           {{- if .Values.metaComponent.resources.limits }}

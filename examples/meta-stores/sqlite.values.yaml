@@ -1,0 +1,4 @@
+metaStore:
+  sqlite:
+    enabled: true
+    path: /risingwave.db

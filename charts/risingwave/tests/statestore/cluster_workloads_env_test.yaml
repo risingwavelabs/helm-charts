@@ -511,3 +511,16 @@ tests:
       content:
         secretRef:
           name: s
+# Tests for LocalFS.
+- it: envs must match hummock string (local fs)
+  set:
+    stateStore:
+      localFs:
+        enabled: true
+        path: /data
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: RW_STATE_STORE
+        value: hummock+fs:///data

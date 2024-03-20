@@ -29,6 +29,14 @@ spec:
       maxUnavailable: "100%"
   podManagementPolicy: Parallel
   minReadySeconds: 0
+  {{- if .Values.computeComponent.volumeClaimTemplates }}
+  volumeClaimTemplates:
+  {{- toYaml .Values.computeComponent.volumeClaimTemplates | nindent 2 }}
+  {{- end }}
+  {{- if .Values.computeComponent.persistentVolumeClaimRetentionPolicy }}
+  persistentVolumeClaimRetentionPolicy:
+  {{- toYaml .Values.computeComponent.persistentVolumeClaimRetentionPolicy | nindent 4 }}
+  {{- end }}
   template:
     metadata:
       labels:
