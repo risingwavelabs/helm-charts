@@ -37,13 +37,124 @@ helm show values risingwavelabs/risingwave-operator
 
 We have provided [a bunch of example values](/examples) in several perspectives. Check them to get started quickly!
 
-### Cluster Mode v.s. Standalone Mode
+### Distributed Mode v.s. Standalone Mode
+
+RisingWave is a distributed system
+by [design](https://github.com/risingwavelabs/risingwave/blob/main/docs/architecture-design.md). It is consisted of four
+main components:
+
+- Meta, the central metadata service
+- Frontend, the SQL parsing and processing service
+- Compute, the stream processing and query processing service
+- Compactor, the storage compaction service
+
+In order to better utilize resources and support an easier deployment, RisingWave also supports a standalone mode that
+combines all the four components in one process. Helm chart for RisingWave supports it natively.
+
+By default, helm chart for RisingWave installs a distributed mode RisingWave. However, if one favors standalone mode for
+development/test, the following can help turn it on:
+
+```yaml
+standalone:
+  enabled: true
+```
+
+For the two modes, the recommending resources are:
+
+- Standalone mode, >= 2c8Gi
+- Distributed mode,
+    - Meta, >= 1c2Gi
+    - Frontend, >= 1c2Gi
+    - Compute, >= 4c16Gi
+    - Compactor, >= 2c4g
 
 ### Customize Pods of Different Components
 
+Most of the pod related values are under these sections:
+
+| Section            | Component  | Description                                    |
+|:-------------------|:-----------|:-----------------------------------------------|
+| standalone         | Standalone | Customizing the StatefulSet for standalone pod |
+| metaComponent      | Meta       | Customizing the StatefulSet for meta pods      | 
+| computeComponent   | Compute    | Customizing the StatefulSet for compute pods   | 
+| frontendComponent  | Frontend   | Customizing the Deployment for frontend pods   | 
+| compactorComponent | Compactor  | Customizing the Deployment for compactor pods  |
+
+Almost all possible fields on the raw workloads are exposed.
+
 ### Customize Meta Store
 
+> [!CRUCIAL]
+>
+> Data in meta store must be persistent. Otherwise, the RisingWave will be broken on a restart. For example, it could
+> refuse to start when there's a mismatch between meta store and state store.
+
+> [!WARNING]
+>
+> Meta store backend is supposed to changeless in almost all cases. Please don't change it while upgrading!
+
+Customize the `metaStore` section to configure the meta store backends. Currently, the following backends are supported:
+
+| Name       | Section              | Location |
+|:-----------|:---------------------|:---------|
+| etcd       | metaStore.etcd       | remote   |
+| SQLite     | metaStore.sqlite     | local    |
+| PostgreSQL | metaStore.postgresql | remote   |
+| MySQL      | metaStore.mysql      | remote   |
+
+In the backends, `SQLite` is the only one that stores
+
 ### Customize State Store
+
+> [!CRUCIAL]
+>
+> Data in state store must be persistent. Otherwise, the RisingWave will be broken on a restart. For example, it could
+> refuse to start when there's a mismatch between meta store and state store.
+
+> [!WARNING]
+>
+> State store backend is supposed to changeless in almost all cases. Please don't change it while upgrading!
+
+Customize the `stateStore` section to configure the state store backends. Currently, the following backends are
+supported:
+
+| Name                       | Section            | Location |
+|:---------------------------|:-------------------|:---------|
+| AWS S3 (+compatible)       | stateStore.s3      | remote   |
+| Google Cloud Storage (GCS) | stateStore.gcs     | remote   |
+| Aliyun OSS                 | stateStore.oss     | remote   |
+| Huawei Cloud OBS           | stateStore.obs     | remote   |
+| HDFS                       | stateStore.hdfs    | remote   |
+| MinIO                      | stateStore.minio   | remote   |
+| Local File System          | stateStore.localFs | local    |
+
+For the details of a backend, please check the values of the corresponding section.
+
+### Bundled etcd/MinIO as Stores
+
+Helm chart for RisingWave also provides an option to deploy the etcd and MinIO along with the RisingWave to provide meta
+and state store backends. It is useful to try out the helm chart quickly. The feature is achieved with `bitnami/etcd`
+and `bitnami/minio` sub-charts. If you are interested in these charts, please refer
+to [bitnami/charts](https://github.com/bitnami) for details.
+
+Set the `tags.bundle` option to `true` to experience the feature.
+
+```shell
+helm install -f tags.bundle=true risingwave risingwavelabs/risingwave
+```
+
+It's also possible to control the enablement of etcd and MinIO sub-charts separately with `tags.etcd` and `tags.minio`.
+But note that `tags.bundle` must be `false` when you want such control.
+
+> [!TIP]
+>
+> etcd is recommended as the default meta store backend. Simply using the following values to deploy it with RisingWave
+> so that you can focus on setting the state store.
+> 
+> ```yaml
+> tags:
+>   etcd: true
+> ```
 
 ### IAM Role for ServiceAccount (EKS) and Others
 
