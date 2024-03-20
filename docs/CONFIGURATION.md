@@ -154,7 +154,7 @@ to [bitnami/charts](https://github.com/bitnami) for details.
 Set the `tags.bundle` option to `true` to experience the feature.
 
 ```shell
-helm install -f tags.bundle=true risingwave risingwavelabs/risingwave
+helm install --set tags.bundle=true risingwave risingwavelabs/risingwave
 ```
 
 It's also possible to control the enablement of etcd and MinIO sub-charts separately with `tags.etcd` and `tags.minio`.
@@ -181,7 +181,7 @@ that can help do the authentication automatically, which of course have lots of 
 auditability.
 
 Take AWS EKS/S3 as an example, the following values will help associate the service account used by RisingWave pods with
-an IAM. Therefore, the RisingWave pods are granted with the privileges the IAM has.
+an IAM. Therefore, the RisingWave pods will be granted with the privileges the IAM has.
 
 ```yaml
 serviceAccount:
@@ -206,6 +206,38 @@ Other cloud vendors provide the similar solutions:
 
 The configurations are similar for GCS and Azure Blob. Almost all the state backends except `MinIO`, `Local FS`
 and `HDFS` has the option `authentication.useServiceAccount` to allow empty credentials in values.
+
+### Expose RisingWave Service with LoadBalancer
+
+> [!NOTE]
+>
+> The port to access RisingWave is the `svc` port, which has a default value of 4567. The protocol to communicate is the
+> [PostgreSQL frontend/backend protocol](https://www.postgresql.org/docs/current/protocol.html) and it's binary based.
+> Therefore, L7 HTTP(S) based load balancing like Ingress and Gateway won't work. L4 load balancing such as LoadBalancer
+> Service or Istio TCP route can work.
+
+By default, the Service to access RisingWave is in a type of `ClusterIP`, and it allows inter-cluster access only.
+
+To expose the service into a public or internal-cloud access, one can change the service type to `LoadBalancer`.
+
+```yaml
+service:
+  type: LoadBalancer
+```
+
+The cloud control plane in Kubernetes cluster will help provision a load balancer for the Service to make it accessible
+from public network. However, it is possible to contain it within the cloud if the vendor supports. For example,
+
+```yaml
+service:
+  type: LoadBalancer
+  annotations:
+    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+```
+
+this will help create an internal load balancer in Azure, and it is supported in AKS.
+
+For other cloud vendors, please check their documentation to see if there are similar features. 
 
 ### Enable Monitoring (PodMonitor)
 
