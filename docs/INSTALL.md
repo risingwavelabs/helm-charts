@@ -84,7 +84,7 @@ Prerequisites:
 - [Install cert-manager](https://cert-manager.io/docs/installation/helm/). The RisingWave Operator installation relies
   on cert-manager to issue certificates for admission webhooks.
 
->[!IMPORTANT]
+>[!CAUTION]
 >
 > Note that RisingWave Operator is a cluster level installation. The behaviour is undefined when there are more than one
 > operator installed in the same Kubernetes cluster.
