@@ -10,13 +10,13 @@ Helm Charts for RisingWave
 
 ## Charts
 
-- [risingwave](charts/risingwave/README.md) - Helm chart for deploying a RisingWave Cluster
-- [risingwave-operator](charts/risingwave-operator/README.md) - Helm chart for deploying the RisingWave Operator
+- [risingwave](charts/risingwave/README.md) - Helm chart for deploying a [RisingWave Cluster](https://github.com/risingwavelabs/risingwave)
+- [risingwave-operator](charts/risingwave-operator/README.md) - Helm chart for deploying the [RisingWave Operator](https://github.com/risingwavelabs/risingwave-operator)
 
 ## Prerequisites
 
 - Kubernetes cluster (version >= 1.24)
-- [Helm](https://helm.sh/docs/intro/install/) (version >= 3.7.0)
+- [Helm](https://helm.sh/docs/intro/install/) (version >= 3.7)
 
 ## Installation
 
@@ -56,7 +56,7 @@ Prerequisites:
 
 >[!NOTE]
 > 
-> CustomResourceDefinitions are included in the RisingWave Operator Helm Chart and will be installed by default.
+> CustomResourceDefinitions are included in the RisingWave Operator Helm chart and will be installed by default.
 
 Create a dedicated namespace for RisingWave Operator.
 
@@ -64,7 +64,7 @@ Create a dedicated namespace for RisingWave Operator.
 kubectl create namespace risingwave-operator-system
 ```
 
-Install the RisingWave Operator Helm Chart.
+Install the RisingWave Operator Helm chart.
 
 ```shell
 helm install risingwave-operator risingwavelabs/risingwave-operator \
@@ -73,8 +73,8 @@ helm install risingwave-operator risingwavelabs/risingwave-operator \
 
 ## Documentation
 
-- [RisingWave Documentation](https://github.com/risingwavelabs/risingwave)
-- [RisingWave Operator Documentation](https://github.com/risingwavelabs/risingwave-operator)
+- [RisingWave Documentation](https://docs.risingwave.com/)
+- [RisingWave Operator Documentation](https://github.com/risingwavelabs/risingwave-operator/blob/main/README.md)
 - [Helm Charts Documentation](docs/README.md)
 
 ## Contributing

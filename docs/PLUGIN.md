@@ -1,4 +1,5 @@
-## Plugin
+Plugin for RisingWave Helm Chart
+---
 
 Install the [risingwave](/plugins/risingwave) plugin to operate the releases.
 
@@ -28,3 +29,4 @@ Rollback the upgrade:
 
 ```bash
 helm risingwave rollback <release-name> [chart]
+```
