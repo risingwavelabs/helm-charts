@@ -220,9 +220,10 @@ monitor:
     ## @param monitor.podMonitor.enabled Create PodMonitor Resource for scraping metrics using PrometheusOperator
     ##
     enabled: false
-    ## @param monitor.podMonitor.namespace Namespace in which Prometheus is running
+    ## @param monitor.podMonitor.namespace Namespace in which Prometheus is running. If set to empty, the PodMonitor
+    ## will be created in release namespace.
     ##
-    namespace: monitoring
+    namespace: ""
     ## @param monitor.podMonitor.interval Specify the interval at which metrics should be scraped
     ##
     interval: 5s
