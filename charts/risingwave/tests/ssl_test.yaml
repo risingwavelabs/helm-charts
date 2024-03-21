@@ -1,0 +1,180 @@
+suite: Test SSL Setup
+chart:
+  appVersion: 1.0.0
+  version: 0.0.1
+templates:
+- standalone/standalone-sts.yaml
+- compute-sts.yaml
+- frontend-deploy.yaml
+tests:
+- it: there must not be tls related configurations by default
+  templates:
+  - frontend-deploy.yaml
+  asserts:
+  - notContains:
+      path: spec.template.spec.volumes
+      content:
+        name: certs
+      any: true
+  - notContains:
+      path: spec.template.spec.containers[0].volumeMounts
+      content:
+        name: certs
+      any: true
+  - notContains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: RW_SSL_CERT
+      any: true
+  - notContains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: RW_SSL_KEY
+      any: true
+- it: there must not be tls related configurations by default (standalone)
+  set:
+    standalone:
+      enabled: true
+  templates:
+  - standalone/standalone-sts.yaml
+  asserts:
+  - notContains:
+      path: spec.template.spec.volumes
+      content:
+        name: certs
+      any: true
+  - notContains:
+      path: spec.template.spec.containers[0].volumeMounts
+      content:
+        name: certs
+      any: true
+  - notContains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: RW_SSL_CERT
+      any: true
+  - notContains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: RW_SSL_KEY
+      any: true
+- it: there must not be tls related configurations by default (compact)
+  set:
+    compactMode:
+      enabled: true
+  templates:
+  - compute-sts.yaml
+  asserts:
+  - notContains:
+      path: spec.template.spec.volumes
+      content:
+        name: certs
+      any: true
+  - notContains:
+      path: spec.template.spec.containers[?(@.name == 'frontend')].volumeMounts
+      content:
+        name: certs
+      any: true
+  - notContains:
+      path: spec.template.spec.containers[?(@.name == 'frontend')].env
+      content:
+        name: RW_SSL_CERT
+      any: true
+  - notContains:
+      path: spec.template.spec.containers[?(@.name == 'frontend')].env
+      content:
+        name: RW_SSL_KEY
+      any: true
+- it: there must contain tls related configurations
+  set:
+    tls:
+      existingSecretName: TLS
+  templates:
+  - frontend-deploy.yaml
+  asserts:
+  - contains:
+      path: spec.template.spec.volumes
+      content:
+        name: certs
+        secret:
+          secretName: TLS
+  - contains:
+      path: spec.template.spec.containers[0].volumeMounts
+      content:
+        name: certs
+        readOnly: true
+        mountPath: /risingwave/certs
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: RW_SSL_CERT
+        value: /risingwave/certs/tls.crt
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: RW_SSL_KEY
+        value: /risingwave/certs/tls.key
+- it: there must not be tls related configurations by default (standalone)
+  set:
+    standalone:
+      enabled: true
+
+    tls:
+      existingSecretName: TLS
+  templates:
+  - standalone/standalone-sts.yaml
+  asserts:
+  - contains:
+      path: spec.template.spec.volumes
+      content:
+        name: certs
+        secret:
+          secretName: TLS
+  - contains:
+      path: spec.template.spec.containers[0].volumeMounts
+      content:
+        name: certs
+        readOnly: true
+        mountPath: /risingwave/certs
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: RW_SSL_CERT
+        value: /risingwave/certs/tls.crt
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: RW_SSL_KEY
+        value: /risingwave/certs/tls.key
+- it: there must not be tls related configurations by default (compact)
+  set:
+    compactMode:
+      enabled: true
+
+    tls:
+      existingSecretName: TLS
+  templates:
+  - compute-sts.yaml
+  asserts:
+  - contains:
+      path: spec.template.spec.volumes
+      content:
+        name: certs
+        secret:
+          secretName: TLS
+  - contains:
+      path: spec.template.spec.containers[?(@.name == 'frontend')].volumeMounts
+      content:
+        name: certs
+        readOnly: true
+        mountPath: /risingwave/certs
+  - contains:
+      path: spec.template.spec.containers[?(@.name == 'frontend')].env
+      content:
+        name: RW_SSL_CERT
+        value: /risingwave/certs/tls.crt
+  - contains:
+      path: spec.template.spec.containers[?(@.name == 'frontend')].env
+      content:
+        name: RW_SSL_KEY
+        value: /risingwave/certs/tls.key
