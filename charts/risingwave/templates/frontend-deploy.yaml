@@ -54,6 +54,11 @@ spec:
       - name: config
         configMap:
           name: {{ include "risingwave.configurationConfigMapName" . }}
+      {{- if .Values.tls.existingSecretName }}
+      - name: certs
+        secret:
+          secretName: {{ .Values.tls.existingSecretName }}
+      {{- end }}
       {{- if .Values.frontendComponent.extraVolumes }}
       {{- toYaml .Values.frontendComponent.extraVolumes | nindent 6 }}
       {{- end }}
@@ -161,6 +166,12 @@ spec:
           value: "0.0.0.0:{{ .Values.ports.frontend.metrics }}"
         - name: RW_META_ADDR
           value: {{ printf "load-balance+http://%s.%s.svc:%d" (include "risingwave.metaHeadlessServiceName" .) .Release.Namespace (.Values.ports.meta.svc | int)}}
+        {{- if .Values.tls.existingSecretName }}
+        - name: RW_SSL_CERT
+          value: /risingwave/certs/tls.crt
+        - name: RW_SSL_KEY
+          value: /risingwave/certs/tls.key
+        {{- end }}
         {{- if .Values.frontendComponent.extraEnvVars }}
         {{- .Values.frontendComponent.extraEnvVars | toYaml | nindent 8 }}
         {{- end }}
@@ -177,6 +188,11 @@ spec:
         - mountPath: /risingwave/config
           name: config
           readOnly: true
+        {{- if .Values.tls.existingSecretName }}
+        - mountPath: /risingwave/certs
+          name: certs
+          readOnly: true
+        {{- end }}
         {{- if .Values.frontendComponent.extraVolumeMounts }}
         {{- toYaml .Values.frontendComponent.extraVolumeMounts | nindent 8 }}
         {{- end }}
