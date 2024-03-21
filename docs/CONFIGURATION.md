@@ -48,7 +48,7 @@ main components:
 - Compute, the stream processing and query processing service
 - Compactor, the storage compaction service
 
-In order to better utilize resources and support an easier deployment, RisingWave also supports a standalone mode that
+In order to better utilize resources and support an easier deployment, RisingWave also provides a standalone mode that
 combines all the four components in one process. Helm chart for RisingWave supports it natively.
 
 By default, helm chart for RisingWave installs a distributed mode RisingWave. However, if one favors standalone mode for
@@ -66,7 +66,7 @@ For the two modes, the recommending resources are:
     - Meta, >= 1c2Gi
     - Frontend, >= 1c2Gi
     - Compute, >= 4c16Gi
-    - Compactor, >= 2c4g
+    - Compactor, >= 2c4Gi
 
 ### Customize Pods of Different Components
 
@@ -103,8 +103,8 @@ Customize the `metaStore` section to configure the meta store backends. Currentl
 | PostgreSQL | metaStore.postgresql | remote   |
 | MySQL      | metaStore.mysql      | remote   |
 
-In the backends, `SQLite` is the only one that stores data locally. Make sure it is configured to a persistent path (
-e.g., in a persistent volume), otherwise please expect a data loss on restart.
+In the backends, `SQLite` is the only one that stores data locally. Make sure it is configured to a persistent path 
+(e.g., in a persistent volume), otherwise please expect a data loss on restart.
 
 For the details of a backend, please check the values of the corresponding section.
 
@@ -200,9 +200,9 @@ stateStore:
 Other cloud vendors provide the similar solutions:
 
 - For Google Cloud GKE, there
-  is [workload identity federation](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity)
+  is [workload identity federation](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity).
 - For Azure, there
-  is [Microsoft Entra Workload ID with AKS](https://learn.microsoft.com/en-us/azure/aks/workload-identity-overview?tabs=dotnet)
+  is [Microsoft Entra Workload ID with AKS](https://learn.microsoft.com/en-us/azure/aks/workload-identity-overview?tabs=dotnet).
 
 The configurations are similar for GCS and Azure Blob. Almost all the state backends except `MinIO`, `Local FS`
 and `HDFS` has the option `authentication.useServiceAccount` to allow empty credentials in values.
@@ -237,7 +237,7 @@ service:
 
 this will help create an internal load balancer in Azure, and it is supported in AKS.
 
-For other cloud vendors, please check their documentation to see if there are similar features. 
+For other cloud vendors, please check their documentation to see if there are similar features.
 
 ### Enable Monitoring (PodMonitor)
 
