@@ -51,8 +51,8 @@ Update the local Helm chart repository cache
 
 ```shell
 helm install risingwave risingwavelabs/risingwave \
-  # --set wait=true       # Uncomment to wait before RisingWave's ready
-  -f https://raw.githubusercontent.com/risingwavelabs/helm-charts/main/examples/dev/dev.values.yaml
+  -f https://raw.githubusercontent.com/risingwavelabs/helm-charts/main/examples/dev/dev.values.yaml \
+  # --set wait=true         # Uncomment to wait before RisingWave's ready
 ```
 
 ### Install RisingWave Operator
