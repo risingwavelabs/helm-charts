@@ -35,5 +35,5 @@ them properly and then retry.
 
 If the meta store and state store backends that RisingWave is using are all persistent (remote backend or local
 persistent), simply delete the RisingWave pods and let them restart to get a full restart of the cluster. Note
-that `SQLite` meta store and `Local File System` state storeare not persistent unless the data paths are in a 
+that `SQLite` meta store and `Local File System` state store are not persistent unless the data paths are in a 
 persistent volume. Please refer to [the installation guide](CONFIGURATION.md) for more details.
