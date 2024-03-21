@@ -62,6 +62,11 @@ spec:
       - name: config
         configMap:
           name: {{ include "risingwave.configurationConfigMapName" . }}
+      {{- if .Values.tls.existingSecretName }}
+      - name: certs
+        secret:
+          secretName: {{ .Values.tls.existingSecretName }}
+      {{- end }}
       {{- if .Values.standalone.extraVolumes }}
       {{- toYaml .Values.standalone.extraVolumes | nindent 6 }}
       {{- end }}
@@ -350,6 +355,12 @@ spec:
         - name: RW_SQL_ENDPOINT
           value: {{ include "risingwave.sqlEndpoint" . }}
         {{- end }}
+        {{- if .Values.tls.existingSecretName }}
+        - name: RW_SSL_CERT
+          value: /risingwave/certs/tls.crt
+        - name: RW_SSL_KEY
+          value: /risingwave/certs/tls.key
+        {{- end }}
         {{- if .Values.standalone.extraEnvVars }}
         {{- .Values.standalone.extraEnvVars | toYaml | nindent 8 }}
         {{- end }}
@@ -366,6 +377,11 @@ spec:
         - mountPath: /risingwave/config
           name: config
           readOnly: true
+        {{- if .Values.tls.existingSecretName }}
+        - mountPath: /risingwave/certs
+          name: certs
+          readOnly: true
+        {{- end }}
         {{- if .Values.standalone.extraVolumeMounts }}
         {{- toYaml .Values.standalone.extraVolumeMounts | nindent 8 }}
         {{- end }}

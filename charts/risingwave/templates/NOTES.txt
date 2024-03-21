@@ -11,6 +11,10 @@
 {{- if eq .Values.service.type "LoadBalancer" }}
 {{- $psqlHostArgs = "" }}
 {{- end }}
+{{- $psqlExtraArgs := "" -}}
+{{- if .Values.tls.existingSecretName }}
+{{- $psqlExtraArgs = "--set=sslmode=verify-full" }}
+{{- end }}
 Welcome to fast and modern stream processing with RisingWave!
 
 Check the running status with the following command:
@@ -35,6 +39,6 @@ Keep the above command running and open a new terminal window to run the followi
     {{- if or .Values.auth.rootPassword (eq .Values.service.type "LoadBalancer")}}
     {{- println }}
     {{- end }}
-    psql {{ $psqlHostArgs -}} -p {{ $port }} -d {{ $firstDatabase }} -U {{ .Values.auth.rootUser }}
+    psql {{ $psqlHostArgs -}} -p {{ $port }} -d {{ $firstDatabase }} -U {{ .Values.auth.rootUser }} {{ $psqlExtraArgs }}
 
 For more advanced applications, refer to our documentation at: https://www.risingwave.dev
