@@ -103,7 +103,7 @@ Customize the `metaStore` section to configure the meta store backends. Currentl
 | PostgreSQL | metaStore.postgresql | remote   |
 | MySQL      | metaStore.mysql      | remote   |
 
-In the backends, `SQLite` is the only one that stores data locally. Make sure it is configured to a persistent path 
+In the backends, `SQLite` is the only one that stores data locally. Make sure it is configured to a persistent path
 (e.g., in a persistent volume), otherwise please expect a data loss on restart.
 
 For the details of a backend, please check the values of the corresponding section.
@@ -238,6 +238,39 @@ service:
 this will help create an internal load balancer in Azure, and it is supported in AKS.
 
 For other cloud vendors, please check their documentation to see if there are similar features.
+
+### Secure RisingWave Access with TLS/SSL
+
+Helm chart for RisingWave supports enabling TLS/SSL to secure the PSQL access. However, note that it is not enabled by
+default. To enable it, please create a Kubernetes secret with TLS/SSL certificate and private key. For example, create a
+Secret from local certificate files with
+
+```shell
+# Command template
+#   kubectl create secret tls <secret-name> --cert=</path/to/cert-file> --key=</path/to/key-file>
+kubectl create secret tls tls-secret --cert=tls.crt --key=tls.key
+```
+
+> [!TIP]
+>
+> Generate a self-signed local certificate for test purpose with:
+>
+> ```shell
+> openssl req -x509 -sha256 -nodes -newkey rsa:2048 -days 365 -keyout tls.key -out tls.crt
+> ```
+
+After that, enable the TLS/SSL configuration with the following values:
+
+```yaml
+tls:
+  existingSecretName: tls-secret
+```
+
+Once deployed, you can verify the TLS/SSL setup with the `sslmode=verify-full` option. For example:
+
+```shell
+psql -p 4567 -d dev -U root --set=sslmode=verify-full
+```
 
 ### Enable Monitoring (PodMonitor)
 
