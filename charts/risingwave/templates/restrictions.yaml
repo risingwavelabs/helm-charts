@@ -1,0 +1,19 @@
+{{/*
+Copyright RisingWave Labs
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
+{{/*
+Distributed mode isn't allowed when state store backend is `localFs`.
+*/}}
+{{- if and .Values.stateStore.localFs.enabled (not .Values.standalone.enabled) }}
+  {{- printf "Standalone mode must be enabled when state store backend is `LocalFS`!" | fail }}
+{{- end }}
+
+{{/*
+Replicas of meta nodes must be at most 1 when meta store backend is `SQLite`.
+*/}}
+{{- if and .Values.metaStore.sqlite.enabled (not .Values.standalone.enabled)
+  (gt (.Values.metaComponent.replicas | int) 1) }}
+  {{- printf "Replicas of meta component must be <= 1 when meta store backend is `SQLite`!" | fail }}
+{{- end }}

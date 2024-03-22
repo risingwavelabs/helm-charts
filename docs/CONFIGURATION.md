@@ -96,12 +96,17 @@ including `replicas`, `resources`, `nodeSelector`, `affinity`, `tolerations` and
 
 Customize the `metaStore` section to configure the meta store backends. Currently, the following backends are supported:
 
-| Name       | Section              | Location |
-|:-----------|:---------------------|:---------|
-| etcd       | metaStore.etcd       | remote   |
-| SQLite     | metaStore.sqlite     | local    |
-| PostgreSQL | metaStore.postgresql | remote   |
-| MySQL      | metaStore.mysql      | remote   |
+| Name       | Section              | Location | Compatible modes |
+|:-----------|:---------------------|:---------|:-----------------|
+| etcd       | metaStore.etcd       | remote   | both             |
+| SQLite     | metaStore.sqlite     | local    | both             | 
+| PostgreSQL | metaStore.postgresql | remote   | both             |
+| MySQL      | metaStore.mysql      | remote   | both             |
+
+> [!CAUTION]
+>
+> When the meta store backend is `SQLite`, it's impossible to have multiple meta nodes because the SQLite database is
+> stored locally! The leader election won't go well and there will be dual leaders.
 
 In the backends, `SQLite` is the only one that stores data locally. Make sure it is configured to a persistent path
 (e.g., in a persistent volume), otherwise please expect a data loss on restart.
@@ -122,18 +127,24 @@ For the details of a backend, please check the values of the corresponding secti
 Customize the `stateStore` section to configure the state store backends. Currently, the following backends are
 supported:
 
-| Name                       | Section            | Location |
-|:---------------------------|:-------------------|:---------|
-| AWS S3 (+compatible)       | stateStore.s3      | remote   |
-| Google Cloud Storage (GCS) | stateStore.gcs     | remote   |
-| Aliyun OSS                 | stateStore.oss     | remote   |
-| Huawei Cloud OBS           | stateStore.obs     | remote   |
-| HDFS                       | stateStore.hdfs    | remote   |
-| MinIO                      | stateStore.minio   | remote   |
-| Local File System          | stateStore.localFs | local    |
+| Name                       | Section            | Location | Compatible modes |
+|:---------------------------|:-------------------|:---------|:-----------------| 
+| AWS S3 (+compatible)       | stateStore.s3      | remote   | both             |
+| Google Cloud Storage (GCS) | stateStore.gcs     | remote   | both             |
+| Aliyun OSS                 | stateStore.oss     | remote   | both             |
+| Huawei Cloud OBS           | stateStore.obs     | remote   | both             |
+| HDFS                       | stateStore.hdfs    | remote   | both             | 
+| MinIO                      | stateStore.minio   | remote   | both             | 
+| Local File System          | stateStore.localFs | local    | standalone       |
+
+> [!CAUTION]
+>
+> `Local File System` is incompatible with [distributed mode](#distributed-mode-vs-standalone-mode)! All pods will treat
+> their container file system as `local`. Inconsistency is expected and the behaviour is undefined!
 
 In the backends, `Local File System` is the only one that stores data locally. Make sure it is configured to a
 persistent path (e.g., in a persistent volume), otherwise please expect a data loss on restart.
+Therefore, `Local File System` is only compatible with [standalone mode](#distributed-mode-vs-standalone-mode).
 
 A prefix of objects / path can be configured with `stateStore.dataDirectory`. For example, setting it to `hummock` with
 

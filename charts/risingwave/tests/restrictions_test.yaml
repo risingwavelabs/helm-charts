@@ -1,0 +1,69 @@
+suite: Test Restrictions
+chart:
+  appVersion: 1.0.0
+  version: 0.0.1
+templates:
+- restrictions.yaml
+tests:
+- it: standalone mode with local fs should pass
+  set:
+    standalone:
+      enabled: true
+
+    stateStore:
+      localFs:
+        enabled: true
+  asserts:
+  - notFailedTemplate: { }
+- it: distributed mode with local fs should fail
+  set:
+    standalone:
+      enabled: false
+
+    stateStore:
+      localFs:
+        enabled: true
+  asserts:
+  - failedTemplate:
+      errorMessage: "Standalone mode must be enabled when state store backend is `LocalFS`!"
+- it: standalone mode with sqlite should pass
+  set:
+    standalone:
+      enabled: true
+
+    metaStore:
+      sqlite:
+        enabled: true
+  asserts:
+  - notFailedTemplate: { }
+- it: meta replicas 0 with sqlite should pass
+  set:
+    metaComponent:
+      replicas: 0
+
+    metaStore:
+      sqlite:
+        enabled: true
+  asserts:
+  - notFailedTemplate: { }
+- it: meta replicas 1 with sqlite should pass
+  set:
+    metaComponent:
+      replicas: 1
+
+    metaStore:
+      sqlite:
+        enabled: true
+  asserts:
+  - notFailedTemplate: { }
+- it: meta replicas 2 with sqlite should pass
+  set:
+    metaComponent:
+      replicas: 2
+
+    metaStore:
+      sqlite:
+        enabled: true
+  asserts:
+  - failedTemplate:
+      errorMessage: "Replicas of meta component must be <= 1 when meta store backend is `SQLite`!"
