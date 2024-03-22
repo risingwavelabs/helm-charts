@@ -16,8 +16,10 @@ Helm Charts for RisingWave
 
 ## Charts
 
-- [risingwave](charts/risingwave/README.md) - Helm chart for deploying a [RisingWave Cluster](https://github.com/risingwavelabs/risingwave)
-- [risingwave-operator](charts/risingwave-operator/README.md) - Helm chart for deploying the [RisingWave Operator](https://github.com/risingwavelabs/risingwave-operator)
+- [risingwave](charts/risingwave/README.md) - Helm chart for deploying
+  a [RisingWave Cluster](https://github.com/risingwavelabs/risingwave)
+- [risingwave-operator](jcharts/risingwave-operator/README.md) - Helm chart for deploying
+  a [RisingWave Operator](https://github.com/risingwavelabs/risingwave-operator)
 
 ## Prerequisites
 
@@ -42,12 +44,13 @@ Update the local Helm chart repository cache
 
 ### Install RisingWave
 
->[!NOTE]
-> 
-> The following command installs a standalone RisingWave with local persistency. It will create a PersistentVolumeClaim 
-> with StatefulSet and the data will be persisted in the provisioned PersistentVolume. Therefore, it requires the 
-> Kubernetes cluster to allow dynamic provisioning of PVs. Please download and revise the values file if it doesn't suit
-> you well.
+> [!NOTE]
+>
+> The following command installs a standalone RisingWave with local persistency. It will create a PersistentVolumeClaim
+> with StatefulSet and the data will be persisted in the provisioned PersistentVolume. Therefore, it requires the
+> Kubernetes cluster to
+> allow [dynamic volume provisioning](https://kubernetes.io/docs/concepts/storage/dynamic-provisioning/).
+> Please download and revise the values file if it doesn't suit you well.
 
 ```shell
 helm install risingwave risingwavelabs/risingwave \
@@ -55,13 +58,28 @@ helm install risingwave risingwavelabs/risingwave \
   # --set wait=true         # Uncomment to wait before RisingWave's ready
 ```
 
+> [!TIP]
+>
+> The following command will help create a RisingWave similar to above except **without persistency guarantee**. If
+> the [dynamic volume provisioning](https://kubernetes.io/docs/concepts/storage/dynamic-provisioning/) isn't setup in
+> your Kubernetes cluster, you could take a quick try with RisingWave with this.
+> 
+> ```shell
+> helm install risingwave risingwavelabs/risingwave \
+>   --set metaStore.sqlite.enabled=true \
+>   --set stateStore.localFs.enabled=true \
+>   --set standalone.enabled=true \
+>   # --set wait=true         # Uncomment to wait before RisingWave's ready 
+> ```
+
 ### Install RisingWave Operator
 
 Prerequisites:
+
 - [Install cert-manager](https://cert-manager.io/docs/installation/helm/)
 
->[!NOTE]
-> 
+> [!NOTE]
+>
 > CustomResourceDefinitions are included in the RisingWave Operator Helm chart and will be installed by default.
 
 Create a dedicated namespace for RisingWave Operator.
