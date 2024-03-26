@@ -131,6 +131,7 @@ supported:
 |:---------------------------|:-------------------|:---------|:-----------------| 
 | AWS S3 (+compatible)       | stateStore.s3      | remote   | both             |
 | Google Cloud Storage (GCS) | stateStore.gcs     | remote   | both             |
+| Azure Blob                 | stateStore.azblob  | remote   | both             | 
 | Aliyun OSS                 | stateStore.oss     | remote   | both             |
 | Huawei Cloud OBS           | stateStore.obs     | remote   | both             |
 | HDFS                       | stateStore.hdfs    | remote   | both             | 
