@@ -7,7 +7,7 @@ chart:
 tests:
 - it: empty values failed
   templates:
-    - validation.yaml
+  - validation.yaml
   asserts:
   - failedTemplate:
       errorMessage: "No state store backend!"
@@ -18,4 +18,44 @@ tests:
 
     wait: true
   asserts:
-    - notFailedTemplate: {}
+  - notFailedTemplate: { }
+- it: readme values pass 1
+  set:
+    metaStore:
+      sqlite:
+        enabled: true
+        path: /data/metastore/risingwave.db
+
+    stateStore:
+      localFs:
+        enabled: true
+        path: /data/statestore
+
+    standalone:
+      enabled: true
+
+      extraVolumeMounts:
+      - name: data
+        mountPath: /data/metastore
+        subPath: metastore
+      - name: data
+        mountPath: /data/statestore
+        subPath: statestore
+
+      volumeClaimTemplates:
+      - metadata:
+          name: data
+        spec:
+          accessModes: [ "ReadWriteOnce" ]
+          resources:
+            requests:
+              storage: 50Gi
+  asserts:
+  - notFailedTemplate: { }
+- it: readme values pass 2
+  set:
+    metaStore.sqlite.enabled: true
+    stateStore.localFs.enabled: true
+    standalone.enabled: true
+  asserts:
+  - notFailedTemplate: { }

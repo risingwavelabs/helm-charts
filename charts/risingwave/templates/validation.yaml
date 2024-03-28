@@ -30,7 +30,7 @@ Validate state store backends.
   {{- if .Values.stateStore.minio.enabled }}{{ $count = add1 $count }}{{ $name = "MinIO" }}{{- end }}
 {{- end }}
 {{- if (eq $count 0 ) }}
-  {{- fail "No state store backend!\n  Please set up one of S3, MinIO, GCS, OSS, AZBLOB, HDFS, and OBS under `stateStore`, or use the bundled MinIO by setting `tags.minio=true`!" }}
+  {{- fail "No state store backend!\n  Please set up one of the backends under `stateStore`, or use the bundled MinIO by setting `tags.minio=true`!" }}
 {{- else if (gt $count 1) }}
   {{- fail "More than one state store backends!" }}
 {{- end }}
@@ -68,7 +68,7 @@ Validate meta store backends.
   {{- if .Values.metaStore.etcd.enabled }}{{ $count = add1 $count }}{{ $name = "etcd" }}{{- end }}
 {{- end }}
 {{- if (eq $count 0 ) }}
-  {{- fail "No meta store backend!\n  Please set up an external etcd under `metaStore`, or use the bundled one by setting `tags.etcd=true`!" }}
+  {{- fail "No meta store backend!\n  Please set up one of the backends under `metaStore`, or use the bundled one by setting `tags.etcd=true`!" }}
 {{- else if (gt $count 1) }}
   {{- fail "More than one meta store backends!" }}
 {{- end }}
