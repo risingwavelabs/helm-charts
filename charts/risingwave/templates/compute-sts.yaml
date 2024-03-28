@@ -175,6 +175,10 @@ spec:
         {{- if .Values.stateStore.s3.enabled }}
         - name: AWS_REGION
           value: {{ .Values.stateStore.s3.region }}
+        {{- end }}  
+        {{- if and .Values.stateStore.s3.enabled .Values.stateStore.s3.forcePathStyle }} 
+        - name: RW_IS_FORCE_PATH_STYLE
+          value: 'true'
         {{- end }}
         {{- if .Values.stateStore.oss.enabled }}
         - name: OSS_REGION

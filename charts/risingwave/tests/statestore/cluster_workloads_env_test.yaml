@@ -49,6 +49,11 @@ tests:
         secretRef:
           name: RELEASE-NAME-risingwave-s3
       any: true
+  - notContains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: RW_IS_FORCE_PATH_STYLE
+      any: true        
 - it: envs must not contain s3 credentials on service account (s3)
   set:
     stateStore:
@@ -105,6 +110,31 @@ tests:
       content:
         secretRef:
           name: s
+- it: envs must contain force path style (s3)
+  set:
+    stateStore:
+      s3:
+        enabled: true
+        forcePathStyle: true
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: RW_IS_FORCE_PATH_STYLE
+        value: "true"
+- it: envs must not contain force path style (s3)
+  set:
+    stateStore:
+      s3:
+        enabled: true
+        forcePathStyle: false
+  asserts:
+  - notContains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: RW_IS_FORCE_PATH_STYLE
+      any: true
+
 # Tests for MinIO.
 - it: envs must match hummock string (minio)
   set:
