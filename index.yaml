@@ -2,6 +2,43 @@ apiVersion: v1
 entries:
   risingwave:
   - apiVersion: v2
+    appVersion: v1.8.0
+    created: "2024-04-14T01:23:12.457610493Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      version: 2.x.x
+    - name: etcd
+      repository: https://charts.bitnami.com/bitnami
+      tags:
+      - etcd
+      - bundle
+      version: 9.x.x
+    - name: minio
+      repository: https://charts.bitnami.com/bitnami
+      tags:
+      - minio
+      - bundle
+      version: 13.x.x
+    description: The distributed streaming database SQL stream processing with Postgres-like
+      experience.
+    digest: 61221705192200f3457a618f575408b5febec1bcd12b80c549b98dd2daba56d1
+    home: https://www.risingwave.com
+    icon: https://avatars.githubusercontent.com/u/77175557?s=48&v=4
+    keywords:
+    - risingwave
+    - streaming-processing
+    - cloud-native
+    - real-time
+    maintainers:
+    - name: RisingWave Labs
+      url: https://www.risingwave-labs.com
+    name: risingwave
+    type: application
+    urls:
+    - https://github.com/risingwavelabs/helm-charts/releases/download/risingwave-0.1.55/risingwave-0.1.55.tgz
+    version: 0.1.55
+  - apiVersion: v2
     appVersion: v1.7.3
     created: "2024-04-02T10:05:01.064642262Z"
     dependencies:
@@ -1824,6 +1861,33 @@ entries:
     version: 0.1.0
   risingwave-operator:
   - apiVersion: v2
+    appVersion: v0.6.3
+    created: "2024-04-14T01:23:12.635080787Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    description: RisingWave Kubernetes Operator
+    digest: faceac75bb47ab3a65bc3fc12fb77c0555dfd33de0211626e6db6af02bcdd5fe
+    home: https://www.risingwave.com
+    icon: https://avatars.githubusercontent.com/u/77175557?s=48&v=4
+    keywords:
+    - risingwave
+    - streaming-processing
+    - cloud-native
+    - real-time
+    - operator
+    maintainers:
+    - name: RisingWave Labs
+      url: https://www.risingwave-labs.com
+    name: risingwave-operator
+    type: application
+    urls:
+    - https://github.com/risingwavelabs/helm-charts/releases/download/risingwave-operator-0.1.14/risingwave-operator-0.1.14.tgz
+    version: 0.1.14
+  - apiVersion: v2
     appVersion: v0.6.2
     created: "2024-03-21T06:02:07.22046598Z"
     dependencies:
@@ -2159,4 +2223,4 @@ entries:
     urls:
     - https://github.com/risingwavelabs/helm-charts/releases/download/risingwave-operator-0.1.0/risingwave-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2024-04-02T10:05:01.064814573Z"
+generated: "2024-04-14T01:23:12.63535428Z"
