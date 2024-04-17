@@ -17,7 +17,9 @@ metadata:
     {{ nindent 4 $annotations }}
   {{- end }}
 spec:
+  {{- if not .Values.computeComponent.autoscaling.enabled }}
   replicas: {{ .Values.computeComponent.replicas }}
+  {{- end }}
   selector:
     matchLabels:
       {{- include "risingwave.selectorLabels" . | nindent 6 }}

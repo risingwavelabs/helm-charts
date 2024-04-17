@@ -971,6 +971,13 @@ computeComponent:
   ##
   replicas: 1
 
+  ## @param computeComponent.autoscaling Compute Pod horizontal Pod Autoscalers
+  autoscaling:
+    enabled: false
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 50
+    behavior: { }
+
   ## @param computeComponent.resources Resource requests and limits.
   ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources:

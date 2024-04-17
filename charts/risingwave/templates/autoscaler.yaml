@@ -1,0 +1,34 @@
+{{/*
+  Copyright RisingWave Labs.
+  SPDX-License-Identifier: APACHE-2.0
+  */}}
+
+{{- if .Values.computeComponent.autoscaling.enabled -}}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "risingwave.computeComponentName" . }}
+  namespace: {{ .Release.Namespace }}
+  {{- if .Values.commonLabels }}
+  labels:
+    {{- tpl (toYaml .Values.commonLabels) . | nindent 4 }}
+  {{- end }}
+spec:
+  maxReplicas: {{ .Values.computeComponent.autoscaling.maxReplicas }}
+  minReplicas: {{ .Values.computeComponent.replicas }}
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: StatefulSet
+    name: {{ include "risingwave.computeComponentName" . }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.computeComponent.autoscaling.targetCPUUtilizationPercentage }}
+  {{ if .Values.computeComponent.autoscaling.behavior -}}
+  behavior:
+    {{- toYaml .Values.computeComponent.autoscaling.behavior | nindent 4 }}
+  {{- end }}
+{{- end }}
