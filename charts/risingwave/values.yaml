@@ -975,7 +975,7 @@ computeComponent:
   autoscaling:
     enabled: false
     maxReplicas: 5
-    targetCPUUtilizationPercentage: 50
+    metrics: { }
     behavior: { }
 
   ## @param computeComponent.resources Resource requests and limits.

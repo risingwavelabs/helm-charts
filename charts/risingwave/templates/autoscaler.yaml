@@ -20,13 +20,10 @@ spec:
     apiVersion: apps/v1
     kind: StatefulSet
     name: {{ include "risingwave.computeComponentName" . }}
+  {{ if .Values.computeComponent.autoscaling.metrics -}}
   metrics:
-    - type: Resource
-      resource:
-        name: cpu
-        target:
-          type: Utilization
-          averageUtilization: {{ .Values.computeComponent.autoscaling.targetCPUUtilizationPercentage }}
+    {{- toYaml .Values.computeComponent.autoscaling.metrics | nindent 4}}
+  {{- end }}
   {{ if .Values.computeComponent.autoscaling.behavior -}}
   behavior:
     {{- toYaml .Values.computeComponent.autoscaling.behavior | nindent 4 }}
