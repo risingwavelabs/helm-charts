@@ -7,7 +7,7 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ include "risingwave.computeComponentName" . }}
+  name: {{ include "risingwave.computeComponentName" . }}-autoscaler
   namespace: {{ .Release.Namespace }}
   {{- if .Values.commonLabels }}
   labels:
