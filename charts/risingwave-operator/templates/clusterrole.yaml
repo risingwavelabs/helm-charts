@@ -151,9 +151,3 @@ rules:
   - get
   - patch
   - update
-- apiGroups:
-  - autoscaling
-  resources:
-  - horizontalpodautoscalers
-  verbs:
-  - '*'

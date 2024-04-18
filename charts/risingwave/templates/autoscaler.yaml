@@ -13,6 +13,10 @@ metadata:
   labels:
     {{- tpl (toYaml .Values.commonLabels) . | nindent 4 }}
   {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations:
+    {{- tpl (toYaml .Values.commonAnnotations) . | nindent 4 }}
+  {{- end }}
 spec:
   maxReplicas: {{ .Values.computeComponent.autoscaling.maxReplicas }}
   minReplicas: {{ .Values.computeComponent.replicas }}
@@ -20,11 +24,11 @@ spec:
     apiVersion: apps/v1
     kind: StatefulSet
     name: {{ include "risingwave.computeComponentName" . }}
-  {{ if .Values.computeComponent.autoscaling.metrics -}}
+  {{- if .Values.computeComponent.autoscaling.metrics }}
   metrics:
     {{- toYaml .Values.computeComponent.autoscaling.metrics | nindent 4}}
   {{- end }}
-  {{ if .Values.computeComponent.autoscaling.behavior -}}
+  {{- if .Values.computeComponent.autoscaling.behavior }}
   behavior:
     {{- toYaml .Values.computeComponent.autoscaling.behavior | nindent 4 }}
   {{- end }}
