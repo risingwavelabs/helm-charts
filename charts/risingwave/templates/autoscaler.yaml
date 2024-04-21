@@ -9,13 +9,13 @@ kind: HorizontalPodAutoscaler
 metadata:
   name: {{ include "risingwave.computeComponentName" . }}-autoscaler
   namespace: {{ .Release.Namespace }}
-  {{- if .Values.commonLabels }}
   labels:
-    {{- tpl (toYaml .Values.commonLabels) . | nindent 4 }}
-  {{- end }}
-  {{- if .Values.commonAnnotations }}
+    {{- include "risingwave.labels" . | nindent 4 }}
+    risingwave.risingwavelabs.com/component: compute
+  {{- $annotations := (include "risingwave.annotations" . ) | trim }}
+  {{- if $annotations }}
   annotations:
-    {{- tpl (toYaml .Values.commonAnnotations) . | nindent 4 }}
+    {{ nindent 4 $annotations }}
   {{- end }}
 spec:
   maxReplicas: {{ .Values.computeComponent.autoscaling.maxReplicas }}

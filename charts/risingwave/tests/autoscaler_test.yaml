@@ -49,7 +49,7 @@ tests:
         autoscaling:
           enabled: true
           maxReplicas : 5
-      replicas: 1
+        replicas: 1
     asserts:
       - equal:
           path: spec.maxReplicas
