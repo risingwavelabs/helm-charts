@@ -1,0 +1,116 @@
+suite: Test HorizontalPodAutoscaler
+templates:
+  - templates/autoscaler.yaml
+chart:
+  appVersion: 1.0.0
+  version: 0.0.1
+tests:
+  - it: HorizontalPodAutoscaler should not exist when enabled is false
+    set:
+      computeComponent:
+        autoscaling:
+          enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+  - it: HorizontalPodAutoscaler should exist when enabled is true
+    set:
+      computeComponent:
+        autoscaling:
+          enabled: true
+    asserts:
+      - hasDocuments:
+          count: 1
+  - it: HorizontalPodAutoscaler should reflect common labels and annotations
+    set:
+      computeComponent:
+        autoscaling:
+          enabled: true
+      commonLabels:
+        LABEL: LABEL_V
+      commonAnnotations:
+        ANNOTATION: ANNOTATION_V
+    asserts:
+      - exists:
+          path: metadata.labels
+      - isSubset:
+          path: metadata.labels
+          content:
+            LABEL: LABEL_V
+      - exists:
+          path: metadata.annotations
+      - isSubset:
+          path: metadata.annotations
+          content:
+            ANNOTATION: ANNOTATION_V
+  - it: HorizontalPodAutoscaler should reflect computeComponent replicas and autoscaling maxReplicas
+    set:
+      computeComponent:
+        autoscaling:
+          enabled: true
+          maxReplicas : 5
+        replicas: 1
+    asserts:
+      - equal:
+          path: spec.maxReplicas
+          value: 5
+      - equal:
+          path: spec.minReplicas
+          value: 1
+  - it: HorizontalPodAutoscaler should reflect computeComponent autoscaling metrics and behavior
+    set:
+      computeComponent:
+        autoscaling:
+          enabled: true
+          metrics:
+            - type: Resource
+              resource:
+                name: memory
+                target:
+                type: Utilization
+                averageUtilization: 30
+          behavior:
+            scaleDown:
+              stabilizationWindowSeconds: 300
+              policies:
+                - type: Percent
+                  value: 100
+                  periodSeconds: 15
+            scaleUp:
+              stabilizationWindowSeconds: 0
+              policies:
+                - type: Percent
+                  value: 100
+                  periodSeconds: 15
+              selectPolicy: Max
+    asserts:
+      - contains:
+          path: spec.metrics
+          content:
+            type: Resource
+            resource:
+              name: memory
+              target:
+              type: Utilization
+              averageUtilization: 30
+      - equal:
+          path: spec.behavior.scaleDown.stabilizationWindowSeconds
+          value: 300
+      - contains:
+          path: spec.behavior.scaleDown.policies
+          content:
+            type: Percent
+            value: 100
+            periodSeconds: 15
+      - equal:
+          path: spec.behavior.scaleUp.stabilizationWindowSeconds
+          value: 0
+      - contains:
+          path: spec.behavior.scaleUp.policies
+          content:
+            type: Percent
+            value: 100
+            periodSeconds: 15
+      - equal:
+          path: spec.behavior.scaleUp.selectPolicy
+          value: Max
