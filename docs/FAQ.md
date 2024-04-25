@@ -37,3 +37,7 @@ If the meta store and state store backends that RisingWave is using are all pers
 persistent), simply delete the RisingWave pods and let them restart to get a full restart of the cluster. Note
 that `SQLite` meta store and `Local File System` state store are not persistent unless the data paths are in a 
 persistent volume. Please refer to [the installation guide](CONFIGURATION.md) for more details.
+
+### What to do if risingwave fails to start with PostgreSQL meta backend giving an uppercase database name?
+
+When starting RisingWave with PostgreSQL as the metadata backend, if the startup fails and you provided an uppercase database name, please ensure that the corresponding uppercase database has been created properly. In PostgreSQL, if you create a database with an uppercase name without using double quotes, the database name will be converted to lowercase. Check [SQL-SYNTAX-IDENTIFIERS](https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS) for more details.
