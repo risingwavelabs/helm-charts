@@ -333,7 +333,11 @@ Create the etcd endpoints
 Create the name of the AzureBlob credentials Secret to use
 */}}
 {{- define "risingwave.configurationConfigMapName" -}}
+{{- if not .Values.existingConfigMap }}
 {{- printf "%s-configuration" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- .Values.existingConfigMap | quote }}
+{{- end }}
 {{- end }}
 
 {{/*
