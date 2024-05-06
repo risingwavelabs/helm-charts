@@ -1,0 +1,73 @@
+suite: Test config map
+templates:
+- meta-sts.yaml
+- compute-sts.yaml
+- frontend-deploy.yaml
+- compactor-deploy.yaml
+- standalone/standalone-sts.yaml
+chart:
+  appVersion: 1.0.0
+  version: 0.0.1
+tests:
+- it: cluster workloads mount the config map
+  templates:
+  - meta-sts.yaml
+  - compute-sts.yaml
+  - frontend-deploy.yaml
+  - compactor-deploy.yaml
+  set:
+    configuration: |
+      [example]
+      a = b
+  asserts:
+  - contains:
+      path: spec.template.spec.volumes
+      content:
+        name: config
+        configMap:
+          name: RELEASE-NAME-risingwave-configuration
+- it: cluster workloads mount the existing config map
+  templates:
+  - meta-sts.yaml
+  - compute-sts.yaml
+  - frontend-deploy.yaml
+  - compactor-deploy.yaml
+  set:
+    existingConfigMap: "a"
+  asserts:
+  - contains:
+      path: spec.template.spec.volumes
+      content:
+        name: config
+        configMap:
+          name: a
+- it: standalone sts mount the config map
+  templates:
+  - standalone/standalone-sts.yaml
+  set:
+    standalone:
+      enabled: true
+    configuration: |
+      [example]
+      a = b
+  asserts:
+  - contains:
+      path: spec.template.spec.volumes
+      content:
+        name: config
+        configMap:
+          name: RELEASE-NAME-risingwave-configuration
+- it: standalone workloads mount the existing config map
+  templates:
+  - standalone/standalone-sts.yaml
+  set:
+    standalone:
+      enabled: true
+    existingConfigMap: "a"
+  asserts:
+  - contains:
+      path: spec.template.spec.volumes
+      content:
+        name: config
+        configMap:
+          name: a
