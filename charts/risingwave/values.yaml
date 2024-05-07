@@ -1061,6 +1061,13 @@ computeComponent:
     whenDeleted: Delete
     whenScaled: Delete
 
+  ## @param autoDeregistration Auto-deregistration of compute pods. If enabled, compute pods will be
+  ## automatically deregistered from the meta store when they are deleted.
+  ##
+  autoDeregistration:
+    ## @param autoDeregistration.enabled Enable auto-deregistration.
+    enabled: false
+
 compactorComponent:
   ## @param compactorComponent.podLabels Labels to add to the component pods.
   ##
