@@ -1,0 +1,31 @@
+suite: Test compute auto deregistration
+templates:
+- compute-sts.yaml
+chart:
+  appVersion: 1.0.0
+  version: 0.0.1
+tests:
+- it: lifecycle doesn't exist when disabled
+  set:
+    computeComponent:
+      autoDeregistration:
+        enabled: false
+  asserts:
+  - notExists:
+      path: spec.template.spec.containers[0].lifecycle
+- it: lifecycle exists when enabled
+  set:
+    computeComponent:
+      autoDeregistration:
+          enabled: true
+  asserts:
+  - exists:
+      path: spec.template.spec.containers[0].lifecycle
+  - equal:
+      path: spec.template.spec.containers[0].lifecycle.preStop.exec.command
+      value:
+      - bash
+      - -c
+      - >-
+        /risingwave/bin/risingwave ctl meta unregister-workers --yes \
+          --workers ${POD_NAME}.RELEASE-NAME-risingwave-compute-headless.NAMESPACE.svc:5688

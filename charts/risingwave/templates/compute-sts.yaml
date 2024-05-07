@@ -123,6 +123,17 @@ spec:
         command:
         - /risingwave/bin/risingwave
         - compute-node
+        {{- if .Values.computeComponent.autoDeregistration.enabled }}
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - bash
+              - -c
+              - >-
+                /risingwave/bin/risingwave ctl meta unregister-workers --yes \
+                  --workers ${POD_NAME}.{{ include "risingwave.computeHeadlessServiceName" . }}.{{.Release.Namespace}}.svc:{{ .Values.ports.compute.svc }}
+        {{- end }}
         {{- end }}
         ports:
         - containerPort: {{ .Values.ports.compute.svc }}
