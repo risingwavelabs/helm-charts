@@ -61,7 +61,7 @@ serviceAccount:
 image:
   registry: ghcr.io
   repository: risingwavelabs/risingwave-operator
-  tag: v0.6.3
+  tag: v0.7.0
   digest: ""
   ## @param image.pullPolicy Image pull policy
   ## Specify a imagePullPolicy
