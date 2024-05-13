@@ -123,6 +123,10 @@ spec:
         command:
         - /risingwave/bin/risingwave
         - compute-node
+        {{- if .Values.frontendComponent.embeddedServing }}
+        args:
+        - --role=streaming
+        {{- end }}
         {{- if .Values.computeComponent.autoDeregistration.enabled }}
         lifecycle:
           preStop:

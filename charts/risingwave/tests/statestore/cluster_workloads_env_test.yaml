@@ -1,14 +1,18 @@
-suite: Test state store env vars (meta/compute/compactor)
+suite: Test state store env vars (meta/frontend/compute/compactor)
 templates:
 - templates/meta-sts.yaml
 - templates/compute-sts.yaml
 - templates/compactor-deploy.yaml
+- templates/frontend-deploy.yaml
 set:
   metaComponent:
     extraEnvVarsSecret: dummy
   computeComponent:
     extraEnvVarsSecret: dummy
   compactorComponent:
+    extraEnvVarsSecret: dummy
+  frontendComponent:
+    embeddedServing: true
     extraEnvVarsSecret: dummy
 chart:
   appVersion: 1.0.0

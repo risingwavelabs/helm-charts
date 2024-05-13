@@ -1,0 +1,39 @@
+suite: Test Embedded Frontend Serving
+templates:
+- frontend-deploy.yaml
+- compute-sts.yaml
+chart:
+  appVersion: 1.0.0
+  version: 0.0.1
+set:
+  frontendComponent:
+    embeddedServing: true
+tests:
+- it: command should be standalone
+  template: frontend-deploy.yaml
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].command
+      value:
+      - /risingwave/bin/risingwave
+      - standalone
+- it: should have pre-stop lifecycle hook
+  template: frontend-deploy.yaml
+  asserts:
+  - exists:
+      path: spec.template.spec.containers[0].lifecycle.preStop
+  - equal:
+      path: spec.template.spec.containers[0].lifecycle.preStop.exec.command
+      value:
+      - bash
+      - -c
+      - >-
+        /risingwave/bin/risingwave ctl meta unregister-workers --yes \
+          --workers ${POD_IP}:5688
+- it: compute node should set role to streaming
+  template: compute-sts.yaml
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].args
+      content:
+        --role=streaming
