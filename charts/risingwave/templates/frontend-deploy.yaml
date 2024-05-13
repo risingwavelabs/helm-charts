@@ -107,9 +107,34 @@ spec:
         command: {{ toYaml .Values.diagnosticMode.command | nindent 8 }}
         args: {{ toYaml .Values.diagnosticMode.args | nindent 8 }}
         {{- else }}
+        {{- if .Values.frontendComponent.embeddedServing }}
+        command:
+        - /risingwave/bin/risingwave
+        - standalone
+        args:
+        - >-
+          --compute-opts=--config-path /risingwave/config/risingwave.toml
+            --listen-addr 0.0.0.0:{{ .Values.ports.compute.svc }}
+            --advertise-addr $(POD_IP):{{ .Values.ports.compute.svc }}
+            --role serving
+        - >-
+          --frontend-opts=--config-path /risingwave/config/risingwave.toml
+            --listen-addr 0.0.0.0:{{ .Values.ports.frontend.svc }}
+            --advertise-addr $(POD_IP):{{ .Values.ports.frontend.svc }}
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - bash
+              - -c
+              - >-
+                /risingwave/bin/risingwave ctl meta unregister-workers --yes \
+                  --workers ${POD_IP}:{{ .Values.ports.compute.svc }}
+        {{- else }}
         command:
         - /risingwave/bin/risingwave
         - frontend-node
+        {{- end }}
         {{- end }}
         ports:
         - containerPort: {{ .Values.ports.frontend.svc }}
@@ -118,6 +143,11 @@ spec:
         - containerPort: {{ .Values.ports.frontend.metrics }}
           name: metrics
           protocol: TCP
+        {{- if .Values.frontendComponent.embeddedServing }}
+        - containerPort: {{ .Values.ports.compute.svc }}
+          name: c-svc
+          protocol: TCP
+        {{- end }}
         envFrom:
         {{- if .Values.frontendComponent.extraEnvVarsConfigMap }}
         - configMapRef:
@@ -126,6 +156,13 @@ spec:
         {{- if .Values.frontendComponent.extraEnvVarsSecret }}
         - secretRef:
             name: {{ .Values.frontendComponent.extraEnvVarsSecret }}
+        {{- end }}
+        {{- if .Values.frontendComponent.embeddedServing }}
+        {{- $credentialsSecret := (include "risingwave.credentialsSecretName" . ) -}}
+        {{- if $credentialsSecret }}
+        - secretRef:
+            name: {{ $credentialsSecret }}
+        {{- end }}
         {{- end }}
         env:
         # Disable auto region loading. Refer to the original source for more information.
@@ -171,6 +208,65 @@ spec:
           value: /risingwave/certs/tls.crt
         - name: RW_SSL_KEY
           value: /risingwave/certs/tls.key
+        {{- end }}
+        {{- if .Values.frontendComponent.embeddedServing }}
+        {{- if .Values.stateStore.s3.enabled }}
+        - name: AWS_REGION
+          value: {{ .Values.stateStore.s3.region }}
+        {{- end }}
+        {{- if and .Values.stateStore.s3.enabled .Values.stateStore.s3.forcePathStyle }}
+        - name: RW_IS_FORCE_PATH_STYLE
+          value: 'true'
+        {{- end }}
+        {{- if .Values.stateStore.oss.enabled }}
+        - name: OSS_REGION
+          value: {{ .Values.stateStore.oss.region }}
+        {{- end }}
+        {{- if .Values.stateStore.obs.enabled }}
+        - name: OBS_REGION
+          value: {{ .Values.stateStore.obs.region }}
+        {{- end }}
+        {{- if (include "risingwave.bundle.minio.enabled" .) }}
+        - name: MINIO_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: root-user
+              name: {{ default (include "common.names.fullname" .Subcharts.minio) .Values.minio.auth.existingSecret }}
+        - name: MINIO_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: root-password
+              name: {{ default (include "common.names.fullname" .Subcharts.minio) .Values.minio.auth.existingSecret }}
+        {{- end }}
+        {{- if .Values.stateStore.s3.enabled }}
+        {{- if .Values.stateStore.s3.endpoint }}
+        - name: RW_S3_ENDPOINT
+          value: {{ .Values.stateStore.s3.endpoint }}
+        {{- end }}
+        {{- else if .Values.stateStore.oss.enabled }}
+        - name: OSS_ENDPOINT
+          value: {{ include "risingwave.oss.endpoint" . }}
+        {{- else if .Values.stateStore.obs.enabled }}
+        - name: OBS_ENDPOINT
+          value: {{ include "risingwave.obs.endpoint" . }}
+        {{- else if .Values.stateStore.azblob.enabled }}
+        - name: AZBLOB_ENDPOINT
+          value: {{ .Values.stateStore.azblob.endpoint }}
+        {{- end }}
+        - name: RW_STATE_STORE
+          value: {{ include "risingwave.hummockConnectionString" . }}
+        - name: RW_DATA_DIRECTORY
+          value: {{ include "risingwave.stateStoreDataDirectory" . }}
+        {{- if .Values.frontendComponent.resources.limits }}
+        {{- if .Values.frontendComponent.resources.limits.cpu }}
+        - name: RW_PARALLELISM
+          value: $(CONTAINER_CPU_LIMIT)
+        {{- end }}
+        {{- if .Values.frontendComponent.resources.limits.memory }}
+        - name: RW_TOTAL_MEMORY_BYTES
+          value: $(CONTAINER_MEMORY_LIMIT)
+        {{- end }}
+        {{- end }}
         {{- end }}
         {{- if .Values.frontendComponent.extraEnvVars }}
         {{- .Values.frontendComponent.extraEnvVars | toYaml | nindent 8 }}

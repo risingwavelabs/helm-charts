@@ -904,9 +904,9 @@ frontendComponent:
   affinity: { }
 
   ## @param frontendComponent.terminationGracePeriodSeconds Termination grace period in seconds.
-  ## Defaults to 1 seconds.
+  ## Defaults to 10 seconds.
   ##
-  terminationGracePeriodSeconds: 1
+  terminationGracePeriodSeconds: 10
 
   ## @param frontendComponent.schedulerName Name of an alternate scheduler.
   ## Ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
@@ -939,6 +939,12 @@ frontendComponent:
   ## @param frontendComponent.rustBacktrace Customize the RUST_BACKTRACE value.
   ## Defaults to full.
   rustBacktrace: full
+
+  ## @param frontendComponent.embeddedServing Embed serving node in frontend.
+  ## If enabled, the compute nodes will be used for streaming only.
+  ## Defaults to false.
+  ##
+  embeddedServing: false
 
 computeComponent:
   ## @param computeComponent.podLabels Labels to add to the component pods.
