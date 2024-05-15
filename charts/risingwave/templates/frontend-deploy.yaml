@@ -37,8 +37,11 @@ spec:
         {{- toYaml .Values.frontendComponent.podLabels | nindent 8 }}
         {{- end }}
       annotations:
+        {{- if .Values.monitor.annotations.enabled }}
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.ports.frontend.metrics }}"
+        prometheus.io/path: "/metrics"
+        {{- end }}
         {{- include "risingwave.annotations" . | nindent 8 }}
         {{- if .Values.frontendComponent.podAnnotations }}
         {{- toYaml .Values.frontendComponent.podAnnotations | nindent 8 }}

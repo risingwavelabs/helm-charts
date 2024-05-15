@@ -47,6 +47,11 @@ spec:
         {{- toYaml .Values.standalone.podLabels | nindent 8 }}
         {{- end }}
       annotations:
+        {{- if .Values.monitor.annotations.enabled }}
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ .Values.ports.frontend.metrics }}"
+        prometheus.io/path: "/metrics"
+        {{- end }}
         {{- include "risingwave.annotations" . | nindent 8 }}
         {{- if .Values.standalone.podAnnotations }}
         {{- toYaml .Values.standalone.podAnnotations | nindent 8 }}
@@ -126,7 +131,7 @@ spec:
           --meta-opts=--listen-addr 127.0.0.1:{{ .Values.ports.meta.svc }}
             --advertise-addr 127.0.0.1:{{ .Values.ports.meta.svc }}
             --dashboard-host 0.0.0.0:{{ .Values.ports.meta.dashboard }}
-            --prometheus-host 0.0.0.0:{{ .Values.ports.meta.metrics }}
+            --prometheus-host 0.0.0.0:{{ .Values.ports.frontend.metrics }}
             --backend $(RW_BACKEND)
             {{- if .Values.metaStore.etcd.enabled }}
             --etcd-endpoints $(RW_ETCD_ENDPOINTS)
@@ -136,7 +141,6 @@ spec:
             {{- end }}
             --state-store $(RW_STATE_STORE)
             --data-directory $(RW_DATA_DIRECTORY)
-            --config-path /risingwave/config/risingwave.toml
         {{- if (include "risingwave.bundle.etcd.enabled" .) }}
         {{- if and (not .Values.etcd.auth.rbac.allowNoneAuthentication) .Values.etcd.auth.rbac.create }}
             --etcd-auth
@@ -145,54 +149,32 @@ spec:
         {{- end }}
         {{- end }}
         - >-
-          --compute-opts=--config-path /risingwave/config/risingwave.toml
-            --listen-addr 127.0.0.1:{{ .Values.ports.compute.svc }}
-            --prometheus-listener-addr 0.0.0.0:{{ .Values.ports.compute.metrics }}
+          --compute-opts=--listen-addr 127.0.0.1:{{ .Values.ports.compute.svc }}
+            --prometheus-listener-addr 0.0.0.0:{{ .Values.ports.frontend.metrics }}
             --advertise-addr 127.0.0.1:{{ .Values.ports.compute.svc }}
-            --async-stack-trace verbose
             --role both
             --meta-address http://127.0.0.1:{{ .Values.ports.meta.svc }}
         - >-
-          --frontend-opts=--config-path /risingwave/config/risingwave.toml
-            --listen-addr 0.0.0.0:{{ .Values.ports.frontend.svc }}
+          --frontend-opts=--listen-addr 0.0.0.0:{{ .Values.ports.frontend.svc }}
             --advertise-addr 127.0.0.1:{{ .Values.ports.frontend.svc }}
             --prometheus-listener-addr 0.0.0.0:{{ .Values.ports.frontend.metrics }}
             --health-check-listener-addr 127.0.0.1:6786
             --meta-addr http://127.0.0.1:{{ .Values.ports.meta.svc }}
         - >-
-          --compactor-opts=--config-path /risingwave/config/risingwave.toml
-            --listen-addr 127.0.0.1:{{ .Values.ports.compactor.svc }}
+          --compactor-opts=--listen-addr 127.0.0.1:{{ .Values.ports.compactor.svc }}
             --advertise-addr 127.0.0.1:{{ .Values.ports.compactor.svc }}
-            --prometheus-listener-addr 0.0.0.0:{{ .Values.ports.compactor.metrics }}
+            --prometheus-listener-addr 0.0.0.0:{{ .Values.ports.frontend.metrics }}
             --meta-address http://127.0.0.1:{{ .Values.ports.meta.svc }}
         {{- end }}
         ports:
-        - containerPort: {{ .Values.ports.meta.svc }}
-          name: m-svc
-          protocol: TCP
         - containerPort: {{ .Values.ports.meta.dashboard }}
-          name: m-dashboard
-          protocol: TCP
-        - containerPort: {{ .Values.ports.meta.metrics }}
-          name: m-metrics
+          name: dashboard
           protocol: TCP
         - containerPort: {{ .Values.ports.frontend.svc }}
-          name: f-svc
+          name: svc
           protocol: TCP
         - containerPort: {{ .Values.ports.frontend.metrics }}
-          name: f-metrics
-          protocol: TCP
-        - containerPort: {{ .Values.ports.compute.svc }}
-          name: c-svc
-          protocol: TCP
-        - containerPort: {{ .Values.ports.compute.metrics }}
-          name: c-metrics
-          protocol: TCP
-        - containerPort: {{ .Values.ports.compactor.svc }}
-          name: cp-svc
-          protocol: TCP
-        - containerPort: {{ .Values.ports.compactor.metrics }}
-          name: cp-metrics
+          name: metrics
           protocol: TCP
         envFrom:
         {{- if .Values.standalone.extraEnvVarsConfigMap }}
@@ -400,17 +382,17 @@ spec:
           timeoutSeconds: 5
           failureThreshold: 12
           tcpSocket:
-            port: f-svc
+            port: svc
         livenessProbe:
           initialDelaySeconds: 2
           periodSeconds: 10
           tcpSocket:
-            port: f-svc
+            port: svc
         readinessProbe:
           initialDelaySeconds: 2
           periodSeconds: 10
           tcpSocket:
-            port: f-svc
+            port: svc
         {{- end }}
       {{- if .Values.standalone.additionalContainers }}
       {{- toYaml .Values.standalone.additionalContainers | nindent 6 }}

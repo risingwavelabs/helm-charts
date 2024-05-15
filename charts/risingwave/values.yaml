@@ -1219,6 +1219,19 @@ ports:
 ##
 
 monitor:
+  ## Annotations for Prometheus job discovery.
+  ## ref: https://prometheus.io/docs/prometheus/latest/configuration/configuration/#kubernetes_sd_config
+  ##
+  annotations:
+    ## @param monitor.annotations.enabled Enable annotations for Prometheus job discovery.
+    ## If enabled, annotations will be added to the pods for Prometheus job discovery. The following annotations
+    ## will be added to the pods:
+    ##    prometheus.io/scrape: "true"
+    ##    prometheus.io/port: "<port-number>"
+    ##    prometheus.io/path: "/metrics"
+    ##
+    enabled: false
+
   ## Prometheus Pod Monitor
   ## ref: https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#endpoint
   ##

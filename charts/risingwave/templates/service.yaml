@@ -55,7 +55,7 @@ spec:
   ports:
   - name: svc
     port: {{ .Values.service.port }}
-    {{- if or .Values.standalone.enabled .Values.compactMode.enabled }}
+    {{- if .Values.compactMode.enabled }}
     targetPort: f-svc
     {{- else }}
     targetPort: svc
