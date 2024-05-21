@@ -1,0 +1,157 @@
+suite: Test Monitor Annotations
+templates:
+- meta-sts.yaml
+- frontend-deploy.yaml
+- compute-sts.yaml
+- compactor-deploy.yaml
+- standalone/standalone-sts.yaml
+chart:
+  appVersion: 1.0.0
+  version: 0.0.1
+tests:
+- it: annotations shouldn't contain prometheus.io annotations when disabled (cluster)
+  templates:
+  - meta-sts.yaml
+  - frontend-deploy.yaml
+  - compute-sts.yaml
+  - compactor-deploy.yaml
+  set:
+    monitor:
+      annotations:
+        enabled: false
+  asserts:
+  - notExists:
+      path: spec.template.metadata.annotations["prometheus.io/scrape"]
+  - notExists:
+      path: spec.template.metadata.annotations["prometheus.io/port"]
+  - notExists:
+      path: spec.template.metadata.annotations["prometheus.io/path"]
+- it: annotations shouldn't contain prometheus.io annotations when disabled (standalone)
+  templates:
+  - standalone/standalone-sts.yaml
+  set:
+    standalone:
+      enabled: true
+
+    monitor:
+      annotations:
+        enabled: false
+  asserts:
+  - notExists:
+      path: spec.template.metadata.annotations["prometheus.io/scrape"]
+  - notExists:
+      path: spec.template.metadata.annotations["prometheus.io/port"]
+  - notExists:
+      path: spec.template.metadata.annotations["prometheus.io/path"]
+- it: annotations should contain prometheus.io annotations when enabled (cluster)
+  templates:
+  - meta-sts.yaml
+  - frontend-deploy.yaml
+  - compute-sts.yaml
+  - compactor-deploy.yaml
+  set:
+    monitor:
+      annotations:
+        enabled: true
+  asserts:
+  - exists:
+      path: spec.template.metadata.annotations["prometheus.io/scrape"]
+  - exists:
+      path: spec.template.metadata.annotations["prometheus.io/port"]
+  - exists:
+      path: spec.template.metadata.annotations["prometheus.io/path"]
+- it: annotations should contain prometheus.io annotations when enabled (standalone)
+  templates:
+  - standalone/standalone-sts.yaml
+  set:
+    standalone:
+      enabled: true
+
+    monitor:
+      annotations:
+        enabled: true
+  asserts:
+  - exists:
+      path: spec.template.metadata.annotations["prometheus.io/scrape"]
+  - exists:
+      path: spec.template.metadata.annotations["prometheus.io/port"]
+  - exists:
+      path: spec.template.metadata.annotations["prometheus.io/path"]
+- it: port value should match (meta)
+  templates:
+  - meta-sts.yaml
+  set:
+    monitor:
+      annotations:
+        enabled: true
+
+    ports:
+      meta:
+        metrics: 1234
+  asserts:
+  - equal:
+      path: spec.template.metadata.annotations["prometheus.io/port"]
+      value: "1234"
+- it: port value should match (frontend)
+  templates:
+  - frontend-deploy.yaml
+  set:
+    monitor:
+      annotations:
+        enabled: true
+
+    ports:
+      frontend:
+        metrics: 1234
+  asserts:
+  - equal:
+      path: spec.template.metadata.annotations["prometheus.io/port"]
+      value: "1234"
+- it: port value should match (compute)
+  templates:
+  - compute-sts.yaml
+  set:
+    monitor:
+      annotations:
+        enabled: true
+
+    ports:
+      compute:
+        metrics: 1234
+  asserts:
+  - equal:
+      path: spec.template.metadata.annotations["prometheus.io/port"]
+      value: "1234"
+- it: port value should match (compactor)
+  templates:
+  - compactor-deploy.yaml
+  set:
+    monitor:
+      annotations:
+        enabled: true
+
+    ports:
+      compactor:
+        metrics: 1234
+  asserts:
+  - equal:
+      path: spec.template.metadata.annotations["prometheus.io/port"]
+      value: "1234"
+- it: port value should match (standalone)
+  templates:
+  - standalone/standalone-sts.yaml
+  set:
+    standalone:
+      enabled: true
+
+    monitor:
+      annotations:
+        enabled: true
+
+    ports:
+      frontend:
+        metrics: 1234
+  asserts:
+  - equal:
+      path: spec.template.metadata.annotations["prometheus.io/port"]
+      value: "1234"

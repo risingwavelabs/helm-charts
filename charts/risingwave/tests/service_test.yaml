@@ -133,7 +133,7 @@ tests:
         risingwave.risingwavelabs.com/component: standalone
   - equal:
       path: spec.ports[0].targetPort
-      value: f-svc
+      value: svc
 - it: service should select different pod and port for compact mode
   set:
     compactMode:

@@ -136,59 +136,36 @@ tests:
           --meta-opts=--listen-addr 127.0.0.1:5690
             --advertise-addr 127.0.0.1:5690
             --dashboard-host 0.0.0.0:5691
-            --prometheus-host 0.0.0.0:1250
+            --prometheus-host 0.0.0.0:8080
             --backend $(RW_BACKEND)
             --state-store $(RW_STATE_STORE)
             --data-directory $(RW_DATA_DIRECTORY)
-            --config-path /risingwave/config/risingwave.toml
         - >-
-          --compute-opts=--config-path /risingwave/config/risingwave.toml
-            --listen-addr 127.0.0.1:5688
-            --prometheus-listener-addr 0.0.0.0:1222
+          --compute-opts=--listen-addr 127.0.0.1:5688
+            --prometheus-listener-addr 0.0.0.0:8080
             --advertise-addr 127.0.0.1:5688
-            --async-stack-trace verbose
             --role both
             --meta-address http://127.0.0.1:5690
         - >-
-          --frontend-opts=--config-path /risingwave/config/risingwave.toml
-            --listen-addr 0.0.0.0:4567
+          --frontend-opts=--listen-addr 0.0.0.0:4567
             --advertise-addr 127.0.0.1:4567
             --prometheus-listener-addr 0.0.0.0:8080
             --health-check-listener-addr 127.0.0.1:6786
             --meta-addr http://127.0.0.1:5690
         - >-
-          --compactor-opts=--config-path /risingwave/config/risingwave.toml
-            --listen-addr 127.0.0.1:6660
+          --compactor-opts=--listen-addr 127.0.0.1:6660
             --advertise-addr 127.0.0.1:6660
-            --prometheus-listener-addr 0.0.0.0:1260
+            --prometheus-listener-addr 0.0.0.0:8080
             --meta-address http://127.0.0.1:5690
         ports:
-        - containerPort: 5690
-          name: m-svc
-          protocol: TCP
         - containerPort: 5691
-          name: m-dashboard
-          protocol: TCP
-        - containerPort: 1250
-          name: m-metrics
+          name: dashboard
           protocol: TCP
         - containerPort: 4567
-          name: f-svc
+          name: svc
           protocol: TCP
         - containerPort: 8080
-          name: f-metrics
-          protocol: TCP
-        - containerPort: 5688
-          name: c-svc
-          protocol: TCP
-        - containerPort: 1222
-          name: c-metrics
-          protocol: TCP
-        - containerPort: 6660
-          name: cp-svc
-          protocol: TCP
-        - containerPort: 1260
-          name: cp-metrics
+          name: metrics
           protocol: TCP
         securityContext:
           allowPrivilegeEscalation: false
@@ -202,17 +179,17 @@ tests:
           timeoutSeconds: 5
           failureThreshold: 12
           tcpSocket:
-            port: f-svc
+            port: svc
         livenessProbe:
           initialDelaySeconds: 2
           periodSeconds: 10
           tcpSocket:
-            port: f-svc
+            port: svc
         readinessProbe:
           initialDelaySeconds: 2
           periodSeconds: 10
           tcpSocket:
-            port: f-svc
+            port: svc
   # Env asserts.
   - contains:
       path: spec.template.spec.containers[0].env
