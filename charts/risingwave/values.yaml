@@ -126,7 +126,7 @@ diagnosticMode:
 ## @param image.digest RisingWave image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag
 ##
 image:
-  registry:
+  registry: docker.risingwave.com
   repository: risingwavelabs/risingwave
   tag: "v1.8.2"
   digest: ""
