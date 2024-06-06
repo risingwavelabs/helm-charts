@@ -231,6 +231,8 @@ spec:
           valueFrom:
             resourceFieldRef:
               resource: "limits.memory"
+        - name: RUST_MIN_STACK
+          value: "4194304"
         {{- if .Values.stateStore.s3.enabled }}
         - name: AWS_REGION
           value: {{ .Values.stateStore.s3.region }}
