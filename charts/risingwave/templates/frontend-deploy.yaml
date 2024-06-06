@@ -196,6 +196,8 @@ spec:
           valueFrom:
             resourceFieldRef:
               resource: "limits.memory"
+        - name: RUST_MIN_STACK
+          value: "4194304"
         - name: RW_CONFIG_PATH
           value: /risingwave/config/risingwave.toml
         - name: RW_LISTEN_ADDR
