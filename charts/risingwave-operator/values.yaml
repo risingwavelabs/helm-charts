@@ -59,7 +59,7 @@ serviceAccount:
 ## @param image.digest Image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag
 ##
 image:
-  registry: ghcr.io
+  registry: docker.risingwave.com
   repository: risingwavelabs/risingwave-operator
   tag: "v0.7.1"
   digest: ""
