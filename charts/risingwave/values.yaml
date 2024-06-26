@@ -1280,6 +1280,11 @@ auth:
   ## Empty string means no password.
   ##
   rootPassword: ""
+  ## @param auth.existingSecretName Use existing Secret to provide root password.
+  ## If set, value of rootPassword will be ignored.
+  ## Secret must contain `root-password` key.
+  ##
+  existingSecretName: ""
 
 ## @section RisingWave databases.
 ##

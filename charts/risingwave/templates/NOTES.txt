@@ -30,8 +30,11 @@ Try accessing the SQL console with the following command:
 
 Keep the above command running and open a new terminal window to run the following command:
 {{ end }}
-    {{- if .Values.auth.rootPassword }}
+    {{- if and (not .Values.auth.existingSecretName) .Values.auth.rootPassword }}
     export PGPASSWORD=$({{ $kubectlArgs }} get secret {{ include "risingwave.fullname" . }} -o jsonpath="{.data.root-password}" | base64 --decode)
+    {{- end }}
+    {{- if .Values.auth.existingSecretName }}
+    export PGPASSWORD=$({{ $kubectlArgs }} get secret {{ .Values.auth.existingSecretName }} -o jsonpath="{.data.root-password}" | base64 --decode)
     {{- end }}
     {{- if eq .Values.service.type "LoadBalancer" }}
     export PGHOST=$({{ $kubectlArgs }} get svc risingwave -o jsonpath="{.status.loadBalancer.ingress[0].ip} {.status.loadBalancer.ingress[0].hostname}"| awk '{print $1;}')
