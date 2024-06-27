@@ -36,11 +36,19 @@ spec:
             secretKeyRef:
               name: {{ include "risingwave.fullname" . }}
               key: root-user
+        {{- if not .Values.auth.existingSecretName }}
         - name: PG_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
               name: {{ include "risingwave.fullname" . }}
               key: root-password
+        {{- else }}
+        - name: PG_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.auth.existingSecretName }}
+              key: root-password
+        {{- end }}
         {{- if ne .Values.auth.rootUser "root" }}
         - name: PG_REAL_ROOT_PASSWORD
           valueFrom:
