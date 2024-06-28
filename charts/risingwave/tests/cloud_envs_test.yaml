@@ -1,0 +1,149 @@
+suite: Test Cloud Envs
+templates:
+- meta-sts.yaml
+- frontend-deploy.yaml
+- compute-sts.yaml
+- compactor-deploy.yaml
+- standalone/standalone-sts.yaml
+chart:
+  appVersion: 1.0.0
+  version: 0.0.1
+tests:
+- it: aliyun sts cloud env reflects (distributed)
+  templates:
+  - meta-sts.yaml
+  - frontend-deploy.yaml
+  - compute-sts.yaml
+  - compactor-deploy.yaml
+  set:
+    cloud:
+      aliyun:
+        sts:
+          endpoint: https://sts.cn-hangzhou.aliyuncs.com
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+          name: ALIBABA_CLOUD_STS_ENDPOINT
+          value: https://sts.cn-hangzhou.aliyuncs.com
+- it: aliyun sts cloud env reflects (standalone)
+  templates:
+  - standalone/standalone-sts.yaml
+  set:
+    standalone:
+      enabled: true
+    cloud:
+      aliyun:
+        sts:
+          endpoint: https://sts.cn-hangzhou.aliyuncs.com
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: ALIBABA_CLOUD_STS_ENDPOINT
+        value: https://sts.cn-hangzhou.aliyuncs.com
+- it: aliyun sts cloud env reflects region (distributed)
+  templates:
+  - meta-sts.yaml
+  - frontend-deploy.yaml
+  - compute-sts.yaml
+  - compactor-deploy.yaml
+  set:
+    cloud:
+      aliyun:
+        sts:
+          region: cn-hongkong
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: ALIBABA_CLOUD_STS_ENDPOINT
+        value: https://sts.cn-hongkong.aliyuncs.com
+- it: aliyun sts cloud env reflects region (standalone)
+  templates:
+  - standalone/standalone-sts.yaml
+  set:
+    standalone:
+      enabled: true
+    cloud:
+      aliyun:
+        sts:
+          region: cn-hongkong
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: ALIBABA_CLOUD_STS_ENDPOINT
+        value: https://sts.cn-hongkong.aliyuncs.com
+- it: aliyun sts cloud env reflects vpc (distributed)
+  templates:
+  - meta-sts.yaml
+  - frontend-deploy.yaml
+  - compute-sts.yaml
+  - compactor-deploy.yaml
+  set:
+    cloud:
+      aliyun:
+        sts:
+          region: cn-hongkong
+          useVPCEndpoint: true
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: ALIBABA_CLOUD_STS_ENDPOINT
+        value: https://sts-vpc.cn-hongkong.aliyuncs.com
+- it: aliyun sts cloud env reflects vpc (standalone)
+  templates:
+  - standalone/standalone-sts.yaml
+  set:
+    standalone:
+      enabled: true
+    cloud:
+      aliyun:
+        sts:
+          region: cn-hongkong
+          useVPCEndpoint: true
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: ALIBABA_CLOUD_STS_ENDPOINT
+        value: https://sts-vpc.cn-hongkong.aliyuncs.com
+- it: aliyun sts cloud env prioritize endpoint (distributed)
+  templates:
+  - meta-sts.yaml
+  - frontend-deploy.yaml
+  - compute-sts.yaml
+  - compactor-deploy.yaml
+  set:
+    cloud:
+      aliyun:
+        sts:
+          endpoint: http://sts-vpc.cn-shanghai.aliyuncs.com
+          region: cn-hongkong
+          useVPCEndpoint: false
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: ALIBABA_CLOUD_STS_ENDPOINT
+        value: http://sts-vpc.cn-shanghai.aliyuncs.com
+- it: aliyun sts cloud env prioritize endpoint (standalone)
+  templates:
+  - standalone/standalone-sts.yaml
+  set:
+    standalone:
+      enabled: true
+    cloud:
+      aliyun:
+        sts:
+          endpoint: http://sts-vpc.cn-shanghai.aliyuncs.com
+          region: cn-hongkong
+          useVPCEndpoint: false
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: ALIBABA_CLOUD_STS_ENDPOINT
+        value: http://sts-vpc.cn-shanghai.aliyuncs.com
