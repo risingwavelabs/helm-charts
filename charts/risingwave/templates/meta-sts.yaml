@@ -157,6 +157,7 @@ spec:
             name: {{ include "risingwave.mysqlCredentialsSecretName" . }}
         {{- end }}
         env:
+        {{ include "risingwave.cloudEnvironments" . | nindent 8 }}
         # Disable auto region loading. Refer to the original source for more information.
         # https://github.com/awslabs/aws-sdk-rust/blob/main/sdk/aws-config/src/imds/region.rs
         - name: AWS_EC2_METADATA_DISABLED

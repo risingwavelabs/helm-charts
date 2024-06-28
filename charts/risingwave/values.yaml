@@ -1315,3 +1315,28 @@ bash:
   ## @param bash.image Bash image.
   ##
   image: bash:5.2
+
+## @section Cloud.
+##
+
+cloud:
+  ## @param cloud.aliyun Aliyun cloud configuration.
+  ##
+  aliyun:
+    ## @param Aliyun STS configuration.
+    ##
+    sts:
+      ## @param sts.endpoint Aliyun STS endpoint. If not set, the default endpoint will be used.
+      ## The default endpoint is https://sts.aliyuncs.com. If set, the following parameters will be ignored.
+      ## Ref: https://www.alibabacloud.com/help/en/ram/developer-reference/api-sts-2015-04-01-endpoint
+      ##
+      endpoint: ""
+
+      ## @param sts.region Aliyun STS region. If not set, the default STS region will be used.
+      ##
+      region: ""
+
+      ## @param sts.useVPCEndpoint Whether to use VPC endpoint to access STS service.
+      ## This only works when endpoint is not set and region is set.
+      ##
+      useVPCEndpoint: false

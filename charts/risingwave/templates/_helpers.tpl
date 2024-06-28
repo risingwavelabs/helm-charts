@@ -420,3 +420,22 @@ Create the OBS endpoint to use.
 {{- define "risingwave.obs.endpoint" }}
 {{- printf "https://obs.$(OBS_REGION).myhuaweicloud.com" }}
 {{- end }}
+
+{{/*
+Cloud related enviroments.
+*/}}
+{{- define "risingwave.cloudEnvironments" -}}
+{{/* Aliyun related */}}
+{{- if .Values.cloud.aliyun.sts.endpoint }}
+- name: ALIBABA_CLOUD_STS_ENDPOINT
+  value: {{ .Values.cloud.aliyun.sts.endpoint | quote }}
+{{- else if .Values.cloud.aliyun.sts.region }}
+{{- if .Values.cloud.aliyun.sts.useVPCEndpoint }}
+- name: ALIBABA_CLOUD_STS_ENDPOINT
+  value: {{ printf "https://sts-vpc.%s.aliyuncs.com" .Values.cloud.aliyun.sts.region }}
+{{- else }}
+- name: ALIBABA_CLOUD_STS_ENDPOINT
+  value: {{ printf "https://sts.%s.aliyuncs.com" .Values.cloud.aliyun.sts.region }}
+{{- end }}
+{{- end }}
+{{- end }}

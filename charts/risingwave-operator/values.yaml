@@ -86,9 +86,9 @@ manager:
   ## @param manager.updateStrategy Update strategy of the deployment.
   ##
   updateStrategy: { }
-    # type: RollingUpdate
-    # rollingUpdate:
-    #   maxSurge: 0
+  # type: RollingUpdate
+  # rollingUpdate:
+  #   maxSurge: 0
   #   maxUnavailable: 1
 
   ## @param manager.minReadySeconds Minimum number of seconds for which a newly created pod should be ready
