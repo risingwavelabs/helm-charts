@@ -24,7 +24,7 @@ Helm Charts for RisingWave
 ## Prerequisites
 
 - Kubernetes cluster (version >= 1.24)
-- [Helm](https://helm.sh/docs/intro/install/) (version >= 3.7)
+- [Helm](https://helm.sh/docs/intro/install/) (version >= 3.10)
 
 ## Installation
 
