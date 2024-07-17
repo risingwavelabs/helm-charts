@@ -243,7 +243,11 @@ spec:
         - name: RW_LISTEN_ADDR
           value: "0.0.0.0:{{ .Values.ports.compute.svc }}"
         - name: RW_ADVERTISE_ADDR
+        {{- if .Values.computeComponent.advertisingWithIP }}
+          value: "$(POD_IP):{{ .Values.ports.compute.svc }}"
+        {{- else }}
           value: "$(POD_NAME).{{ include "risingwave.computeHeadlessServiceName" . }}.$(POD_NAMESPACE).svc:{{ .Values.ports.compute.svc }}"
+        {{- end }}
         - name: RW_PROMETHEUS_LISTENER_ADDR
           value: "0.0.0.0:{{ .Values.ports.compute.metrics }}"
         - name: RW_META_ADDR

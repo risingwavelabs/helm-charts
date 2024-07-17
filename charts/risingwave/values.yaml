@@ -835,6 +835,11 @@ metaComponent:
     whenDeleted: Delete
     whenScaled: Delete
 
+  ## @param metaComponent.advertisingWithIP Enable advertising with IP.
+  ## Defaults to false.
+  ##
+  advertisingWithIP: false
+
 frontendComponent:
   ## @param frontendComponent.podLabels Labels to add to the component pods.
   ##
@@ -1073,6 +1078,11 @@ computeComponent:
   autoDeregistration:
     ## @param autoDeregistration.enabled Enable auto-deregistration.
     enabled: false
+
+  ## @param metaComponent.advertisingWithIP Enable advertising with IP.
+  ## Defaults to false.
+  ##
+  advertisingWithIP: false
 
 compactorComponent:
   ## @param compactorComponent.podLabels Labels to add to the component pods.
