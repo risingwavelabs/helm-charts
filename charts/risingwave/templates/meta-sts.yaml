@@ -236,7 +236,11 @@ spec:
         - name: RW_LISTEN_ADDR
           value: {{ printf "0.0.0.0:%d" (.Values.ports.meta.svc | int)}}
         - name: RW_ADVERTISE_ADDR
+        {{- if .Values.metaComponent.advertisingWithIP }}
+          value: "$(POD_IP):{{ .Values.ports.meta.svc }}"
+        {{- else }}
           value: "$(POD_NAME).{{ include "risingwave.metaHeadlessServiceName" . }}.$(POD_NAMESPACE).svc:{{ .Values.ports.meta.svc }}"
+        {{- end }}
         - name: RW_PROMETHEUS_HOST
           value: "0.0.0.0:{{ .Values.ports.meta.metrics }}"
         - name: RW_STATE_STORE

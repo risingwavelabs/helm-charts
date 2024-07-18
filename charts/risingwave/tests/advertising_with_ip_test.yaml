@@ -1,0 +1,50 @@
+suite: Test HorizontalPodAutoscaler
+templates:
+- meta-sts.yaml
+- compute-sts.yaml
+chart:
+  appVersion: 1.0.0
+  version: 0.0.1
+tests:
+- it: Advertising with IP affects the advertising address (meta)
+  templates:
+  - meta-sts.yaml
+  set:
+    metaComponent:
+      advertisingWithIP: true
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: RW_ADVERTISE_ADDR
+        value: "$(POD_IP):5690"
+- it: Advertising with IP affects the advertising address (compute)
+  templates:
+  - compute-sts.yaml
+  set:
+    computeComponent:
+      advertisingWithIP: true
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: RW_ADVERTISE_ADDR
+        value: "$(POD_IP):5688"
+- it: Advertising with IP changes nothing by default (meta)
+  templates:
+  - meta-sts.yaml
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: RW_ADVERTISE_ADDR
+        value: "$(POD_NAME).RELEASE-NAME-risingwave-meta-headless.$(POD_NAMESPACE).svc:5690"
+- it: Advertising with IP changes nothing by default (compute)
+  templates:
+  - compute-sts.yaml
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: RW_ADVERTISE_ADDR
+        value: "$(POD_NAME).RELEASE-NAME-risingwave-compute-headless.$(POD_NAMESPACE).svc:5688"
