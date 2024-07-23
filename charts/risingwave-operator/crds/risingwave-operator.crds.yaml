@@ -30348,6 +30348,11 @@ spec:
                         type: boolean
                     type: object
                 type: object
+              enableAdvertisingWithIP:
+                description: |-
+                  Flag to control whether to enable advertising with IP. If enabled, the meta and compute nodes will be advertised
+                  with their IP addresses. This is useful when one wants to avoid the DNS resolution overhead and latency.
+                type: boolean
               enableDefaultServiceMonitor:
                 description: |-
                   Flag to indicate if a default ServiceMonitor (from Prometheus operator) should be created by the controller.
@@ -30556,6 +30561,14 @@ spec:
                     - path
                     type: object
                 type: object
+              standaloneMode:
+                default: 0
+                description: |-
+                  StandaloneMode determines which style of command-line args should be used for the standalone mode.
+                  0 - auto detect by image version, 1 - the old standalone mode, 2 - standalone mode V2 (single-node).
+                  This is only for backward compatibility and will be deprecated in the future.
+                format: int32
+                type: integer
               stateStore:
                 default:
                   memory: true
