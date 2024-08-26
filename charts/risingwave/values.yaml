@@ -80,9 +80,14 @@ postgresql:
     database: "risingwave"
 
   primary:
+    resourcesPreset: "none"
     persistence:
       enabled: true
       size: 8Gi
+    persistentVolumeClaimRetentionPolicy:
+      enabled: true
+      whenScaled: Retain
+      whenDeleted: Delete
     service:
       ports:
         postgresql: 5432
