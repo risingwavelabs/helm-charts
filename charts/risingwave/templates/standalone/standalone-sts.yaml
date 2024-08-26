@@ -194,7 +194,7 @@ spec:
         - secretRef:
             name: {{ include "risingwave.etcdCredentialsSecretName" . }}
         {{- end }}
-        {{- if .Values.metaStore.postgresql.enabled }}
+        {{- if or (include "risingwave.bundle.postgresql.enabled" . ) .Values.metaStore.postgresql.enabled }}
         - secretRef:
             name: {{ include "risingwave.postgresCredentialsSecretName" . }}
         {{- end }}

@@ -25,7 +25,7 @@ spec:
       restartPolicy: OnFailure
       containers:
       - name: create-databases
-        image: {{ .Values.postgresql.image }}
+        image: {{ .Values.postgresqlClient.image }}
         env:
         - name: PG_HOSTNAME
           value: {{ include "risingwave.fullname" . }}.{{ .Release.Namespace }}.svc

@@ -5,8 +5,8 @@
 ## Ref: https://helm.sh/docs/topics/charts/#tags-and-condition-fields-in-dependencies
 ##
 tags:
-  ## @param tags.bundle Tag to control all bundled dependencies, including bitnami/etcd
-  ## and bitnami/minio. Please refer to tags.etcd and tags.minio for more details.
+  ## @param tags.bundle Tag to control all bundled dependencies, including bitnami/postgresql
+  ## and bitnami/minio. Please refer to tags.postgresql and tags.minio for more details.
   ## @values true, false
   ##
   bundle: false
@@ -15,6 +15,10 @@ tags:
   ## @values true,false
   ##
   etcd: false
+
+  ## @param tags.postgresql Tag to control the bitnami/postgresql dependency.
+  ## @values true, false
+  postgresql: false
 
   ## @param tags.minio Tag to control the bitnami/minio dependency.
   ## @values true,false
@@ -66,6 +70,22 @@ etcd:
     value: "10000"
   - name: "ETCD_MAX_TXN_OPS"
     value: "999999"
+
+## @section Values for the bitnami/postgresql dependency.
+## Ref: https://github.com/bitnami/charts/blob/main/bitnami/postgresql/values.yaml
+##
+postgresql:
+  auth:
+    postgresPassword: "postgres"
+    database: "risingwave"
+
+  primary:
+    persistence:
+      enabled: true
+      size: 8Gi
+    service:
+      ports:
+        postgresql: 5432
 
 ## @section Values for the bitnami/minio dependency.
 ## Ref: https://github.com/bitnami/charts/blob/main/bitnami/minio/values.yaml
@@ -1311,8 +1331,8 @@ databases: [ ]
 ##
 wait: false
 
-postgresql:
-  ## @param postgresql.image PostgreSQL image.
+postgresqlClient:
+  ## @param postgresqlClient.image PostgreSQL image for client usages.
   ##
   image: postgres:16.2
 

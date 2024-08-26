@@ -49,14 +49,13 @@ Validate meta store backends.
 */}}
 {{- $count = 0 -}}
 {{- $name = "" }}
-# Count without etcd.
+# Count without etcd and postgresql.
 {{- with .Values.metaStore }}
 {{/*  {{- if .etcd.enabled }}{{ $count = add1 $count }}{{ $name = "etcd" }}{{- end }}*/}}
 {{- if .sqlite.enabled }}{{ $count = add1 $count }}{{ $name = "sqlite" }}{{- end }}
 {{- if .mysql.enabled }}{{ $count = add1 $count }}{{ $name = "mysql" }}{{- end }}
-{{- if .postgresql.enabled }}{{ $count = add1 $count }}{{ $name = "postgresql" }}{{- end }}
 {{- end }}
-# If there's no state store and bundled minio enabled, count = 1
+# If there's no meta store and bundled etcd enabled, count = 1
 {{- if (include "risingwave.bundle.etcd.enabled" .) }}
   {{- if and (eq $count 0) }}
     {{ $count = add1 $count }}
@@ -67,8 +66,19 @@ Validate meta store backends.
 {{- else }}
   {{- if .Values.metaStore.etcd.enabled }}{{ $count = add1 $count }}{{ $name = "etcd" }}{{- end }}
 {{- end }}
+# If there's no meta store and bundled postgresql enabled, count = 1
+{{- if (include "risingwave.bundle.postgresql.enabled" .) }}
+  {{- if and (eq $count 0) }}
+    {{ $count = add1 $count }}
+    {{ $name = "postgresql" }}
+  {{- else }}
+    {{- printf "Unnecessary bundled postgresql when %s is enabled!" $name | fail }}
+  {{- end }}
+{{- else }}
+  {{- if .Values.metaStore.postgresql.enabled }}{{ $count = add1 $count }}{{ $name = "postgresql" }}{{- end }}
+{{- end }}
 {{- if (eq $count 0 ) }}
-  {{- fail "No meta store backend!\n  Please set up one of the backends under `metaStore`, or use the bundled one by setting `tags.etcd=true`!" }}
+  {{- fail "No meta store backend!\n  Please set up one of the backends under `metaStore`, or use the bundled one by setting `tags.postgresql=true`!" }}
 {{- else if (gt $count 1) }}
   {{- fail "More than one meta store backends!" }}
 {{- end }}
@@ -102,6 +112,7 @@ Validate parameters of sqlite meta store.
 {{/*
 Validate parameters of PostgreSQL meta store.
 */}}
+{{- if not (include "risingwave.bundle.postgresql.enabled" .) }}
 {{- if .Values.metaStore.postgresql.enabled }}
   {{- if empty .Values.metaStore.postgresql.host }}
     {{- fail "Host .metaStore.postgresql.host must be set!" }}
@@ -119,6 +130,7 @@ Validate parameters of PostgreSQL meta store.
       {{- end }}
     {{- end }}
   {{- end }}
+{{- end }}
 {{- end }}
 
 {{/*

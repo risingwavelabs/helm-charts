@@ -82,9 +82,18 @@ Create the name of the service account to use
 If the bundled etcd enabled.
 */}}
 {{- define "risingwave.bundle.etcd.enabled" -}}
-{{- if or .Values.tags.bundle .Values.tags.etcd }}
+{{- if .Values.tags.etcd }}
 T
-{{- end}}
+{{- end }}
+{{- end }}
+
+{{/*
+If the bundled postgresql enabled.
+*/}}
+{{- define "risingwave.bundle.postgresql.enabled" -}}
+{{- if or .Values.tags.bundle .Values.tags.postgresql }}
+T
+{{- end }}
 {{- end }}
 
 {{/*
@@ -112,7 +121,7 @@ Create the name of the etcd credentials Secret to use.
 Create the name of the PostgreSQL credentials Secret to use.
 */}}
 {{- define "risingwave.postgresCredentialsSecretName" -}}
-{{- if .Values.metaStore.postgresql.authentication.existingSecretName }}
+{{- if and .Values.metaStore.postgresql.authentication.existingSecretName (not (include "risingwave.bundle.postgresql.enabled" .)) }}
 {{- .Values.metaStore.postgresql.authentication.existingSecretName }}
 {{- else }}
 {{- printf "%s-postgres" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
@@ -223,7 +232,7 @@ Create the meta backend type string to use.
 {{- define "risingwave.metaBackend" -}}
 {{- if or (include "risingwave.bundle.etcd.enabled" .) .Values.metaStore.etcd.enabled }}
 {{- print "etcd" }}
-{{- else if or .Values.metaStore.sqlite.enabled .Values.metaStore.postgresql.enabled .Values.metaStore.mysql.enabled }}
+{{- else if or (include "risingwave.bundle.postgresql.enabled" .) .Values.metaStore.sqlite.enabled .Values.metaStore.postgresql.enabled .Values.metaStore.mysql.enabled }}
 {{- print "sql" }}
 {{- else }}
 {{- print "" }}
@@ -246,7 +255,10 @@ Convert connection options.
 Create the SQL endpoint string to use.
 */}}
 {{- define "risingwave.sqlEndpoint" -}}
-{{- if .Values.metaStore.sqlite.enabled }}
+{{- if (include "risingwave.bundle.postgresql.enabled" .) }}
+{{- printf "postgres://$(RW_POSTGRES_USERNAME):$(RW_POSTGRES_PASSWORD)@%s:%d/%s"
+    (include "common.names.fullname" .Subcharts.postgresql) (.Values.postgresql.primary.service.ports.postgresql | int) .Values.postgresql.auth.database }}
+{{- else if .Values.metaStore.sqlite.enabled }}
 {{- printf "sqlite://%s?mode=rwc" .Values.metaStore.sqlite.path }}
 {{- else if .Values.metaStore.postgresql.enabled }}
 {{- if .Values.metaStore.postgresql.options }}
