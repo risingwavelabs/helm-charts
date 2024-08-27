@@ -170,7 +170,7 @@ Set the `tags.bundle` option to `true` to experience the feature.
 helm install --set tags.bundle=true risingwave risingwavelabs/risingwave
 ```
 
-It's also possible to control the enablement of etcd and MinIO sub-charts separately with
+It's also possible to control the enablement of PostgreSQL and MinIO sub-charts separately with
 `tags.etcd` (deprecating),
 `tags.postgresql` and `tags.minio`. But note that `tags.bundle` must be `false` when you want such
 control.
