@@ -158,7 +158,7 @@ For the details of a backend, please check the values of the corresponding secti
 
 ### Bundled etcd/PostgreSQL/MinIO as Stores
 
-Helm chart for RisingWave also provides an option to deploy the etcd and MinIO along with the RisingWave to provide meta
+Helm chart for RisingWave also provides an option to deploy the PostgreSQL and MinIO along with the RisingWave to provide meta
 and state store backends. It is useful to try out the helm chart quickly. The feature is achieved
 with `bitnami/etcd`, `bitnami/postgresql` and `bitnami/minio` sub-charts. If you are interested in
 these charts, please refer
