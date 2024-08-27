@@ -156,11 +156,12 @@ stateStore:
 
 For the details of a backend, please check the values of the corresponding section.
 
-### Bundled etcd/MinIO as Stores
+### Bundled etcd/PostgreSQL/MinIO as Stores
 
 Helm chart for RisingWave also provides an option to deploy the etcd and MinIO along with the RisingWave to provide meta
-and state store backends. It is useful to try out the helm chart quickly. The feature is achieved with `bitnami/etcd`
-and `bitnami/minio` sub-charts. If you are interested in these charts, please refer
+and state store backends. It is useful to try out the helm chart quickly. The feature is achieved
+with `bitnami/etcd`, `bitnami/postgresql` and `bitnami/minio` sub-charts. If you are interested in
+these charts, please refer
 to [bitnami/charts](https://github.com/bitnami) for details.
 
 Set the `tags.bundle` option to `true` to experience the feature.
@@ -169,17 +170,19 @@ Set the `tags.bundle` option to `true` to experience the feature.
 helm install --set tags.bundle=true risingwave risingwavelabs/risingwave
 ```
 
-It's also possible to control the enablement of etcd and MinIO sub-charts separately with `tags.etcd` and `tags.minio`.
-But note that `tags.bundle` must be `false` when you want such control.
+It's also possible to control the enablement of etcd and MinIO sub-charts separately with
+`tags.etcd` (deprecating),
+`tags.postgresql` and `tags.minio`. But note that `tags.bundle` must be `false` when you want such
+control.
 
 > [!TIP]
 >
-> etcd is recommended as the default meta store backend. Simply using the following values to deploy it with RisingWave
-> so that you can focus on setting the state store.
+> PostgreSQL is recommended as the default meta store backend. Simply using the following values to
+> deploy it with RisingWave so that you can focus on setting the state store.
 >
 > ```yaml
 > tags:
->   etcd: true
+>   postgresql: true
 > ```
 
 ### IAM Role for ServiceAccount (EKS) and Others
