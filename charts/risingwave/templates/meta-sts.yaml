@@ -108,6 +108,8 @@ spec:
       enableServiceLinks: false
       preemptionPolicy: PreemptLowerPriority
       setHostnameAsFQDN: false
+      initContainers:
+      {{- include "risingwave.metaInitContainers" . | nindent 6 }}
       containers:
       - name: meta
         image: {{ include "risingwave.image" . }}
@@ -309,10 +311,11 @@ spec:
               key: password
               name: {{ .Values.metaStore.mysql.authentication.existingSecretName }}
         {{- end }}
-        {{- if eq (include "risingwave.metaBackend" . ) "sql" }}
+        {{- if (include "risingwave.sqlEndpoint" . ) }}
         - name: RW_SQL_ENDPOINT
           value: {{ include "risingwave.sqlEndpoint" . }}
         {{- end }}
+        {{ include "risingwave.metaStoreSQLBackendCredentialEnvs" . | nindent 8 }}
         resources:
           {{- if .Values.metaComponent.resources.limits }}
           limits:

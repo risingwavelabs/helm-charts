@@ -115,6 +115,8 @@ spec:
       enableServiceLinks: false
       preemptionPolicy: PreemptLowerPriority
       setHostnameAsFQDN: false
+      initContainers:
+      {{- include "risingwave.metaInitContainers" . | nindent 6 }}
       containers:
       - name: standalone
         image: {{ include "risingwave.image" . }}
@@ -133,21 +135,21 @@ spec:
             --dashboard-host 0.0.0.0:{{ .Values.ports.meta.dashboard }}
             --prometheus-host 0.0.0.0:{{ .Values.ports.frontend.metrics }}
             --backend $(RW_BACKEND)
-            {{- if .Values.metaStore.etcd.enabled }}
+            {{- if or .Values.metaStore.etcd.enabled (include "risingwave.bundle.etcd.enabled" .) }}
             --etcd-endpoints $(RW_ETCD_ENDPOINTS)
             {{- end }}
-            {{- if eq (include "risingwave.metaBackend" . ) "sql" }}
+            {{- if (include "risingwave.sqlEndpoint" .) }}
             --sql-endpoint $(RW_SQL_ENDPOINT)
             {{- end }}
             --state-store $(RW_STATE_STORE)
             --data-directory $(RW_DATA_DIRECTORY)
-        {{- if (include "risingwave.bundle.etcd.enabled" .) }}
-        {{- if and (not .Values.etcd.auth.rbac.allowNoneAuthentication) .Values.etcd.auth.rbac.create }}
+            {{- if (include "risingwave.bundle.etcd.enabled" .) }}
+            {{- if and (not .Values.etcd.auth.rbac.allowNoneAuthentication) .Values.etcd.auth.rbac.create }}
             --etcd-auth
             --etcd-username $(RW_ETCD_USERNAME)
             --etcd-password $(RW_ETCD_PASSWORD)
-        {{- end }}
-        {{- end }}
+            {{- end }}
+            {{- end }}
         - >-
           --compute-opts=--listen-addr 127.0.0.1:{{ .Values.ports.compute.svc }}
             --prometheus-listener-addr 0.0.0.0:{{ .Values.ports.frontend.metrics }}
@@ -340,10 +342,11 @@ spec:
               key: password
               name: {{ .Values.metaStore.mysql.authentication.existingSecretName }}
         {{- end }}
-        {{- if eq (include "risingwave.metaBackend" . ) "sql" }}
+        {{- if (include "risingwave.sqlEndpoint" .) }}
         - name: RW_SQL_ENDPOINT
           value: {{ include "risingwave.sqlEndpoint" . }}
         {{- end }}
+        {{ include "risingwave.metaStoreSQLBackendCredentialEnvs" . | nindent 8 }}
         {{- if .Values.tls.existingSecretName }}
         - name: RW_SSL_CERT
           value: /risingwave/certs/tls.crt

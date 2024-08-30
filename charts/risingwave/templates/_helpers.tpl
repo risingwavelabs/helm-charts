@@ -233,12 +233,49 @@ Create the meta backend type string to use.
 {{- if or (include "risingwave.bundle.etcd.enabled" .) .Values.metaStore.etcd.enabled }}
 {{- print "etcd" }}
 {{- else if or (include "risingwave.bundle.postgresql.enabled" .) .Values.metaStore.sqlite.enabled .Values.metaStore.postgresql.enabled .Values.metaStore.mysql.enabled }}
+{{- if .Values.metaStore.passSQLCredentialsLegacyMode }}
 {{- print "sql" }}
+{{- else }}
+{{- if or (include "risingwave.bundle.postgresql.enabled" .) .Values.metaStore.postgresql.enabled }}
+{{- print "postgres"}}
+{{- else if .Values.metaStore.mysql.enabled }}
+{{- print "mysql" }}
+{{- else if .Values.metaStore.sqlite.enabled }}
+{{- print "sqlite" }}
+{{- end }}
+{{- end }}
 {{- else }}
 {{- print "" }}
 {{- end }}
 {{- end }}
 
+{{/*
+Envs for credentials of SQL backends.
+*/}}
+{{- define "risingwave.metaStoreSQLBackendCredentialEnvs" -}}
+{{- if not .Values.metaStore.passSQLCredentialsLegacyMode }}
+{{- if or (include "risingwave.bundle.postgresql.enabled" .) .Values.metaStore.postgresql.enabled }}
+- name: RW_SQL_USERNAME
+  value: $(RW_POSTGRES_USERNAME)
+- name: RW_SQL_PASSWORD
+  value: $(RW_POSTGRES_PASSWORD)
+{{- if (include "risingwave.bundle.postgresql.enabled" .) }}
+- name: RW_SQL_DATABASE
+  value: {{ .Values.postgresql.auth.database | quote }}
+{{- else }}
+- name: RW_SQL_DATABASE
+  value: {{ .Values.metaStore.postgresql.database | quote }}
+{{- end }}
+{{- else if .Values.metaStore.mysql.enabled }}
+- name: RW_SQL_USERNAME
+  value: $(RW_MYSQL_USERNAME)
+- name: RW_SQL_PASSWORD
+  value: $(RW_MYSQL_PASSWORD)
+- name: RW_SQL_DATABASE
+  value: {{ .Values.metaStore.mysql.database | quote }}
+{{- end }}
+{{- end }}
+{{- end }}
 
 {{/*
 Convert connection options.
@@ -252,9 +289,9 @@ Convert connection options.
 {{- end -}}
 
 {{/*
-Create the SQL endpoint string to use.
+Create the SQL endpoint string to use. (legacy mode).
 */}}
-{{- define "risingwave.sqlEndpoint" -}}
+{{- define "risingwave.sqlEndpointLegacy" -}}
 {{- if (include "risingwave.bundle.postgresql.enabled" .) }}
 {{- printf "postgres://$(RW_POSTGRES_USERNAME):$(RW_POSTGRES_PASSWORD)@%s:%d/%s"
     (include "common.names.fullname" .Subcharts.postgresql) (.Values.postgresql.primary.service.ports.postgresql | int) .Values.postgresql.auth.database }}
@@ -280,6 +317,49 @@ Create the SQL endpoint string to use.
 {{- end }}
 {{- else }}
 {{- print "" }}
+{{- end }}
+{{- end }}
+
+{{/*
+Create the SQL endpoint string to use. (new mode).
+*/}}
+{{- define "risingwave.sqlEndpointNew" -}}
+{{- if (include "risingwave.bundle.postgresql.enabled" .) }}
+{{- printf "%s:%d"
+    (include "common.names.fullname" .Subcharts.postgresql) (.Values.postgresql.primary.service.ports.postgresql | int) }}
+{{- else if .Values.metaStore.sqlite.enabled }}
+{{- printf "%s" .Values.metaStore.sqlite.path }}
+{{- else if .Values.metaStore.postgresql.enabled }}
+{{- if .Values.metaStore.postgresql.options }}
+{{- printf "%s:%d?%s"
+    .Values.metaStore.postgresql.host (.Values.metaStore.postgresql.port | int)
+    (include "common.convertConnectionOptions" .Values.metaStore.postgresql.options) }}
+{{- else }}
+{{- printf "%s:%d"
+    .Values.metaStore.postgresql.host (.Values.metaStore.postgresql.port | int) }}
+{{- end }}
+{{- else if .Values.metaStore.mysql.enabled }}
+{{- if .Values.metaStore.mysql.options }}
+{{- printf "%s:%d?%s"
+    .Values.metaStore.mysql.host (.Values.metaStore.mysql.port | int)
+    (include "common.convertConnectionOptions" .Values.metaStore.mysql.options) }}
+{{- else }}
+{{- printf "%s:%d"
+    .Values.metaStore.mysql.host (.Values.metaStore.mysql.port | int) }}
+{{- end }}
+{{- else }}
+{{- print "" }}
+{{- end }}
+{{- end }}
+
+{{/*
+Create the SQL endpoint string to use. (new mode).
+*/}}
+{{- define "risingwave.sqlEndpoint" }}
+{{- if .Values.metaStore.passSQLCredentialsLegacyMode }}
+{{- include "risingwave.sqlEndpointLegacy" . }}
+{{- else }}
+{{- include "risingwave.sqlEndpointNew" . }}
 {{- end }}
 {{- end }}
 
@@ -448,6 +528,73 @@ Cloud related enviroments.
 {{- else }}
 - name: ALIBABA_CLOUD_STS_ENDPOINT
   value: {{ printf "https://sts.%s.aliyuncs.com" .Values.cloud.aliyun.sts.region }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/* Init container for meta to wait SQL backends to be online */}}
+{{- define "risingwave.metaInitContainers" }}
+{{- if or (include "risingwave.bundle.postgresql.enabled" .) .Values.metaComponent.waitForMetaStore }}
+{{- if or (include "risingwave.bundle.postgresql.enabled" .) .Values.metaStore.postgresql.enabled }}
+- name: wait-for-postgresql
+  image: {{ .Values.bash.image }}
+  env:
+  - name: PG_HOST
+    {{- if (include "risingwave.bundle.postgresql.enabled" . )}}
+    value: {{ include "common.names.fullname" .Subcharts.postgresql }}
+    {{- else }}
+    value: {{ .Values.metaStore.postgresql.host }}
+    {{- end }}
+  - name: PG_PORT
+    {{- if (include "risingwave.bundle.postgresql.enabled" . )}}
+    value: {{ .Values.postgresql.primary.service.ports.postgresql | quote }}
+    {{- else }}
+    value: {{ .Values.metaStore.postgresql.port | quote }}
+    {{- end }}
+  command:
+  - bash
+  - -c
+  - |
+    set -e
+
+    function nc_bash {
+        true &>/dev/null </dev/tcp/$1/$2
+    }
+
+    for i in {1..120}; do
+        if nc_bash $PG_HOST $PG_PORT; then
+          break
+        fi
+        echo "PostgreSQL $PG_HOST:$PG_PORT is not ready yet, waiting..."
+        sleep 5
+    done
+    echo "PostgreSQL $PG_HOST:$PG_PORT is ready!"
+{{- else if .Values.metaStore.mysql.enabled }}
+- name: wait-for-mysql
+  image: {{ .Values.bash.image }}
+  env:
+  - name: MYSQL_HOST
+    value: {{ .Values.metaStore.mysql.host }}
+  - name: MYSQL_PORT
+    value: {{ .Values.metaStore.mysql.port | quote }}
+  command:
+  - bash
+  - -c
+  - |
+    set -e
+
+    function nc_bash {
+        true &>/dev/null </dev/tcp/$1/$2
+    }
+
+    for i in {1..120}; do
+        if nc_bash $MYSQL_HOST $MYSQL_PORT; then
+          break
+        fi
+        echo "MySQL $MYSQL_HOST:$MYSQL_PORT is not ready yet, waiting..."
+        sleep 5
+    done
+    echo "MySQL $MYSQL_HOST:$MYSQL_PORT is ready!
 {{- end }}
 {{- end }}
 {{- end }}

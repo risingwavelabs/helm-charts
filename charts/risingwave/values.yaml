@@ -374,6 +374,15 @@ standalone:
 ##
 
 metaStore:
+  ## @param metaStore.passSQLCredentialsLegacyMode Enable/disable the legacy mode of passing credentials of SQL backends.
+  ## The legacy mode is supported for backward compatibility. It is recommended to use the new mode.
+  ## However, the legacy mode has a limitation that the credentials are passed in the URL, which doesn't
+  ## allow special characters in the username/password. They need to be URL-encoded to work.
+  ##
+  ## The new mode is supported starting from v1.10.1.
+  ##
+  passSQLCredentialsLegacyMode: false
+
   ## @section metaStore.etcd only takes effect when tags.etcd is false.
   ##
   etcd:
@@ -864,6 +873,11 @@ metaComponent:
   ## Defaults to false.
   ##
   advertisingWithIP: false
+
+  ## @param metaComponent.waitForMetaStore Wait for the meta store to be ready.
+  ## Defaults to false. When bundled PostgreSQL is enabled, this will be automatically set to true.
+  ##
+  waitForMetaStore: false
 
 frontendComponent:
   ## @param frontendComponent.podLabels Labels to add to the component pods.
