@@ -18,7 +18,7 @@ Helm Charts for RisingWave
 
 - [risingwave](charts/risingwave/README.md) - Helm chart for deploying
   a [RisingWave Cluster](https://github.com/risingwavelabs/risingwave)
-- [risingwave-operator](jcharts/risingwave-operator/README.md) - Helm chart for deploying
+- [risingwave-operator](charts/risingwave-operator/README.md) - Helm chart for deploying
   a [RisingWave Operator](https://github.com/risingwavelabs/risingwave-operator)
 
 ## Prerequisites
