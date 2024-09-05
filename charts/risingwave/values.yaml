@@ -1404,6 +1404,6 @@ license:
     ## @param name Name of the existing Secret.
     ##
     name: ""
-    ## @param key Key in the Secret. Defaults to "license".
+    ## @param key Key in the Secret. Defaults to "licenseKey".
     ##
-    key: "license"
+    key: "licenseKey"
