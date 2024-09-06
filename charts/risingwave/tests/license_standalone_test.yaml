@@ -1,0 +1,58 @@
+suite: Test license key (standalone)
+templates:
+- standalone/standalone-sts.yaml
+chart:
+  appVersion: 1.0.0
+  version: 0.0.1
+set:
+  standalone:
+    enabled: true
+tests:
+- it: no license key
+  asserts:
+  - notContains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: RW_LICENSE_KEY
+      any: true
+- it: license key found with raw key
+  set:
+    license:
+      key: "ABC"
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: RW_LICENSE_KEY
+        value: "ABC"
+- it: license key found with secret ref
+  set:
+    license:
+      secret:
+        name: LICENSE-SECRET
+        key: LICENSE-KEY
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: RW_LICENSE_KEY
+        valueFrom:
+          secretKeyRef:
+            name: LICENSE-SECRET
+            key: LICENSE-KEY
+- it: license key found with secret ref and key
+  set:
+    license:
+      key: "ABC"
+      secret:
+        name: LICENSE-SECRET
+        key: LICENSE-KEY
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: RW_LICENSE_KEY
+        valueFrom:
+          secretKeyRef:
+            name: LICENSE-SECRET
+            key: LICENSE-KEY

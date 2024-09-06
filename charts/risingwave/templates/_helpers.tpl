@@ -598,3 +598,17 @@ Cloud related enviroments.
 {{- end }}
 {{- end }}
 {{- end }}
+
+{{/* Env vars for license key */}}
+{{- define "risingwave.licenseKeyEnv" }}
+{{- if and .Values.license.secret.key .Values.license.secret.name }}
+- name: RW_LICENSE_KEY
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.license.secret.name | quote }}
+      key: {{ .Values.license.secret.key | quote }}
+{{- else if .Values.license.key }}
+- name: RW_LICENSE_KEY
+  value: {{ .Values.license.key | quote }}
+{{- end }}
+{{- end }}

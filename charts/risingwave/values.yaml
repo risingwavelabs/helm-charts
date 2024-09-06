@@ -1389,3 +1389,21 @@ cloud:
       ## This only works when endpoint is not set and region is set.
       ##
       useVPCEndpoint: false
+
+## @section license. Enterprise license key configuration for RisingWave enterprise.
+##
+
+license:
+  ## @param key RisingWave enterprise license key.
+  ##
+  key: ""
+
+  ## @param secret Use existing Secret to provide license key.
+  ## If set, value of key will be ignored.
+  secret:
+    ## @param name Name of the existing Secret.
+    ##
+    name: ""
+    ## @param key Key in the Secret. Defaults to "licenseKey".
+    ##
+    key: "licenseKey"
