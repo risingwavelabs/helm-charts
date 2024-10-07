@@ -16,6 +16,12 @@ metadata:
     {{ nindent 4 $annotations }}
   {{- end }}
 spec:
+  {{- if .Values.image.pullSecrets }}
+  imagePullSecrets:
+  {{- range .Values.image.pullSecrets }}
+  - name: {{ . }}
+  {{- end }}
+  {{- end }}
   {{- if .Values.manager.updateStrategy }}
   strategy:
     {{- toYaml .Values.manager.updateStrategy | nindent 4 }}
