@@ -41,6 +41,12 @@ spec:
         {{- end }}
       {{- end }}
     spec:
+      {{- if .Values.image.pullSecrets }}
+      imagePullSecrets:
+      {{- range .Values.image.pullSecrets }}
+      - name: {{ . }}
+      {{- end }}
+      {{- end }}
       serviceAccountName: {{ include "risingwave-operator.serviceAccountName" . }}
       automountServiceAccountToken: {{ .Values.serviceAccount.automountServiceAccountToken }}
       shareProcessNamespace: {{ .Values.manager.shareProcessNamespace }}

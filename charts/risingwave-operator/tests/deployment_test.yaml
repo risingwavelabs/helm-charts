@@ -336,3 +336,15 @@ tests:
         - containerPort: 8443
           name: metrics
           protocol: TCP
+- it: deployment reflects imagePullSecrets
+  set:
+    image:
+      pullSecrets:
+        - my-secret-1
+        - my-secret-2
+  asserts:
+  - equal:
+      path: spec.template.spec.imagePullSecrets
+      value:
+        - name: my-secret-1
+        - name: my-secret-2
