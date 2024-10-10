@@ -65,6 +65,7 @@ spec:
       {{- end }}
       {{- end }}
       volumes:
+      {{ include "risingwave.licenseKeyVolume" . | nindent 6 }}
       - name: config
         configMap:
           name: {{ include "risingwave.configurationConfigMapName" . }}
@@ -327,6 +328,7 @@ spec:
             {{ toYaml .Values.metaComponent.resources.requests | nindent 12 }}
           {{- end }}
         volumeMounts:
+        {{ include "risingwave.licenseKeyVolumeMount" . | nindent 8 }}
         - mountPath: /risingwave/config
           name: config
           readOnly: true
