@@ -2553,6 +2553,33 @@ entries:
   risingwave-operator:
   - apiVersion: v2
     appVersion: v0.8.1
+    created: "2024-10-10T09:54:16.232001834Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    description: RisingWave Kubernetes Operator
+    digest: 3ae6004a84b332fa3b644f428de2c9a3a1bbdba36c2f8a778ef97d71fcf01aa7
+    home: https://www.risingwave.com
+    icon: https://avatars.githubusercontent.com/u/77175557?s=48&v=4
+    keywords:
+    - risingwave
+    - streaming-processing
+    - cloud-native
+    - real-time
+    - operator
+    maintainers:
+    - name: RisingWave Labs
+      url: https://www.risingwave-labs.com
+    name: risingwave-operator
+    type: application
+    urls:
+    - https://github.com/risingwavelabs/helm-charts/releases/download/risingwave-operator-0.1.20/risingwave-operator-0.1.20.tgz
+    version: 0.1.20
+  - apiVersion: v2
+    appVersion: v0.8.1
     created: "2024-10-08T08:57:54.29802659Z"
     dependencies:
     - name: common
@@ -3049,4 +3076,4 @@ entries:
     urls:
     - https://github.com/risingwavelabs/helm-charts/releases/download/risingwave-operator-0.1.0/risingwave-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2024-10-08T08:57:54.298257111Z"
+generated: "2024-10-10T09:54:16.232188693Z"
