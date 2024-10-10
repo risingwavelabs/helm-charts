@@ -1401,9 +1401,14 @@ license:
   ## @param secret Use existing Secret to provide license key.
   ## If set, value of key will be ignored.
   secret:
-    ## @param name Name of the existing Secret.
+    ## @param name of the existing Secret.
     ##
     name: ""
-    ## @param key Key in the Secret. Defaults to "licenseKey".
+    ## @param key in the Secret. Defaults to "licenseKey".
     ##
     key: "licenseKey"
+
+  ## @param passAsFile Pass the license key as a file. Defaults to false.
+  ## Will be removed once RisingWave v2.1 is released.
+  ##
+  passAsFile: false

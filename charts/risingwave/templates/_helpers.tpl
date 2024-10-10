@@ -601,7 +601,10 @@ Cloud related enviroments.
 
 {{/* Env vars for license key */}}
 {{- define "risingwave.licenseKeyEnv" }}
-{{- if and .Values.license.secret.key .Values.license.secret.name }}
+{{- if and .Values.license.passAsFile (or .Values.license.key (and .Values.license.secret.key .Values.license.secret.name)) }}
+- name: RW_LICENSE_KEY_PATH
+  value: /license/license.jwt
+{{- else if and .Values.license.secret.key .Values.license.secret.name }}
 - name: RW_LICENSE_KEY
   valueFrom:
     secretKeyRef:
@@ -610,5 +613,44 @@ Cloud related enviroments.
 {{- else if .Values.license.key }}
 - name: RW_LICENSE_KEY
   value: {{ .Values.license.key | quote }}
+{{- end }}
+{{- end }}
+
+{{/* Secret name to store license */}}
+{{- define "risingwave.licenseKeySecretName" }}
+{{- if and .Values.license.secret.key .Values.license.secret.name }}
+{{- .Values.license.secret.name }}
+{{- else }}
+{{- printf "%s-license" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
+
+{{/* Secret key to the license data*/}}
+{{- define "risingwave.licenseKeySecretKey" }}
+{{- if and .Values.license.secret.key .Values.license.secret.name }}
+{{- .Values.license.secret.key }}
+{{- else }}
+{{- printf "license.jwt" }}
+{{- end }}
+{{- end }}
+
+{{/* Volume for license key */}}
+{{- define "risingwave.licenseKeyVolume"}}
+{{- if and .Values.license.passAsFile (or .Values.license.key (and .Values.license.secret.key .Values.license.secret.name)) }}
+- name: license
+  secret:
+    secretName: {{ include "risingwave.licenseKeySecretName" . | quote }}
+    items:
+    - key: {{ include "risingwave.licenseKeySecretKey" . | quote }}
+      path: license.jwt
+{{- end }}
+{{- end }}
+
+{{/* Volume mount for license key */}}
+{{- define "risingwave.licenseKeyVolumeMount"}}
+{{- if and .Values.license.passAsFile (or .Values.license.key (and .Values.license.secret.key .Values.license.secret.name)) }}
+- name: license
+  mountPath: /license
+  readOnly: true
 {{- end }}
 {{- end }}
