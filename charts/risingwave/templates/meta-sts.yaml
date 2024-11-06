@@ -318,6 +318,11 @@ spec:
           value: {{ include "risingwave.sqlEndpoint" . }}
         {{- end }}
         {{ include "risingwave.metaStoreSQLBackendCredentialEnvs" . | nindent 8 }}
+        - name: RW_SECRET_STORE_PRIVATE_KEY_HEX
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "risingwave.secretStoreSecretName" . }}
+              key: {{ include "risingwave.secretStorePrivateKeySecretKey" . }}
         resources:
           {{- if .Values.metaComponent.resources.limits }}
           limits:

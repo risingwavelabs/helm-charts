@@ -654,3 +654,40 @@ Cloud related enviroments.
   readOnly: true
 {{- end }}
 {{- end }}
+
+{{/* Secret name to store secret store private key */}}
+{{- define "risingwave.secretStoreSecretName" }}
+{{- if and .Values.secretStore.privateKey.secretRef.name .Values.secretStore.privateKey.secretRef.key }}
+{{- .Values.secretStore.privateKey.secretRef.name }}
+{{- else }}
+{{- printf "%s-secret-store" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
+
+{{/* Secret key to store secret store private key */}}
+{{- define "risingwave.secretStorePrivateKeySecretKey" }}
+{{- if and .Values.secretStore.privateKey.secretRef.name .Values.secretStore.privateKey.secretRef.key }}
+{{- .Values.secretStore.privateKey.secretRef.key }}
+{{- else }}
+{{- printf "privateKey" }}
+{{- end }}
+{{- end }}
+
+{{/*
+https://gist.github.com/consideRatio/1c42cc9f07a7545cb81ec98219629f15?permalink_comment_id=5176729#gistcomment-5176729
+
+Generate an hexadecimal secret of given length.
+Usage: {{ randHex 64 }}
+
+Process:
+- Generate ceil(targetLength/2) random bytes using randAscii.
+- Display as hexadecimal; as a byte is written with two hexadecimal digits, we have an output of size 2*ceil(targetLength/2).
+- This means that for odd numbers we have one byte too many. So we just truncate the size of our output to $length, and voilà!
+*/}}
+{{- define "randHex" -}}
+{{- $length := . }}
+{{- if or (not (kindIs "int" $length)) (le $length 0) }}
+{{- printf "randHex expects a positive integer (%d passed)" $length | fail }}
+{{- end}}
+{{- printf "%x" (randAscii (divf $length 2 | ceil | int)) | trunc $length }}
+{{- end}}

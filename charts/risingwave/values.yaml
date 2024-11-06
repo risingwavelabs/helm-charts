@@ -734,6 +734,32 @@ stateStore:
     ##
     path: data
 
+## @section RisingWave secret store values.
+##
+
+secretStore:
+  ## @param secretStore.privateKey Private key for the secret store. A valid private key must
+  ## be in the HEX format and have a length of 128 bits / 16 bytes.
+  ##
+  privateKey:
+    ## @param secretStore.privateKey.value Private key value. If set to empty, a new random
+    ## private key will be generated.
+    ##
+    value: ""
+
+    ## @param secretStore.privateKey.secretRef Use existing Secret for private key.
+    ## If set, use the existing Secret instead of creating a new one.
+    ##
+    secretRef:
+      ## @param secretStore.privateKey.secretRef.name Name of the existing Secret.
+      ##
+      name: ""
+
+      ## @param secretStore.privateKey.secretRef.key Key of the existing Secret.
+      ## Defaults to "privateKey".
+      ##
+      key: "privateKey"
+
 ## @section RisingWave configuration values.
 ##
 
