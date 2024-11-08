@@ -355,6 +355,11 @@ spec:
         - name: RW_SSL_KEY
           value: /risingwave/certs/tls.key
         {{- end }}
+        - name: RW_SECRET_STORE_PRIVATE_KEY_HEX
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "risingwave.secretStoreSecretName" . }}
+              key: {{ include "risingwave.secretStorePrivateKeySecretKey" . }}
         {{- if .Values.standalone.extraEnvVars }}
         {{- .Values.standalone.extraEnvVars | toYaml | nindent 8 }}
         {{- end }}
