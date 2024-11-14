@@ -3,8 +3,11 @@ service:
 
 serviceAccount:
   create: true
-#  annotations:
-#    eks.amazonaws.com/role-arn: arn:aws:iam::111122223333:role/my-role
+  annotations:
+    # Please provide the ARN of the IAM role that the service account will assume, e.g.,
+    # arn:aws:iam::111122223333:role/my-role
+    #
+    eks.amazonaws.com/role-arn: arn:aws:iam::111122223333:role/my-role
 
 stateStore:
   minio:
@@ -15,9 +18,12 @@ stateStore:
     region: us-east-1
     bucket: s3bucket
     authentication:
-      useServiceAccount: false
-      accessKey: ak
-      secretAccessKey: sk
+      useServiceAccount: true
+      # Use ServiceAccount to authenticate with S3 by default. If you want to use AccessKey and SecretAccessKey,
+      # set useServiceAccount to false and provide the accessKey and secretAccessKey.
+      #
+      # accessKey: ak
+      # secretAccessKey: sk
 
 metaComponent:
   resources:
