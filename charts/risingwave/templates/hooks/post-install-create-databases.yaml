@@ -54,7 +54,7 @@ spec:
 
           psql -h $PG_HOSTNAME -p $PG_PORT -v ON_ERROR_STOP=1 --username root --dbname "$PG_DATABASE" <<-EOSQL
           {{- range $db := .Values.databases }}
-              CREATE DATABASE IF NOT EXISTS {{ $db }};
+              CREATE DATABASE IF NOT EXISTS {{ $db | quote }};
           {{- end }}
           EOSQL
           echo "Created databases {{ join "," .Values.databases }}"
