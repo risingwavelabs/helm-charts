@@ -294,7 +294,7 @@ Create the SQL endpoint string to use. (legacy mode).
 {{- define "risingwave.sqlEndpointLegacy" -}}
 {{- if (include "risingwave.bundle.postgresql.enabled" .) }}
 {{- printf "postgres://$(RW_POSTGRES_USERNAME):$(RW_POSTGRES_PASSWORD)@%s:%d/%s"
-    (include "common.names.fullname" .Subcharts.postgresql) (.Values.postgresql.primary.service.ports.postgresql | int) .Values.postgresql.auth.database }}
+    (include "postgresql.v1.primary.fullname" .Subcharts.postgresql) (include "postgresql.v1.service.port" .Subcharts.postgresql | int) .Values.postgresql.auth.database }}
 {{- else if .Values.metaStore.sqlite.enabled }}
 {{- printf "sqlite://%s?mode=rwc" .Values.metaStore.sqlite.path }}
 {{- else if .Values.metaStore.postgresql.enabled }}
@@ -326,7 +326,7 @@ Create the SQL endpoint string to use. (new mode).
 {{- define "risingwave.sqlEndpointNew" -}}
 {{- if (include "risingwave.bundle.postgresql.enabled" .) }}
 {{- printf "%s:%d"
-    (include "common.names.fullname" .Subcharts.postgresql) (.Values.postgresql.primary.service.ports.postgresql | int) }}
+    (include "postgresql.v1.primary.fullname" .Subcharts.postgresql) (include "postgresql.v1.service.port" .Subcharts.postgresql | int) }}
 {{- else if .Values.metaStore.sqlite.enabled }}
 {{- printf "%s" .Values.metaStore.sqlite.path }}
 {{- else if .Values.metaStore.postgresql.enabled }}
@@ -541,13 +541,13 @@ Cloud related enviroments.
   env:
   - name: PG_HOST
     {{- if (include "risingwave.bundle.postgresql.enabled" . )}}
-    value: {{ include "common.names.fullname" .Subcharts.postgresql }}
+    value: {{ include "postgresql.v1.primary.fullname" .Subcharts.postgresql }}
     {{- else }}
     value: {{ .Values.metaStore.postgresql.host }}
     {{- end }}
   - name: PG_PORT
     {{- if (include "risingwave.bundle.postgresql.enabled" . )}}
-    value: {{ .Values.postgresql.primary.service.ports.postgresql | quote }}
+    value: {{ include "postgresql.v1.service.port" .Subcharts.postgresql | quote }}
     {{- else }}
     value: {{ .Values.metaStore.postgresql.port | quote }}
     {{- end }}
