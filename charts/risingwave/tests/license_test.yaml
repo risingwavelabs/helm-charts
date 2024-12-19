@@ -6,6 +6,9 @@ chart:
   version: 0.0.1
 tests:
 - it: no license key
+  set:
+    license:
+      passAsFile: false
   asserts:
   - notContains:
       path: spec.template.spec.containers[0].env
@@ -56,6 +59,7 @@ tests:
   set:
     license:
       key: "ABC"
+      passAsFile: false
   asserts:
   - contains:
       path: spec.template.spec.containers[0].env
@@ -111,6 +115,7 @@ tests:
 - it: license key found with secret ref and not passing by file
   set:
     license:
+      passAsFile: false
       secret:
         name: LICENSE-SECRET
         key: LICENSE-KEY
@@ -174,6 +179,7 @@ tests:
 - it: license key found with secret ref and key and not passing by file
   set:
     license:
+      passAsFile: false
       key: "ABC"
       secret:
         name: LICENSE-SECRET
