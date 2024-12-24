@@ -37,13 +37,13 @@ dependencies:
   tags:
   - etcd
 - name: postgresql
-  version: 15.x.x
+  version: 16.x.x
   repository: https://charts.bitnami.com/bitnami
   tags:
   - bundle
   - postgresql
 - name: minio
-  version: 13.x.x
+  version: 14.x.x
   repository: https://charts.bitnami.com/bitnami
   tags:
   - minio
