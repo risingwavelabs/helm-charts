@@ -45,3 +45,12 @@ Keep the above command running and open a new terminal window to run the followi
     psql {{ $psqlHostArgs -}} -p {{ $port }} -d {{ $firstDatabase }} -U {{ .Values.auth.rootUser }} {{ $psqlExtraArgs }}
 
 For more advanced applications, refer to our documentation at: https://www.risingwave.dev
+
+{{- if and (empty .Values.secretStore.privateKey.value) (or (empty .Values.secretStore.privateKey.secretRef.name) (empty .Values.secretStore.privateKey.secretRef.key)) }}
+
+IMPORTANT:
+The private key for the secret store is automatically generated and stored in a Kubernetes secret. Please back up the private key by running the following command:
+
+    {{ $kubectlArgs }} get secret {{ (include "risingwave.secretStoreSecretName" .) }} -o jsonpath="{.data.privateKey}" | base64 --decode
+
+{{- end }}
