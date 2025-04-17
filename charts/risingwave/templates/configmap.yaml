@@ -16,6 +16,5 @@ metadata:
     {{ nindent 4 $annotations }}
   {{- end }}
 data:
-  risingwave.toml: |
-    {{ .Values.configuration | nindent 4 }}
+  risingwave.toml: |{{ include "risingwave.config" . | nindent 4 }}
 {{- end }}

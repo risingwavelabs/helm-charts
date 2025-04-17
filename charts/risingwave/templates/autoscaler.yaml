@@ -25,11 +25,9 @@ spec:
     kind: StatefulSet
     name: {{ include "risingwave.computeComponentName" . }}
   {{- if .Values.computeComponent.autoscaling.metrics }}
-  metrics:
-    {{- toYaml .Values.computeComponent.autoscaling.metrics | nindent 4}}
+  metrics: {{ toYaml .Values.computeComponent.autoscaling.metrics | nindent 4}}
   {{- end }}
   {{- if .Values.computeComponent.autoscaling.behavior }}
-  behavior:
-    {{- toYaml .Values.computeComponent.autoscaling.behavior | nindent 4 }}
+  behavior: {{ toYaml .Values.computeComponent.autoscaling.behavior | nindent 4 }}
   {{- end }}
 {{- end }}

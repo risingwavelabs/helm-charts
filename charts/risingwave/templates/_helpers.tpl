@@ -691,3 +691,19 @@ Process:
 {{- end}}
 {{- printf "%x" (randAscii (divf $length 2 | ceil | int)) | trunc $length }}
 {{- end}}
+
+{{- define "risingwave.config" }}
+{{- if kindIs "string" .Values.configuration }}
+{{ .Values.configuration }}
+{{- else if kindIs "map" .Values.configuration }}
+{{ toToml .Values.configuration }}
+{{- else }}
+{{ fail "configuration must be a string or a map"}}
+{{- end }}
+{{- end }}
+
+{{- define "risingwave.configHashAnnotation" }}
+{{- if not .Values.existingConfigMap }}
+risingwave.risingwavelabs.com/config-hash: {{ include "risingwave.config" . | sha1sum }}
+{{- end }}
+{{- end }}

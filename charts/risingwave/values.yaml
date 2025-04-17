@@ -763,9 +763,20 @@ secretStore:
 ## @section RisingWave configuration values.
 ##
 
-## @param configuration RisingWave configuration in toml.
+## @param configuration RisingWave configuration in toml or toml object.
 ## Ref: https://github.com/risingwavelabs/risingwave/blob/main/src/config/example.toml
 ##
+## Example:
+## configuration: |
+##   [server]
+##    heartbeat_interval_ms = 1000
+##
+## configuration:
+##   server:
+##     heartbeat_interval_ms: 1000
+##
+## Note:
+## Due the issue of https://github.com/helm/helm/pull/13534, Helm converts int to float incorrectly.
 configuration: ""
 
 ## @param existingConfigMap Name of existing ConfigMap containing RisingWave configuration.
@@ -1052,8 +1063,8 @@ computeComponent:
   autoscaling:
     enabled: false
     maxReplicas: 5
-    metrics: { }
-    behavior: { }
+    metrics: null
+    behavior: null
 
   ## @param computeComponent.resources Resource requests and limits.
   ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/

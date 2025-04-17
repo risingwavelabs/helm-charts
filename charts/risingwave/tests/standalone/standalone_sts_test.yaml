@@ -88,15 +88,13 @@ tests:
       value: 0
   # Assert the spec.template.metadata are as expected.
   - equal:
-      path: spec.template.metadata
+      path: spec.template.metadata.labels
       value:
-        labels:
-          app.kubernetes.io/name: risingwave
-          app.kubernetes.io/instance: RELEASE-NAME
-          risingwave.risingwavelabs.com/component: standalone
-          risingwave/name: RELEASE-NAME-risingwave
-          risingwave/component: standalone
-        annotations:
+        app.kubernetes.io/name: risingwave
+        app.kubernetes.io/instance: RELEASE-NAME
+        risingwave.risingwavelabs.com/component: standalone
+        risingwave/name: RELEASE-NAME-risingwave
+        risingwave/component: standalone
   # Assert the fields under spec.template.spec other than containers are as expected.
   - isSubset:
       path: spec.template.spec
@@ -596,3 +594,13 @@ tests:
   asserts:
   - notExists:
       path: spec.persistentVolumeClaimRetentionPolicy
+- it: statefulset should has pod annotation of config hash
+  set:
+    standalone:
+      enabled: true
+    configuration: |
+      [a]
+      b = 1
+  asserts:
+    - isNotNullOrEmpty:
+        path: spec.template.metadata.annotations["risingwave.risingwavelabs.com/config-hash"]
