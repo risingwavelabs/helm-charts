@@ -57,6 +57,7 @@ spec:
         {{- if .Values.metaComponent.podAnnotations }}
         {{- toYaml .Values.metaComponent.podAnnotations | nindent 8 }}
         {{- end }}
+        {{- include "risingwave.configHashAnnotation" . | nindent 8 }}
     spec:
       {{- if .Values.image.pullSecrets }}
       imagePullSecrets:

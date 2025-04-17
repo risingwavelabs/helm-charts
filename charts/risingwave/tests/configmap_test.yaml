@@ -71,3 +71,15 @@ tests:
       path: metadata.annotations
       content:
         ANNOTATION: ANNOTATION_V
+- it: config map reflects object toml values
+  set:
+    configuration:
+      example:
+        a: b
+  asserts:
+  - isSubset:
+      path: data
+      content:
+        risingwave.toml: |
+          [example]
+            a = "b"
