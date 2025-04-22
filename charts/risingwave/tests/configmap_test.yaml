@@ -23,9 +23,9 @@ tests:
   - equal:
       path: metadata.name
       value: RELEASE-NAME-risingwave-configuration
-  - equal:
+  - isSubset:
       path: data
-      value:
+      content:
         risingwave.toml: |
           [example]
           a = b
@@ -83,3 +83,115 @@ tests:
         risingwave.toml: |
           [example]
             a = "b"
+  - isSubset:
+      path: data
+      content:
+        risingwave.meta.toml: |
+          [example]
+            a = "b"
+  - isSubset:
+      path: data
+      content:
+        risingwave.compute.toml: |
+          [example]
+            a = "b"
+  - isSubset:
+      path: data
+      content:
+        risingwave.frontend.toml: |
+          [example]
+            a = "b"
+  - isSubset:
+      path: data
+      content:
+        risingwave.compactor.toml: |
+          [example]
+            a = "b"
+- it: config map reflects meta configuration
+  set:
+    configuration: |
+      [example]
+      a = "b"
+    metaComponent:
+      configuration: |
+        [example]
+        c = "d"
+  asserts:
+  - isSubset:
+      path: data
+      content:
+        risingwave.toml: |
+          [example]
+          a = "b"
+  - isSubset:
+      path: data
+      content:
+        risingwave.meta.toml: |
+          [example]
+          c = "d"
+- it: config map reflects frontend configuration
+  set:
+    configuration: |
+      [example]
+      a = "b"
+    frontendComponent:
+      configuration: |
+        [example]
+        c = "d"
+  asserts:
+  - isSubset:
+      path: data
+      content:
+        risingwave.toml: |
+          [example]
+          a = "b"
+  - isSubset:
+      path: data
+      content:
+        risingwave.frontend.toml: |
+          [example]
+          c = "d"
+- it: config map reflects compute configuration
+  set:
+    configuration: |
+      [example]
+      a = "b"
+    computeComponent:
+      configuration: |
+        [example]
+        c = "d"
+  asserts:
+  - isSubset:
+      path: data
+      content:
+        risingwave.toml: |
+          [example]
+          a = "b"
+  - isSubset:
+      path: data
+      content:
+        risingwave.compute.toml: |
+          [example]
+          c = "d"
+- it: config map reflects compactor configuration
+  set:
+    configuration: |
+      [example]
+      a = "b"
+    compactorComponent:
+      configuration: |
+        [example]
+        c = "d"
+  asserts:
+  - isSubset:
+      path: data
+      content:
+        risingwave.toml: |
+          [example]
+          a = "b"
+  - isSubset:
+      path: data
+      content:
+        risingwave.compactor.toml: |
+          [example]
+          c = "d"

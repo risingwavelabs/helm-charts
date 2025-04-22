@@ -45,7 +45,7 @@ spec:
         {{- if .Values.compactorComponent.podAnnotations }}
         {{- toYaml .Values.compactorComponent.podAnnotations | nindent 8 }}
         {{- end }}
-        {{- include "risingwave.configHashAnnotation" . | nindent 8 }}
+        {{- include "risingwave.compactorConfigHashAnnotation" . | nindent 8 }}
     spec:
       {{- if .Values.image.pullSecrets }}
       imagePullSecrets:
@@ -206,7 +206,7 @@ spec:
           value: {{ .Values.stateStore.azblob.endpoint }}
         {{- end }}
         - name: RW_CONFIG_PATH
-          value: /risingwave/config/risingwave.toml
+          value: /risingwave/config/risingwave.compactor.toml
         - name: RW_LISTEN_ADDR
           value: "0.0.0.0:{{ .Values.ports.compactor.svc }}"
         - name: RW_ADVERTISE_ADDR

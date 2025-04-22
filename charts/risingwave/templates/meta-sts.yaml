@@ -57,7 +57,7 @@ spec:
         {{- if .Values.metaComponent.podAnnotations }}
         {{- toYaml .Values.metaComponent.podAnnotations | nindent 8 }}
         {{- end }}
-        {{- include "risingwave.configHashAnnotation" . | nindent 8 }}
+        {{- include "risingwave.metaConfigHashAnnotation" . | nindent 8 }}
     spec:
       {{- if .Values.image.pullSecrets }}
       imagePullSecrets:
@@ -237,7 +237,7 @@ spec:
           value: {{ .Values.stateStore.azblob.endpoint }}
         {{- end }}
         - name: RW_CONFIG_PATH
-          value: /risingwave/config/risingwave.toml
+          value: /risingwave/config/risingwave.meta.toml
         - name: RW_LISTEN_ADDR
           value: {{ printf "0.0.0.0:%d" (.Values.ports.meta.svc | int)}}
         - name: RW_ADVERTISE_ADDR
