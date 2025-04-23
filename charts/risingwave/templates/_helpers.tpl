@@ -424,7 +424,7 @@ Create the etcd endpoints
 {{/*
 Create the name of the AzureBlob credentials Secret to use
 */}}
-{{- define "risingwave.configurationConfigMapName" -}}
+{{- define "risingwave.configurationConfigMapName" }}
 {{- if not .Values.existingConfigMap }}
 {{- printf "%s-configuration" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -691,3 +691,67 @@ Process:
 {{- end}}
 {{- printf "%x" (randAscii (divf $length 2 | ceil | int)) | trunc $length }}
 {{- end}}
+
+{{- define "risingwave.renderConfig" }}
+{{- if kindIs "string" .config }}
+{{ .config }}
+{{- else if kindIs "map" .config }}
+{{ toToml .config }}
+{{- else }}
+{{ fail "configuration must be a string or a map"}}
+{{- end }}
+{{- end }}
+
+{{- define "risingwave.config" }}
+{{ include "risingwave.renderConfig" (dict "config" .Values.configuration) | trim }}
+{{- end }}
+
+{{- define "risingwave.metaConfig"}}
+{{ default (include "risingwave.renderConfig" (dict "config" .Values.configuration) | trim)
+           (include "risingwave.renderConfig" (dict "config" .Values.metaComponent.configuration) | trim) }}
+{{- end }}
+
+{{- define "risingwave.frontendConfig"}}
+{{ default (include "risingwave.renderConfig" (dict "config" .Values.configuration) | trim)
+           (include "risingwave.renderConfig" (dict "config" .Values.frontendComponent.configuration) | trim) }}
+{{- end }}
+
+{{- define "risingwave.compactorConfig"}}
+{{ default (include "risingwave.renderConfig" (dict "config" .Values.configuration) | trim)
+           (include "risingwave.renderConfig" (dict "config" .Values.compactorComponent.configuration) | trim) }}
+{{- end }}
+
+{{- define "risingwave.computeConfig"}}
+{{ default (include "risingwave.renderConfig" (dict "config" .Values.configuration) | trim)
+           (include "risingwave.renderConfig" (dict "config" .Values.computeComponent.configuration) | trim) }}
+{{- end }}
+
+{{- define "risingwave.configHashAnnotation" }}
+{{- if not .Values.existingConfigMap }}
+risingwave.risingwavelabs.com/config-hash: {{ include "risingwave.config" . | sha1sum }}
+{{- end }}
+{{- end }}
+
+{{- define "risingwave.metaConfigHashAnnotation" }}
+{{- if and (not .Values.existingConfigMap) (not .Values.metaComponent.configuration) }}
+risingwave.risingwavelabs.com/meta-config-hash: {{ include "risingwave.metaConfig" . | sha1sum }}
+{{- end }}
+{{- end }}
+
+{{- define "risingwave.frontendConfigHashAnnotation" }}
+{{- if and (not .Values.existingConfigMap) (not .Values.frontendComponent.configuration) }}
+risingwave.risingwavelabs.com/frontend-config-hash: {{ include "risingwave.frontendConfig" . | sha1sum }}
+{{- end }}
+{{- end }}
+
+{{- define "risingwave.compactorConfigHashAnnotation" }}
+{{- if and (not .Values.existingConfigMap) (not .Values.compactorComponent.configuration) }}
+risingwave.risingwavelabs.com/compactor-config-hash: {{ include "risingwave.compactorConfig" . | sha1sum }}
+{{- end }}
+{{- end }}
+
+{{- define "risingwave.computeConfigHashAnnotation" }}
+{{- if and (not .Values.existingConfigMap) (not .Values.computeComponent.configuration) }}
+risingwave.risingwavelabs.com/compute-config-hash: {{ include "risingwave.computeConfig" . | sha1sum }}
+{{- end }}
+{{- end }}

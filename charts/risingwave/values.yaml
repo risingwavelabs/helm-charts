@@ -326,7 +326,7 @@ standalone:
   affinity: { }
 
   ## @param standalone.terminationGracePeriodSeconds Termination grace period in seconds.
-  ## Defaults to 1 seconds.
+  ## Defaults to 1 second.
   ##
   terminationGracePeriodSeconds: 1
 
@@ -763,13 +763,32 @@ secretStore:
 ## @section RisingWave configuration values.
 ##
 
-## @param configuration RisingWave configuration in toml.
+## @param configuration RisingWave configuration in toml or toml object.
 ## Ref: https://github.com/risingwavelabs/risingwave/blob/main/src/config/example.toml
 ##
+## Example:
+## configuration: |
+##   [server]
+##    heartbeat_interval_ms = 1000
+##
+## configuration:
+##   server:
+##     heartbeat_interval_ms: 1000
+##
+## Note:
+## Due the issue of https://github.com/helm/helm/pull/13534, Helm converts int to float incorrectly.
 configuration: ""
 
 ## @param existingConfigMap Name of existing ConfigMap containing RisingWave configuration.
-## The ConfigMap must contain a key named `risingwave.toml`. If set, `configuration` will be ignored.
+## The ConfigMap must contain the following keys:
+##   - risingwave.toml: RisingWave configuration in toml format. Used for standalone mode.
+##   - All of
+##     - risingwave.meta.toml: RisingWave configuration in toml format. Used for the meta-component.
+##     - risingwave.frontend.toml: RisingWave configuration in toml format. Used for the frontend component.
+##     - risingwave.compute.toml: RisingWave configuration in toml format. Used for the compute component.
+##     - risingwave.compactor.toml: RisingWave configuration in toml format. Used for the compactor component.
+##
+## If set, `configuration` will be ignored.
 ##
 existingConfigMap: ""
 
@@ -905,6 +924,23 @@ metaComponent:
   ##
   waitForMetaStore: false
 
+  ## @param metaComponent.configuration RisingWave configuration in toml or toml object.
+  ## If specified, it will override the default configuration.
+  ## Ref: https://github.com/risingwavelabs/risingwave/blob/main/src/config/example.toml
+  ##
+  ## Example:
+  ## configuration: |
+  ##   [server]
+  ##    heartbeat_interval_ms = 1000
+  ##
+  ## configuration:
+  ##   server:
+  ##     heartbeat_interval_ms: 1000
+  ##
+  ## Note:
+  ## Due the issue of https://github.com/helm/helm/pull/13534, Helm converts int to float incorrectly.
+  configuration: ""
+
 frontendComponent:
   ## @param frontendComponent.podLabels Labels to add to the component pods.
   ##
@@ -1016,6 +1052,23 @@ frontendComponent:
   ##
   embeddedServing: false
 
+  ## @param frontendComponent.configuration RisingWave configuration in toml or toml object.
+  ## If specified, it will override the default configuration.
+  ## Ref: https://github.com/risingwavelabs/risingwave/blob/main/src/config/example.toml
+  ##
+  ## Example:
+  ## configuration: |
+  ##   [server]
+  ##    heartbeat_interval_ms = 1000
+  ##
+  ## configuration:
+  ##   server:
+  ##     heartbeat_interval_ms: 1000
+  ##
+  ## Note:
+  ## Due the issue of https://github.com/helm/helm/pull/13534, Helm converts int to float incorrectly.
+  configuration: ""
+
 computeComponent:
   ## @param computeComponent.podLabels Labels to add to the component pods.
   ##
@@ -1052,8 +1105,8 @@ computeComponent:
   autoscaling:
     enabled: false
     maxReplicas: 5
-    metrics: { }
-    behavior: { }
+    metrics: null
+    behavior: null
 
   ## @param computeComponent.resources Resource requests and limits.
   ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
@@ -1148,6 +1201,23 @@ computeComponent:
   ## Defaults to false.
   ##
   advertisingWithIP: false
+
+  ## @param computeComponent.configuration RisingWave configuration in toml or toml object.
+  ## If specified, it will override the default configuration.
+  ## Ref: https://github.com/risingwavelabs/risingwave/blob/main/src/config/example.toml
+  ##
+  ## Example:
+  ## configuration: |
+  ##   [server]
+  ##    heartbeat_interval_ms = 1000
+  ##
+  ## configuration:
+  ##   server:
+  ##     heartbeat_interval_ms: 1000
+  ##
+  ## Note:
+  ## Due the issue of https://github.com/helm/helm/pull/13534, Helm converts int to float incorrectly.
+  configuration: ""
 
 compactorComponent:
   ## @param compactorComponent.podLabels Labels to add to the component pods.
@@ -1253,6 +1323,23 @@ compactorComponent:
   ## @param compactorComponent.rustBacktrace Customize the RUST_BACKTRACE value.
   ## Defaults to full.
   rustBacktrace: full
+
+  ## @param compactorComponent.configuration RisingWave configuration in toml or toml object.
+  ## If specified, it will override the default configuration.
+  ## Ref: https://github.com/risingwavelabs/risingwave/blob/main/src/config/example.toml
+  ##
+  ## Example:
+  ## configuration: |
+  ##   [server]
+  ##    heartbeat_interval_ms = 1000
+  ##
+  ## configuration:
+  ##   server:
+  ##     heartbeat_interval_ms: 1000
+  ##
+  ## Note:
+  ## Due the issue of https://github.com/helm/helm/pull/13534, Helm converts int to float incorrectly.
+  configuration: ""
 
 ## @section RisingWave container ports. No need to change in most cases.
 ##

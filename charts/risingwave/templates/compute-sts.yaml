@@ -59,6 +59,10 @@ spec:
         {{- if .Values.computeComponent.podAnnotations }}
         {{- toYaml .Values.computeComponent.podAnnotations | nindent 8 }}
         {{- end }}
+        {{- include "risingwave.computeConfigHashAnnotation" . | nindent 8 }}
+        {{- if .Values.compactMode.enabled }}
+        {{- include "risingwave.frontendConfigHashAnnotation" . | nindent 8 }}
+        {{- end }}
     spec:
       {{- if .Values.image.pullSecrets }}
       imagePullSecrets:
@@ -239,7 +243,7 @@ spec:
           value: {{ .Values.stateStore.azblob.endpoint }}
         {{- end }}
         - name: RW_CONFIG_PATH
-          value: /risingwave/config/risingwave.toml
+          value: /risingwave/config/risingwave.compute.toml
         - name: RW_LISTEN_ADDR
           value: "0.0.0.0:{{ .Values.ports.compute.svc }}"
         - name: RW_ADVERTISE_ADDR
@@ -368,7 +372,7 @@ spec:
         - name: RUST_MIN_STACK
           value: "4194304"
         - name: RW_CONFIG_PATH
-          value: /risingwave/config/risingwave.toml
+          value: /risingwave/config/risingwave.frontend.toml
         - name: RW_LISTEN_ADDR
           value: "0.0.0.0:{{ .Values.ports.frontend.svc }}"
         - name: RW_ADVERTISE_ADDR

@@ -46,6 +46,7 @@ spec:
         {{- if .Values.frontendComponent.podAnnotations }}
         {{- toYaml .Values.frontendComponent.podAnnotations | nindent 8 }}
         {{- end }}
+        {{- include "risingwave.frontendConfigHashAnnotation" . | nindent 8 }}
     spec:
       {{- if .Values.image.pullSecrets }}
       imagePullSecrets:
@@ -116,12 +117,12 @@ spec:
         - standalone
         args:
         - >-
-          --compute-opts=--config-path /risingwave/config/risingwave.toml
+          --compute-opts=--config-path /risingwave/config/risingwave.frontend.toml
             --listen-addr 0.0.0.0:{{ .Values.ports.compute.svc }}
             --advertise-addr $(POD_IP):{{ .Values.ports.compute.svc }}
             --role serving
         - >-
-          --frontend-opts=--config-path /risingwave/config/risingwave.toml
+          --frontend-opts=--config-path /risingwave/config/risingwave.frontend.toml
             --listen-addr 0.0.0.0:{{ .Values.ports.frontend.svc }}
             --advertise-addr $(POD_IP):{{ .Values.ports.frontend.svc }}
         lifecycle:
@@ -200,7 +201,7 @@ spec:
         - name: RUST_MIN_STACK
           value: "4194304"
         - name: RW_CONFIG_PATH
-          value: /risingwave/config/risingwave.toml
+          value: /risingwave/config/risingwave.frontend.toml
         - name: RW_LISTEN_ADDR
           value: "0.0.0.0:{{ .Values.ports.frontend.svc }}"
         - name: RW_ADVERTISE_ADDR

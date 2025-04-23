@@ -16,6 +16,9 @@ metadata:
     {{ nindent 4 $annotations }}
   {{- end }}
 data:
-  risingwave.toml: |
-    {{ .Values.configuration | nindent 4 }}
+  risingwave.toml: |{{ include "risingwave.config" . | nindent 4 }}
+  risingwave.meta.toml : |{{ include "risingwave.metaConfig" . | nindent 4 }}
+  risingwave.frontend.toml : |{{ include "risingwave.frontendConfig" . | nindent 4 }}
+  risingwave.compute.toml : |{{ include "risingwave.computeConfig" . | nindent 4 }}
+  risingwave.compactor.toml : |{{ include "risingwave.compactorConfig" . | nindent 4 }}
 {{- end }}

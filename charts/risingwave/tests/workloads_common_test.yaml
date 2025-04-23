@@ -58,3 +58,11 @@ tests:
         mountPath: /risingwave/config
         name: config
         readOnly: true
+- it: workloads have a config hash annotation
+  set:
+    configuration: |
+      [a]
+      b = 1
+  asserts:
+  - isNotNullOrEmpty:
+      path: spec.template.metadata.annotations["risingwave.risingwavelabs.com/config-hash"]
