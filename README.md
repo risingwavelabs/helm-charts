@@ -10,6 +10,7 @@ Helm Charts for RisingWave
 ---
 
 [![Test Charts](https://github.com/risingwavelabs/helm-charts/actions/workflows/test.yml/badge.svg)](https://github.com/risingwavelabs/helm-charts/actions/workflows/test.yml)
+[![Github Release](https://img.shields.io/github/v/release/risingwavelabs/helm-charts.svg?sort=semver)](https://github.com/risingwavelabs/helm-charts/releases)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Slack](https://badgen.net/badge/Slack/Join%20RisingWave/0abd59?icon=slack)](https://risingwave.com/slack)
 [![X](https://img.shields.io/twitter/follow/risingwavelabs)](https://twitter.com/risingwavelabs)
