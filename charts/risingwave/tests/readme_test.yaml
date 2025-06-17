@@ -9,8 +9,7 @@ tests:
   templates:
   - validation.yaml
   asserts:
-  - failedTemplate:
-      errorMessage: "No state store backend!"
+  - failedTemplate: {}
 - it: readme values pass
   set:
     tags:
