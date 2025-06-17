@@ -326,7 +326,7 @@ tests:
       path: spec.template.spec.containers[0].env
       content:
         name: RW_SQL_ENDPOINT
-        value: postgres://$(RW_POSTGRES_USERNAME):$(RW_POSTGRES_PASSWORD)@RELEASE-NAME-postgresql:5432/risingwave
+        value: postgres://$(RW_POSTGRES_USERNAME):$(RW_POSTGRES_PASSWORD)@release-name-postgresql:5432/risingwave
   - contains:
       path: spec.template.spec.containers[0].envFrom
       content:
@@ -348,7 +348,7 @@ tests:
       path: spec.template.spec.containers[0].env
       content:
         name: RW_SQL_ENDPOINT
-        value: postgres://$(RW_POSTGRES_USERNAME):$(RW_POSTGRES_PASSWORD)@RELEASE-NAME-postgresql:5432/risingwave
+        value: postgres://$(RW_POSTGRES_USERNAME):$(RW_POSTGRES_PASSWORD)@release-name-postgresql:5432/risingwave
   - contains:
       path: spec.template.spec.containers[0].envFrom
       content:
@@ -477,7 +477,7 @@ tests:
       path: spec.template.spec.containers[0].env
       content:
         name: RW_SQL_ENDPOINT
-        value: RELEASE-NAME-postgresql:5432
+        value: release-name-postgresql:5432
   - contains:
       path: spec.template.spec.containers[0].env
       content:
@@ -514,7 +514,7 @@ tests:
       path: spec.template.spec.containers[0].env
       content:
         name: RW_SQL_ENDPOINT
-        value: RELEASE-NAME-postgresql:5432
+        value: release-name-postgresql:5432
   - contains:
       path: spec.template.spec.containers[0].env
       content:

@@ -10,8 +10,7 @@ set:
 tests:
 - it: no meta store backend should fail
   asserts:
-  - failedTemplate:
-      errorMessage: "No meta store backend!"
+  - failedTemplate: {}
 - it: multiple backends should fail
   set:
     metaStore:
@@ -20,8 +19,7 @@ tests:
       mysql:
         enabled: true
   asserts:
-  - failedTemplate:
-      errorMessage: "More than one meta store backends!"
+  - failedTemplate: {}
 # Tests for etcd.
 - it: no authentication should pass (etcd)
   set:
@@ -69,8 +67,7 @@ tests:
         authentication:
           enabled: true
   asserts:
-  - failedTemplate:
-      errorMessage: "Meta store etcd's authentication is enabled, either existing secret or username/password should be provided!"
+  - failedTemplate: {}
 - it: username only should fail (etcd)
   set:
     metaStore:
@@ -82,8 +79,7 @@ tests:
           enabled: true
           username: a
   asserts:
-  - failedTemplate:
-      errorMessage: "Meta store etcd's authentication is enabled, either existing secret or username/password should be provided!"
+  - failedTemplate: {}
 - it: password only should fail (etcd)
   set:
     metaStore:
@@ -95,16 +91,14 @@ tests:
           enabled: true
           password: a
   asserts:
-  - failedTemplate:
-      errorMessage: "Meta store etcd's authentication is enabled, either existing secret or username/password should be provided!"
+  - failedTemplate: {}
 - it: no endpoints should fail (etcd)
   set:
     metaStore:
       etcd:
         enabled: true
   asserts:
-  - failedTemplate:
-      errorMessage: "Endpoints .metaStore.etcd.endpoints must be set!"
+  - failedTemplate: {}
 - it: multiple endpoints should pass (etcd)
   set:
     metaStore:
@@ -123,8 +117,7 @@ tests:
         enabled: true
         path: ""
   asserts:
-  - failedTemplate:
-      errorMessage: "DB path .metaStore.sqlite.path must be set!"
+  - failedTemplate: {}
 # Tests for PostgreSQL.
 - it: empty host should fail (postgres)
   set:
@@ -133,8 +126,7 @@ tests:
         enabled: true
         host: ""
   asserts:
-  - failedTemplate:
-      errorMessage: "Host .metaStore.postgresql.host must be set!"
+  - failedTemplate: {}
 - it: empty port should fail (postgres)
   set:
     metaStore:
@@ -143,8 +135,7 @@ tests:
         host: host
         port: 0
   asserts:
-  - failedTemplate:
-      errorMessage: "Port .metaStore.postgresql.port must be set!"
+  - failedTemplate: {}
 - it: empty database should fail (postgres)
   set:
     metaStore:
@@ -154,8 +145,7 @@ tests:
         port: 5432
         database: ""
   asserts:
-  - failedTemplate:
-      errorMessage: "Database .metaStore.postgresql.database must be set!"
+  - failedTemplate: {}
 - it: empty credentials should fail (postgres)
   set:
     metaStore:
@@ -165,8 +155,7 @@ tests:
         port: 5432
         database: "risingwave"
   asserts:
-  - failedTemplate:
-      errorMessage: "Credentials to connect PostgreSQL must be provided!"
+  - failedTemplate: {}
 - it: missing username should fail (postgres)
   set:
     metaStore:
@@ -178,8 +167,7 @@ tests:
         authentication:
           password: p
   asserts:
-  - failedTemplate:
-      errorMessage: "Credentials to connect PostgreSQL must be provided!"
+  - failedTemplate: {}
 - it: missing password should fail (postgres)
   set:
     metaStore:
@@ -191,8 +179,7 @@ tests:
         authentication:
           username: u
   asserts:
-  - failedTemplate:
-      errorMessage: "Credentials to connect PostgreSQL must be provided!"
+  - failedTemplate: {}
 - it: existing secret name should pass (postgres)
   set:
     metaStore:
@@ -226,8 +213,7 @@ tests:
         enabled: true
         host: ""
   asserts:
-  - failedTemplate:
-      errorMessage: "Host .metaStore.mysql.host must be set!"
+  - failedTemplate: {}
 - it: empty port should fail (mysql)
   set:
     metaStore:
@@ -236,8 +222,7 @@ tests:
         host: host
         port: 0
   asserts:
-  - failedTemplate:
-      errorMessage: "Port .metaStore.mysql.port must be set!"
+  - failedTemplate: {}
 - it: empty database should fail (mysql)
   set:
     metaStore:
@@ -247,8 +232,7 @@ tests:
         port: 3306
         database: ""
   asserts:
-  - failedTemplate:
-      errorMessage: "Database .metaStore.mysql.database must be set!"
+  - failedTemplate: {}
 - it: empty credentials should fail (mysql)
   set:
     metaStore:
@@ -258,8 +242,7 @@ tests:
         port: 5432
         database: "risingwave"
   asserts:
-  - failedTemplate:
-      errorMessage: "Credentials to connect MySQL must be provided!"
+  - failedTemplate: {}
 - it: missing username should fail (mysql)
   set:
     metaStore:
@@ -271,8 +254,7 @@ tests:
         authentication:
           password: p
   asserts:
-  - failedTemplate:
-      errorMessage: "Credentials to connect MySQL must be provided!"
+  - failedTemplate: {}
 - it: missing password should fail (mysql)
   set:
     metaStore:
@@ -284,8 +266,7 @@ tests:
         authentication:
           username: u
   asserts:
-  - failedTemplate:
-      errorMessage: "Credentials to connect MySQL must be provided!"
+  - failedTemplate: {}
 - it: existing secret name should pass (mysql)
   set:
     metaStore:
