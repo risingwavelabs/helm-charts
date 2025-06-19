@@ -601,7 +601,7 @@ Cloud related enviroments.
 
 {{/* Env vars for license key */}}
 {{- define "risingwave.licenseKeyEnv" }}
-{{- if and .Values.license.passAsFile (or .Values.license.key (and .Values.license.secret.key .Values.license.secret.name)) }}
+{{- if or .Values.license.key (and .Values.license.secret.key .Values.license.secret.name) }}
 - name: RW_LICENSE_KEY_PATH
   value: /license/license.jwt
 {{- else if and .Values.license.secret.key .Values.license.secret.name }}
@@ -636,7 +636,7 @@ Cloud related enviroments.
 
 {{/* Volume for license key */}}
 {{- define "risingwave.licenseKeyVolume"}}
-{{- if and .Values.license.passAsFile (or .Values.license.key (and .Values.license.secret.key .Values.license.secret.name)) }}
+{{- if or .Values.license.key (and .Values.license.secret.key .Values.license.secret.name) }}
 - name: license
   secret:
     secretName: {{ include "risingwave.licenseKeySecretName" . | quote }}
@@ -648,7 +648,7 @@ Cloud related enviroments.
 
 {{/* Volume mount for license key */}}
 {{- define "risingwave.licenseKeyVolumeMount"}}
-{{- if and .Values.license.passAsFile (or .Values.license.key (and .Values.license.secret.key .Values.license.secret.name)) }}
+{{- if or .Values.license.key (and .Values.license.secret.key .Values.license.secret.name) }}
 - name: license
   mountPath: /license
   readOnly: true

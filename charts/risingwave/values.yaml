@@ -1520,9 +1520,3 @@ license:
     ## @param key in the Secret. Defaults to "licenseKey".
     ##
     key: "licenseKey"
-
-  ## Deprecated. Will be removed once RisingWave v2.2 is released.
-  ## @param passAsFile Pass the license key as a file. Defaults to true.
-  ## Set it to false if you are deploying RisingWave < v2.1.
-  ##
-  passAsFile: true

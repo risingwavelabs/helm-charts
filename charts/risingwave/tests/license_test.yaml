@@ -6,9 +6,6 @@ chart:
   version: 0.0.1
 tests:
 - it: no license key
-  set:
-    license:
-      passAsFile: false
   asserts:
   - notContains:
       path: spec.template.spec.containers[0].env
@@ -30,62 +27,10 @@ tests:
       content:
         name: license
       any: true
-- it: no license key and passing as file
-  set:
-    license:
-      passAsFile: true
-  asserts:
-  - notContains:
-      path: spec.template.spec.containers[0].env
-      content:
-        name: RW_LICENSE_KEY
-      any: true
-  - notContains:
-      path: spec.template.spec.containers[0].env
-      content:
-        name: RW_LICENSE_KEY_PATH
-      any: true
-  - notContains:
-      path: spec.template.spec.containers[0].volumeMounts
-      content:
-        name: license
-      any: true
-  - notContains:
-      path: spec.template.spec.volumes
-      content:
-        name: license
-      any: true
-- it: license key found with raw key and not passing by file
+- it: license key found with raw key
   set:
     license:
       key: "ABC"
-      passAsFile: false
-  asserts:
-  - contains:
-      path: spec.template.spec.containers[0].env
-      content:
-        name: RW_LICENSE_KEY
-        value: "ABC"
-  - notContains:
-      path: spec.template.spec.containers[0].env
-      content:
-        name: RW_LICENSE_KEY_PATH
-      any: true
-  - notContains:
-      path: spec.template.spec.containers[0].volumeMounts
-      content:
-        name: license
-      any: true
-  - notContains:
-      path: spec.template.spec.volumes
-      content:
-        name: license
-      any: true
-- it: license key found with raw key and passing by file
-  set:
-    license:
-      key: "ABC"
-      passAsFile: true
   asserts:
   - contains:
       path: spec.template.spec.containers[0].env
@@ -112,44 +57,12 @@ tests:
       content:
         name: RW_LICENSE_KEY
       any: true
-- it: license key found with secret ref and not passing by file
-  set:
-    license:
-      passAsFile: false
-      secret:
-        name: LICENSE-SECRET
-        key: LICENSE-KEY
-  asserts:
-  - contains:
-      path: spec.template.spec.containers[0].env
-      content:
-        name: RW_LICENSE_KEY
-        valueFrom:
-          secretKeyRef:
-            name: LICENSE-SECRET
-            key: LICENSE-KEY
-  - notContains:
-      path: spec.template.spec.containers[0].env
-      content:
-        name: RW_LICENSE_KEY_PATH
-      any: true
-  - notContains:
-      path: spec.template.spec.containers[0].volumeMounts
-      content:
-        name: license
-      any: true
-  - notContains:
-      path: spec.template.spec.volumes
-      content:
-        name: license
-      any: true
-- it: license key found with secret ref and passing by file
+- it: license key found with secret ref
   set:
     license:
       secret:
         name: LICENSE-SECRET
         key: LICENSE-KEY
-      passAsFile: true
   asserts:
   - contains:
       path: spec.template.spec.containers[0].env
@@ -176,46 +89,13 @@ tests:
       content:
         name: RW_LICENSE_KEY
       any: true
-- it: license key found with secret ref and key and not passing by file
-  set:
-    license:
-      passAsFile: false
-      key: "ABC"
-      secret:
-        name: LICENSE-SECRET
-        key: LICENSE-KEY
-  asserts:
-  - contains:
-      path: spec.template.spec.containers[0].env
-      content:
-        name: RW_LICENSE_KEY
-        valueFrom:
-          secretKeyRef:
-            name: LICENSE-SECRET
-            key: LICENSE-KEY
-  - notContains:
-      path: spec.template.spec.containers[0].env
-      content:
-        name: RW_LICENSE_KEY_PATH
-      any: true
-  - notContains:
-      path: spec.template.spec.containers[0].volumeMounts
-      content:
-        name: license
-      any: true
-  - notContains:
-      path: spec.template.spec.volumes
-      content:
-        name: license
-      any: true
-- it: license key found with secret ref and key and passing by file
+- it: license key found with secret ref and key
   set:
     license:
       key: "ABC"
       secret:
         name: LICENSE-SECRET
         key: LICENSE-KEY
-      passAsFile: true
   asserts:
   - contains:
       path: spec.template.spec.containers[0].env
