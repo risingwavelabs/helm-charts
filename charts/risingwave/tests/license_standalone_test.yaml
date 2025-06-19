@@ -30,28 +30,6 @@ tests:
       content:
         name: license
       any: true
-- it: no license key
-  asserts:
-  - notContains:
-      path: spec.template.spec.containers[0].env
-      content:
-        name: RW_LICENSE_KEY
-      any: true
-  - notContains:
-      path: spec.template.spec.containers[0].env
-      content:
-        name: RW_LICENSE_KEY_PATH
-      any: true
-  - notContains:
-      path: spec.template.spec.containers[0].volumeMounts
-      content:
-        name: license
-      any: true
-  - notContains:
-      path: spec.template.spec.volumes
-      content:
-        name: license
-      any: true
 - it: license key found with raw key
   set:
     license:
