@@ -1,9 +1,0 @@
-metaStore:
-  etcd:
-    enabled: true
-    endpoints:
-    - etcd:2379
-    authentication:
-      enabled: true
-      username: "root"
-      password: "123456"

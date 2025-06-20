@@ -98,7 +98,6 @@ Customize the `metaStore` section to configure the meta store backends. Currentl
 
 | Name       | Section              | Location | Compatible modes |
 |:-----------|:---------------------|:---------|:-----------------|
-| etcd       | metaStore.etcd       | remote   | both             |
 | SQLite     | metaStore.sqlite     | local    | both             | 
 | PostgreSQL | metaStore.postgresql | remote   | both             |
 | MySQL      | metaStore.mysql      | remote   | both             |
@@ -156,11 +155,11 @@ stateStore:
 
 For the details of a backend, please check the values of the corresponding section.
 
-### Bundled etcd/PostgreSQL/MinIO as Stores
+### Bundled PostgreSQL/MinIO as Stores
 
 Helm chart for RisingWave also provides an option to deploy the PostgreSQL and MinIO along with the RisingWave to provide meta
 and state store backends. It is useful to try out the helm chart quickly. The feature is achieved
-with `bitnami/etcd`, `bitnami/postgresql` and `bitnami/minio` sub-charts. If you are interested in
+with `bitnami/postgresql` and `bitnami/minio` sub-charts. If you are interested in
 these charts, please refer
 to [bitnami/charts](https://github.com/bitnami) for details.
 
@@ -171,7 +170,6 @@ helm install --set tags.bundle=true risingwave risingwavelabs/risingwave
 ```
 
 It's also possible to control the enablement of PostgreSQL and MinIO sub-charts separately with
-`tags.etcd` (deprecating),
 `tags.postgresql` and `tags.minio`. But note that `tags.bundle` must be `false` when you want such
 control.
 

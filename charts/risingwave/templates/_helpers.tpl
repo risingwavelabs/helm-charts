@@ -79,15 +79,6 @@ Create the name of the service account to use
 {{- end }}
 
 {{/*
-If the bundled etcd enabled.
-*/}}
-{{- define "risingwave.bundle.etcd.enabled" -}}
-{{- if .Values.tags.etcd }}
-T
-{{- end }}
-{{- end }}
-
-{{/*
 If the bundled postgresql enabled.
 */}}
 {{- define "risingwave.bundle.postgresql.enabled" -}}
@@ -103,17 +94,6 @@ If the bundled minio enabled.
 {{- if or .Values.tags.bundle .Values.tags.minio }}
 T
 {{- end}}
-{{- end }}
-
-{{/*
-Create the name of the etcd credentials Secret to use.
-*/}}
-{{- define "risingwave.etcdCredentialsSecretName" -}}
-{{- if .Values.metaStore.etcd.authentication.existingSecretName }}
-{{- .Values.metaStore.etcd.authentication.existingSecretName }}
-{{- else }}
-{{- printf "%s-etcd" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
-{{- end }}
 {{- end }}
 
 
@@ -230,9 +210,7 @@ Create the name of credential Secret to use. Return empty string if the Secret i
 Create the meta backend type string to use.
 */}}
 {{- define "risingwave.metaBackend" -}}
-{{- if or (include "risingwave.bundle.etcd.enabled" .) .Values.metaStore.etcd.enabled }}
-{{- print "etcd" }}
-{{- else if or (include "risingwave.bundle.postgresql.enabled" .) .Values.metaStore.sqlite.enabled .Values.metaStore.postgresql.enabled .Values.metaStore.mysql.enabled }}
+{{- if or (include "risingwave.bundle.postgresql.enabled" .) .Values.metaStore.sqlite.enabled .Values.metaStore.postgresql.enabled .Values.metaStore.mysql.enabled }}
 {{- if .Values.metaStore.passSQLCredentialsLegacyMode }}
 {{- print "sql" }}
 {{- else }}
@@ -402,24 +380,6 @@ Create the hummock data directory.
 {{- default "hummock" .Values.stateStore.dataDirectory }}
 {{- end }}
 
-{{/*
-Create the etcd endpoints
-*/}}
-{{- define "risingwave.metaStoreEtcdEndpoints" -}}
-{{- if (include "risingwave.bundle.etcd.enabled" .) }}
-{{- printf "%s.%s.svc:%d" (include "common.names.fullname" .Subcharts.etcd) .Release.Namespace (.Values.etcd.service.ports.client | int) }}
-{{- else }}
-{{- join "," .Values.metaStore.etcd.endpoints }}
-{{- end }}
-{{- end }}
-
-{{- define "risingwave.metaStoreAuthRequired" -}}
-{{- if (include "risingwave.bundle.etcd.enabled" .) }}
-{{- and (not .Values.etcd.auth.rbac.allowNoneAuthentication) .Values.etcd.auth.rbac.create }}
-{{- else }}
-{{- .Values.metaStore.etcd.authentication.enabled }}
-{{- end }}
-{{- end }}
 
 {{/*
 Create the name of the AzureBlob credentials Secret to use

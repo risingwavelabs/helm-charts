@@ -11,11 +11,6 @@ tags:
   ##
   bundle: false
 
-  ## @param tags.etcd Tag to control the bitnami/etcd dependency.
-  ## @values true,false
-  ##
-  etcd: false
-
   ## @param tags.postgresql Tag to control the bitnami/postgresql dependency.
   ## @values true, false
   postgresql: false
@@ -25,51 +20,6 @@ tags:
   ## Note that even if it is true, when the state store isn't minio, it won't be installed.
   ##
   minio: false
-
-## @section Values for the bitnami/etcd dependency.
-## Ref: https://github.com/bitnami/charts/blob/main/bitnami/etcd/values.yaml
-##
-etcd:
-  service:
-    ports:
-      client: 2379
-      peer: 2380
-
-  replicaCount: 1
-
-  livenessProbe:
-    initialDelaySeconds: 5
-
-  readinessProbe:
-    initialDelaySeconds: 5
-
-  auth:
-    rbac:
-      create: false
-      allowNoneAuthentication: true
-
-  persistence:
-    enabled: true
-    size: 10Gi
-
-  persistentVolumeClaimRetentionPolicy:
-    enabled: true
-    whenScaled: Retain
-    whenDeleted: Delete
-
-  extraEnvVars:
-  - name: "ETCD_MAX_REQUEST_BYTES"
-    value: "104857600"
-  - name: "MAX_QUOTA_BACKEND_BYTES"
-    value: "8589934592"
-  - name: "ETCD_AUTO_COMPACTION_MODE"
-    value: "periodic"
-  - name: "ETCD_AUTO_COMPACTION_RETENTION"
-    value: "1m"
-  - name: "ETCD_SNAPSHOT_COUNT"
-    value: "10000"
-  - name: "ETCD_MAX_TXN_OPS"
-    value: "999999"
 
 ## @section Values for the bitnami/postgresql dependency.
 ## Ref: https://github.com/bitnami/charts/blob/main/bitnami/postgresql/values.yaml
@@ -382,34 +332,6 @@ metaStore:
   ## The new mode is supported starting from v1.10.1.
   ##
   passSQLCredentialsLegacyMode: false
-
-  ## @section metaStore.etcd only takes effect when tags.etcd is false.
-  ##
-  etcd:
-    ## @param metaStore.etcd.enabled Enable/disable the meta store backend.
-    ##
-    enabled: false
-
-    ## @param metaStore.etcd.endpoints [array] Etcd endpoints
-    ##
-    endpoints: [ ]
-
-    authentication:
-      ## @param metaStore.etcd.authentication.enabled Enable/disable authentication.
-      ## If enabled, a Secret will be created to store the username and password.
-      ##
-      enabled: false
-      ## @param metaStore.etcd.authentication.username Etcd username
-      ##
-      username: ""
-      ## @param metaStore.etcd.authentication.password Etcd password
-      ##
-      password: ""
-      ## @param metaStore.etcd.authentication.existingSecretName Use existing Secret for etcd authentication.
-      ## If set, use the existing Secret instead of creating a new one.
-      ## Secret must contain `username` and `password` keys.
-      ##
-      existingSecretName: ""
 
   ## @section metaStore.sqlite Values for sqlite backend.
   sqlite:
