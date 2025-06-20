@@ -49,22 +49,10 @@ Validate meta store backends.
 */}}
 {{- $count = 0 -}}
 {{- $name = "" }}
-# Count without etcd and postgresql.
+# Count without postgresql.
 {{- with .Values.metaStore }}
-{{/*  {{- if .etcd.enabled }}{{ $count = add1 $count }}{{ $name = "etcd" }}{{- end }}*/}}
 {{- if .sqlite.enabled }}{{ $count = add1 $count }}{{ $name = "sqlite" }}{{- end }}
 {{- if .mysql.enabled }}{{ $count = add1 $count }}{{ $name = "mysql" }}{{- end }}
-{{- end }}
-# If there's no meta store and bundled etcd enabled, count = 1
-{{- if (include "risingwave.bundle.etcd.enabled" .) }}
-  {{- if and (eq $count 0) }}
-    {{ $count = add1 $count }}
-    {{ $name = "etcd" }}
-  {{- else }}
-    {{- printf "Unnecessary bundled etcd when %s is enabled!" $name | fail }}
-  {{- end }}
-{{- else }}
-  {{- if .Values.metaStore.etcd.enabled }}{{ $count = add1 $count }}{{ $name = "etcd" }}{{- end }}
 {{- end }}
 # If there's no meta store and bundled postgresql enabled, count = 1
 {{- if (include "risingwave.bundle.postgresql.enabled" .) }}
@@ -83,22 +71,6 @@ Validate meta store backends.
   {{- fail "More than one meta store backends!" }}
 {{- end }}
 
-{{/*
-Validate parameters of etcd meta store.
-*/}}
-{{- if not (include "risingwave.bundle.etcd.enabled" .) }}
-  {{- if .Values.metaStore.etcd.enabled }}
-    {{- if empty .Values.metaStore.etcd.endpoints }}
-      {{- fail "Endpoints .metaStore.etcd.endpoints must be set!" }}
-    {{- end }}
-    {{- if .Values.metaStore.etcd.authentication.enabled }}
-      {{- if not (or .Values.metaStore.etcd.authentication.existingSecretName
-        (and .Values.metaStore.etcd.authentication.username .Values.metaStore.etcd.authentication.password)) }}
-        {{- fail "Meta store etcd's authentication is enabled, either existing secret or username/password should be provided!" }}
-      {{- end }}
-    {{- end }}
-  {{- end }}
-{{- end }}
 
 {{/*
 Validate parameters of sqlite meta store.

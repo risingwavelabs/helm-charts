@@ -137,21 +137,11 @@ spec:
             --dashboard-host 0.0.0.0:{{ .Values.ports.meta.dashboard }}
             --prometheus-host 0.0.0.0:{{ .Values.ports.frontend.metrics }}
             --backend $(RW_BACKEND)
-            {{- if or .Values.metaStore.etcd.enabled (include "risingwave.bundle.etcd.enabled" .) }}
-            --etcd-endpoints $(RW_ETCD_ENDPOINTS)
-            {{- end }}
             {{- if (include "risingwave.sqlEndpoint" .) }}
             --sql-endpoint $(RW_SQL_ENDPOINT)
             {{- end }}
             --state-store $(RW_STATE_STORE)
             --data-directory $(RW_DATA_DIRECTORY)
-            {{- if (include "risingwave.bundle.etcd.enabled" .) }}
-            {{- if and (not .Values.etcd.auth.rbac.allowNoneAuthentication) .Values.etcd.auth.rbac.create }}
-            --etcd-auth
-            --etcd-username $(RW_ETCD_USERNAME)
-            --etcd-password $(RW_ETCD_PASSWORD)
-            {{- end }}
-            {{- end }}
         - >-
           --compute-opts=--listen-addr 127.0.0.1:{{ .Values.ports.compute.svc }}
             --prometheus-listener-addr 0.0.0.0:{{ .Values.ports.frontend.metrics }}
@@ -193,10 +183,6 @@ spec:
         {{- if $credentialsSecret }}
         - secretRef:
             name: {{ $credentialsSecret }}
-        {{- end }}
-        {{- if and .Values.metaStore.etcd.authentication.enabled (not .Values.metaStore.etcd.authentication.existingSecretName) }}
-        - secretRef:
-            name: {{ include "risingwave.etcdCredentialsSecretName" . }}
         {{- end }}
         {{- if or (include "risingwave.bundle.postgresql.enabled" . ) .Values.metaStore.postgresql.enabled }}
         - secretRef:
@@ -290,36 +276,6 @@ spec:
           value: {{ include "risingwave.stateStoreDataDirectory" . }}
         - name: RW_BACKEND
           value: {{ include "risingwave.metaBackend" . }}
-        {{- if or .Values.metaStore.etcd.enabled (include "risingwave.bundle.etcd.enabled" .) }}
-        - name: RW_ETCD_ENDPOINTS
-          value: {{ include "risingwave.metaStoreEtcdEndpoints" . }}
-        - name: RW_ETCD_AUTH
-          value: {{ include "risingwave.metaStoreAuthRequired" . | quote }}
-        {{- end }}
-        {{- if (include "risingwave.bundle.etcd.enabled" .) }}
-        {{- if .Values.etcd.auth.rbac.create }}
-        - name: RW_ETCD_USERNAME
-          value: root
-        - name: RW_ETCD_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              key: {{ include "etcd.secretPasswordKey" .Subcharts.etcd }}
-              name: {{ include "etcd.secretName" .Subcharts.etcd }}
-        {{- end }}
-        {{- else }}
-        {{- if and .Values.metaStore.etcd.authentication.enabled .Values.metaStore.etcd.authentication.existingSecretName }}
-        - name: RW_ETCD_USERNAME
-          valueFrom:
-            secretKeyRef:
-              key: username
-              name: {{ include "risingwave.etcdCredentialsSecretName" . }}
-        - name: RW_ETCD_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              key: password
-              name: {{ include "risingwave.etcdCredentialsSecretName" . }}
-        {{- end }}
-        {{- end }}
         # SQL meta backend.
         {{- if and .Values.metaStore.postgresql.enabled .Values.metaStore.postgresql.authentication.existingSecretName }}
         - name: RW_POSTGRES_USERNAME

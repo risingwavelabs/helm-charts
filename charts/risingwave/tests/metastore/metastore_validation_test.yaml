@@ -1,4 +1,4 @@
-suite: Test etcd existing secret validation
+suite: Test metastore existing secret validation
 templates:
 - templates/validation.yaml
 chart:
@@ -14,101 +14,12 @@ tests:
 - it: multiple backends should fail
   set:
     metaStore:
-      etcd:
+      sqlite:
         enabled: true
       mysql:
         enabled: true
   asserts:
   - failedTemplate: {}
-# Tests for etcd.
-- it: no authentication should pass (etcd)
-  set:
-    metaStore:
-      etcd:
-        enabled: true
-        endpoints:
-        - dummy
-        authentication:
-          enabled: false
-  asserts:
-  - notFailedTemplate: { }
-- it: existing secret should pass (etcd)
-  set:
-    metaStore:
-      etcd:
-        enabled: true
-        endpoints:
-        - dummy
-        authentication:
-          enabled: true
-          existingSecretName: a
-  asserts:
-  - notFailedTemplate: { }
-- it: username/password should pass (etcd)
-  set:
-    metaStore:
-      etcd:
-        enabled: true
-        endpoints:
-        - dummy
-        authentication:
-          enabled: true
-          username: a
-          password: b
-  asserts:
-  - notFailedTemplate: { }
-- it: no credentials should fail (etcd)
-  set:
-    metaStore:
-      etcd:
-        enabled: true
-        endpoints:
-        - dummy
-        authentication:
-          enabled: true
-  asserts:
-  - failedTemplate: {}
-- it: username only should fail (etcd)
-  set:
-    metaStore:
-      etcd:
-        enabled: true
-        endpoints:
-        - dummy
-        authentication:
-          enabled: true
-          username: a
-  asserts:
-  - failedTemplate: {}
-- it: password only should fail (etcd)
-  set:
-    metaStore:
-      etcd:
-        enabled: true
-        endpoints:
-        - dummy
-        authentication:
-          enabled: true
-          password: a
-  asserts:
-  - failedTemplate: {}
-- it: no endpoints should fail (etcd)
-  set:
-    metaStore:
-      etcd:
-        enabled: true
-  asserts:
-  - failedTemplate: {}
-- it: multiple endpoints should pass (etcd)
-  set:
-    metaStore:
-      etcd:
-        enabled: true
-        endpoints:
-        - a
-        - b
-  asserts:
-  - notFailedTemplate: { }
 # Tests for sqlite.
 - it: empty path should fail (sqlite)
   set:

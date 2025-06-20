@@ -1,6 +1,3 @@
-etcd:
-  replicaCount: 0
-
 metaComponent:
   replicas: 0
 

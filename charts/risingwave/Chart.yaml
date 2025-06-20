@@ -31,11 +31,6 @@ dependencies:
 - name: common
   repository: https://charts.bitnami.com/bitnami
   version: 2.x.x
-- name: etcd
-  version: 9.x.x
-  repository: https://charts.bitnami.com/bitnami
-  tags:
-  - etcd
 - name: postgresql
   version: 16.x.x
   repository: https://charts.bitnami.com/bitnami
