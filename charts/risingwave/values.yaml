@@ -974,11 +974,13 @@ frontendComponent:
   ##
   embeddedServing: false
 
-  ## @param autoDeregistration Auto-deregistration of frontend pods. If enabled, frontend pods will be
-  ## automatically deregistered from the meta store when they are deleted.
+  ## @param frontendComponent.autoDeregistration Auto-deregistration of frontend pods. This will only be effective when
+  ## the embeddedServing is true. If enabled, frontend pods will be automatically deregistered from
+  ## the meta store when they are deleted.
   ##
   autoDeregistration:
-    ## @param autoDeregistration.enabled Enable auto-deregistration.
+    ## @param frontendComponent.autoDeregistration.enabled Enable auto-deregistration for frontend pods. This only applies
+    ## when embeddedServing is true.
     enabled: false
 
   ## @param frontendComponent.configuration RisingWave configuration in toml or toml object.
