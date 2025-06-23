@@ -125,6 +125,7 @@ spec:
           --frontend-opts=--config-path /risingwave/config/risingwave.frontend.toml
             --listen-addr 0.0.0.0:{{ .Values.ports.frontend.svc }}
             --advertise-addr $(POD_IP):{{ .Values.ports.frontend.svc }}
+        {{- if .Values.frontendComponent.autoDeregistration.enabled }}
         lifecycle:
           preStop:
             exec:
@@ -134,6 +135,7 @@ spec:
               - >-
                 /risingwave/bin/risingwave ctl meta unregister-workers --yes \
                   --workers ${POD_IP}:{{ .Values.ports.compute.svc }}
+        {{- end }}
         {{- else }}
         command:
         - /risingwave/bin/risingwave

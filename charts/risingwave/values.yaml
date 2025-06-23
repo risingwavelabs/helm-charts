@@ -974,6 +974,13 @@ frontendComponent:
   ##
   embeddedServing: false
 
+  ## @param autoDeregistration Auto-deregistration of frontend pods. If enabled, frontend pods will be
+  ## automatically deregistered from the meta store when they are deleted.
+  ##
+  autoDeregistration:
+    ## @param autoDeregistration.enabled Enable auto-deregistration.
+    enabled: false
+
   ## @param frontendComponent.configuration RisingWave configuration in toml or toml object.
   ## If specified, it will override the default configuration.
   ## Ref: https://github.com/risingwavelabs/risingwave/blob/main/src/config/example.toml

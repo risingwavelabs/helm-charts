@@ -17,8 +17,12 @@ tests:
       value:
       - /risingwave/bin/risingwave
       - standalone
-- it: should have pre-stop lifecycle hook
+- it: should have pre-stop lifecycle hook when auto deregistration is enabled
   template: frontend-deploy.yaml
+  set:
+    frontendComponent:
+      autoDeregistration:
+          enabled: true
   asserts:
   - exists:
       path: spec.template.spec.containers[0].lifecycle.preStop
@@ -30,6 +34,15 @@ tests:
       - >-
         /risingwave/bin/risingwave ctl meta unregister-workers --yes \
           --workers ${POD_IP}:5688
+- it: shouldn't have pre-stop lifecycle hook when auto deregistration is disabled
+  template: frontend-deploy.yaml
+  set:
+    frontendComponent:
+      autoDeregistration:
+          enabled: false
+  asserts:
+  - notExists:
+      path: spec.template.spec.containers[0].lifecycle
 - it: compute node should set role to streaming
   template: compute-sts.yaml
   asserts:
