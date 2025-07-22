@@ -5,8 +5,9 @@ SPDX-License-Identifier: APACHE-2.0
 
 {{- if not .Values.standalone.enabled -}}
 {{- $resourceGroups := .Values.computeComponent.resourceGroups | default list }}
-{{- if $resourceGroups and (gt (len $resourceGroups) 0) }}
-  {{- range $group := $resourceGroups }}
+{{- if gt (len $resourceGroups) 0 }}
+  {{- $count := len $resourceGroups }}
+  {{- range $index, $group := $resourceGroups }}
     {{- $ctx := deepCopy $ }}
     {{- $_ := set $ctx "resourceGroup" $group }}
     {{- /* Inherit fields from computeComponent unless overridden in group */ -}}
@@ -19,7 +20,6 @@ SPDX-License-Identifier: APACHE-2.0
     {{- end }}
     {{- $_ := set $ctx.Values "computeComponent" $comp }}
     {{- $_ := set $ctx.Values.computeComponent "resourceGroupName" $group.name }}
----
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -268,6 +268,7 @@ spec:
         - name: RW_LISTEN_ADDR
           value: "0.0.0.0:{{ $ctx.Values.ports.compute.svc }}"
         - name: RW_ADVERTISE_ADDR
+        {{- if $comp.advertisingWithIP }}
           value: "$(POD_IP):{{ $ctx.Values.ports.compute.svc }}"
         {{- else }}
           value: "$(POD_NAME).{{ include "risingwave.computeHeadlessServiceName" $ctx }}.$(POD_NAMESPACE).svc:{{ $ctx.Values.ports.compute.svc }}"
@@ -334,6 +335,9 @@ spec:
       {{- if $comp.additionalContainers }}
       {{- toYaml $comp.additionalContainers | nindent 6 }}
       {{- end }}
+    {{- if lt $index (sub $count 1) }}
+---
+    {{- end }}
   {{- end }}
 {{- else }}
 apiVersion: apps/v1
@@ -769,4 +773,5 @@ spec:
       {{- if .Values.computeComponent.additionalContainers }}
       {{- toYaml .Values.computeComponent.additionalContainers | nindent 6 }}
       {{- end }}
+{{- end -}}
 {{- end -}}
