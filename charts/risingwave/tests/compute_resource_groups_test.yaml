@@ -12,66 +12,77 @@ tests:
         - name: group-a
           replicas: 2
         - name: group-b
-          replicas: 10
+          replicas: 5
+        - name: group-c
+          replicas: 6
   asserts:
-  - hasDocuments:
-      count: 2
-  - containsDocument:
+  - documentIndex: 0
+    containsDocument:
       apiVersion: apps/v1
       kind: StatefulSet
       metadata:
         name: RELEASE-NAME-risingwave-compute-group-a
-  - containsDocument:
+  - documentIndex: 1
+    containsDocument:
       apiVersion: apps/v1
       kind: StatefulSet
       metadata:
         name: RELEASE-NAME-risingwave-compute-group-b
-  - equal:
+  - documentIndex: 2
+    containsDocument:
+      apiVersion: apps/v1
+      kind: StatefulSet
+      metadata:
+        name: RELEASE-NAME-risingwave-compute-group-c
+  - documentIndex: 0
+    equal:
       path: spec.replicas
       value: 2
-      documentSelector:
-        metadata:
-          name: RELEASE-NAME-risingwave-compute-group-a
-  - equal:
+  - documentIndex: 1
+    equal:
       path: spec.replicas
-      value: 10
-      documentSelector:
-        metadata:
-          name: RELEASE-NAME-risingwave-compute-group-b
-  - equal:
+      value: 5
+  - documentIndex: 2
+    equal:
+      path: spec.replicas
+      value: 6
+  - documentIndex: 0
+    equal:
       path: spec.template.spec.containers[0].env[0].name
       value: RW_RESOURCE_GROUP
-      documentSelector:
-        metadata:
-          name: RELEASE-NAME-risingwave-compute-group-a
-  - equal:
+  - documentIndex: 0
+    equal:
       path: spec.template.spec.containers[0].env[0].value
       value: group-a
-      documentSelector:
-        metadata:
-          name: RELEASE-NAME-risingwave-compute-group-a
-  - equal:
+  - documentIndex: 1
+    equal:
       path: spec.template.spec.containers[0].env[0].name
       value: RW_RESOURCE_GROUP
-      documentSelector:
-        metadata:
-          name: RELEASE-NAME-risingwave-compute-group-b
-  - equal:
+  - documentIndex: 1
+    equal:
       path: spec.template.spec.containers[0].env[0].value
       value: group-b
-      documentSelector:
-        metadata:
-          name: RELEASE-NAME-risingwave-compute-group-b
-# - it: falls back to old behavior if resourceGroups is empty
-#   set:
-#     computeComponent:
-#       resourceGroups: []
-#       replicas: 3
-#   asserts:
-#   - hasDocuments:
-#       count: 1
-#   - equal:
-#       path: spec.replicas
-#       value: 3
-#   - notExists:
-#       path: spec.template.spec.containers[0].env[?(@.name=="RW_RESOURCE_GROUP")] 
+  - documentIndex: 2
+    equal:
+      path: spec.template.spec.containers[0].env[0].name
+      value: RW_RESOURCE_GROUP
+  - documentIndex: 2
+    equal:
+      path: spec.template.spec.containers[0].env[0].value
+      value: group-c
+- it: falls back to old behavior if resourceGroups is empty
+  set:
+    computeComponent:
+      resourceGroups: []
+      replicas: 3
+  asserts:
+  - documentIndex: 0
+    hasDocuments:
+      count: 1
+  - documentIndex: 0
+    equal:
+      path: spec.replicas
+      value: 3
+  - documentIndex: 0
+    notExists:
+      path: spec.template.spec.containers[0].env[?(@.name=="RW_RESOURCE_GROUP")] 
