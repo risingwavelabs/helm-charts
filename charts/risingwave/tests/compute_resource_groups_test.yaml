@@ -1,0 +1,65 @@
+suite: Test compute resource groups
+templates:
+- compute-sts.yaml
+chart:
+  appVersion: 1.0.0
+  version: 0.0.1
+tests:
+- it: renders multiple StatefulSets for resource groups
+  set:
+    computeComponent:
+      resourceGroups:
+        - name: group-a
+          replicas: 2
+        - name: group-b
+          replicas: 1
+  asserts:
+  - hasDocuments:
+      count: 2
+  - containsDocument:
+      apiVersion: apps/v1
+      kind: StatefulSet
+      metadata:
+        name: RELEASE-NAME-risingwave-compute-group-a
+  - containsDocument:
+      apiVersion: apps/v1
+      kind: StatefulSet
+      metadata:
+        name: RELEASE-NAME-risingwave-compute-group-b
+  - equal:
+      path: spec.replicas
+      value: 2
+      documentIndex: 0
+  - equal:
+      path: spec.replicas
+      value: 1
+      documentIndex: 1
+  - equal:
+      path: spec.template.spec.containers[0].env[0].name
+      value: RW_RESOURCE_GROUP
+      documentIndex: 0
+  - equal:
+      path: spec.template.spec.containers[0].env[0].value
+      value: group-a
+      documentIndex: 0
+  - equal:
+      path: spec.template.spec.containers[0].env[0].name
+      value: RW_RESOURCE_GROUP
+      documentIndex: 1
+  - equal:
+      path: spec.template.spec.containers[0].env[0].value
+      value: group-b
+      documentIndex: 1
+- it: falls back to old behavior if resourceGroups is empty
+  set:
+    computeComponent:
+      resourceGroups: []
+      replicas: 3
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: spec.replicas
+      value: 3
+  - notExists:
+      path: spec.template.spec.containers[0].env[?(@.name=="RW_RESOURCE_GROUP")] 
