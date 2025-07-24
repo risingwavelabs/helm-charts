@@ -85,4 +85,29 @@ tests:
       value: 3
   - documentIndex: 0
     notExists:
-      path: spec.template.spec.containers[0].env[?(@.name=="RW_RESOURCE_GROUP")] 
+      path: spec.template.spec.containers[?(@.name=="RW_RESOURCE_GROUP")] 
+- it: keeps all original containers when resourceGroups is empty
+  set:
+    computeComponent:
+      resourceGroups: []
+      replicas: 2
+      additionalContainers:
+        - name: sidecar
+          image: busybox
+          command: ["sleep", "3600"]
+    compactMode:
+      enabled: true
+  asserts:
+    - documentIndex: 0
+      lengthEqual:
+        path: spec.template.spec.containers
+        count: 3
+    - documentIndex: 0
+      exists:
+        path: spec.template.spec.containers[?(@.name=="compute")]
+    - documentIndex: 0
+      exists:
+        path: spec.template.spec.containers[?(@.name=="frontend")]
+    - documentIndex: 0
+      exists:
+        path: spec.template.spec.containers[?(@.name=="sidecar")]
