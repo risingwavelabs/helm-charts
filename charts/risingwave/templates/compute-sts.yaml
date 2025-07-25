@@ -7,6 +7,23 @@ SPDX-License-Identifier: APACHE-2.0
 {{- $resourceGroups := .Values.computeComponent.resourceGroups | default list }}
 {{- $hasGroups := gt (len $resourceGroups) 0 }}
 {{- $groups := ternary $resourceGroups (list (dict "name" "")) $hasGroups }}
+{{/* Validate resource name uniqueness */}}
+{{- if $hasGroups }}
+  {{- $nameMap := dict }}
+  {{- range $group := $resourceGroups }}
+    {{- $name := $group.name | default "" }}
+    {{- if eq $name "" }}
+      {{- fail "Each resource group must have a non-empty name." }}
+    {{- end }}
+    {{- if eq $name "default" }}
+      {{- fail "Resource group name 'default' is not allowed." }}
+    {{- end }}
+    {{- if hasKey $nameMap $name }}
+      {{- fail (printf "Duplicate resource group name: '%s'" $name) }}
+    {{- end }}
+    {{- $_ := set $nameMap $name true }}
+  {{- end }}
+{{- end }}
 {{- range $index, $group := $groups }}
   {{- $ctx := deepCopy $ }}
   {{- $comp := dict }}
