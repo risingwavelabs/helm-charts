@@ -8,68 +8,64 @@ tests:
 - it: renders multiple StatefulSets for resource groups
   set:
     computeComponent:
+      replicas: 3
       resourceGroups:
         - name: group-a
           replicas: 2
         - name: group-b
           replicas: 5
-        - name: group-c
-          replicas: 6
   asserts:
+  - hasDocuments:
+      count: 3
   - documentIndex: 0
+    containsDocument:
+      apiVersion: apps/v1
+      kind: StatefulSet
+      metadata:
+        name: RELEASE-NAME-risingwave-compute. # Default resource group
+  - documentIndex: 0
+    equal:
+      path: spec.replicas
+      value: 3
+  - documentIndex: 0
+    notExists:
+      path: spec.template.spec.containers[?(@.name=="RW_RESOURCE_GROUP")] 
+  - documentIndex: 1
     containsDocument:
       apiVersion: apps/v1
       kind: StatefulSet
       metadata:
         name: RELEASE-NAME-risingwave-compute-group-a
   - documentIndex: 1
+    equal:
+      path: spec.replicas
+      value: 2
+  - documentIndex: 1
+    equal:
+      path: spec.template.spec.containers[0].env[0].name
+      value: RW_RESOURCE_GROUP
+  - documentIndex: 1    
+    equal:
+      path: spec.template.spec.containers[0].env[0].value
+      value: group-a
+  - documentIndex: 2
+    equal:
+      path: spec.replicas
+      value: 5
+  - documentIndex: 2
     containsDocument:
       apiVersion: apps/v1
       kind: StatefulSet
       metadata:
         name: RELEASE-NAME-risingwave-compute-group-b
   - documentIndex: 2
-    containsDocument:
-      apiVersion: apps/v1
-      kind: StatefulSet
-      metadata:
-        name: RELEASE-NAME-risingwave-compute-group-c
-  - documentIndex: 0
-    equal:
-      path: spec.replicas
-      value: 2
-  - documentIndex: 1
-    equal:
-      path: spec.replicas
-      value: 5
-  - documentIndex: 2
-    equal:
-      path: spec.replicas
-      value: 6
-  - documentIndex: 0
     equal:
       path: spec.template.spec.containers[0].env[0].name
       value: RW_RESOURCE_GROUP
-  - documentIndex: 0
-    equal:
-      path: spec.template.spec.containers[0].env[0].value
-      value: group-a
-  - documentIndex: 1
-    equal:
-      path: spec.template.spec.containers[0].env[0].name
-      value: RW_RESOURCE_GROUP
-  - documentIndex: 1
+  - documentIndex: 2    
     equal:
       path: spec.template.spec.containers[0].env[0].value
       value: group-b
-  - documentIndex: 2
-    equal:
-      path: spec.template.spec.containers[0].env[0].name
-      value: RW_RESOURCE_GROUP
-  - documentIndex: 2
-    equal:
-      path: spec.template.spec.containers[0].env[0].value
-      value: group-c
 - it: falls back to old behavior if resourceGroups is empty
   set:
     computeComponent:
@@ -128,7 +124,7 @@ tests:
         - name: group-b
   asserts:
     - failedTemplate:
-        errorMessage: "Resource group name 'default' is not allowed."
+        errorMessage: "Duplicate resource group name: 'default'"
 - it: fails if resource group name is empty
   set:
     computeComponent:

@@ -6,47 +6,44 @@ SPDX-License-Identifier: APACHE-2.0
 {{- if not .Values.standalone.enabled -}}
 {{- $resourceGroups := .Values.computeComponent.resourceGroups | default list }}
 {{- $hasGroups := gt (len $resourceGroups) 0 }}
-{{- $groups := ternary $resourceGroups (list (dict "name" "")) $hasGroups }}
-{{/* Validate resource name uniqueness */}}
+{{- $defaultGroup := dict "name" "default" }}
+{{- $allGroups := list $defaultGroup }}
 {{- if $hasGroups }}
   {{- $nameMap := dict }}
+  {{- $_ := set $nameMap "default" true }}
   {{- range $group := $resourceGroups }}
     {{- $name := $group.name | default "" }}
     {{- if eq $name "" }}
       {{- fail "Each resource group must have a non-empty name." }}
     {{- end }}
-    {{- if eq $name "default" }}
-      {{- fail "Resource group name 'default' is not allowed." }}
-    {{- end }}
     {{- if hasKey $nameMap $name }}
       {{- fail (printf "Duplicate resource group name: '%s'" $name) }}
     {{- end }}
     {{- $_ := set $nameMap $name true }}
+    {{- $allGroups = append $allGroups $group }}
   {{- end }}
 {{- end }}
-{{- range $index, $group := $groups }}
+{{- range $index, $group := $allGroups }}
   {{- $ctx := deepCopy $ }}
   {{- $comp := dict }}
   {{- range $k, $v := $.Values.computeComponent }}
     {{- $_ := set $comp $k $v }}
   {{- end }}
-  {{- if $hasGroups }}
+  {{- if ne $group.name "default" }}
     {{- range $k, $v := $group }}
       {{- $_ := set $comp $k $v }}
     {{- end }}
-    {{- $_ := set $ctx.Values "computeComponent" $comp }}
-    {{- $_ := set $ctx.Values.computeComponent "resourceGroupName" $group.name }}
-  {{- else }}
-    {{- $_ := set $ctx.Values "computeComponent" $comp }}
   {{- end }}
+  {{- $_ := set $ctx.Values "computeComponent" $comp }}
+  {{- $_ := set $ctx.Values.computeComponent "resourceGroupName" $group.name }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ include "risingwave.computeComponentName" $ctx }}{{- if $hasGroups }}-{{ $group.name }}{{- end }}
+  name: {{ include "risingwave.computeComponentName" $ctx }}{{- if ne $group.name "default" }}-{{ $group.name }}{{- end }}
   labels:
     {{- include "risingwave.labels" $ctx | nindent 4 }}
     risingwave.risingwavelabs.com/component: compute
-    {{- if $hasGroups }}
+    {{- if ne $group.name "default" }}
     risingwave.risingwavelabs.com/resource-group: {{ $group.name }}
     {{- end }}
   {{- $annotations := (include "risingwave.annotations" $ctx ) | trim }}
@@ -62,7 +59,7 @@ spec:
     matchLabels:
       {{- include "risingwave.selectorLabels" $ctx | nindent 6 }}
       risingwave.risingwavelabs.com/component: compute
-      {{- if $hasGroups }}
+      {{- if ne $group.name "default" }}
       risingwave.risingwavelabs.com/resource-group: {{ $group.name }}
       {{- end }}
   serviceName: {{ include "risingwave.computeHeadlessServiceName" $ctx }}
@@ -87,7 +84,7 @@ spec:
         risingwave.risingwavelabs.com/component: compute
         risingwave/name: {{ include "risingwave.fullname" $ctx }}
         risingwave/component: compute
-        {{- if $hasGroups }}
+        {{- if ne $group.name "default" }}
         risingwave.risingwavelabs.com/resource-group: {{ $group.name }}
         {{- end }}
         {{- if $comp.podLabels }}
@@ -212,7 +209,7 @@ spec:
             name: {{ $credentialsSecret }}
         {{- end }}
         env:
-        {{- if $hasGroups }}
+        {{- if ne $group.name "default" }}
         - name: RW_RESOURCE_GROUP
           value: "{{ $group.name }}"
         {{- end }}
@@ -485,7 +482,7 @@ spec:
       {{- if $comp.additionalContainers }}
       {{- toYaml $comp.additionalContainers | nindent 6 }}
       {{- end }}
-  {{- if and $hasGroups (lt $index (sub (len $groups) 1)) }}
+  {{- if and $hasGroups (lt $index (sub (len $allGroups) 1)) }}
 ---
   {{- end }}
 {{- end }}
