@@ -211,7 +211,7 @@ spec:
         env:
         {{- if ne $group.name "default" }}
         - name: RW_RESOURCE_GROUP
-          value: "{{ $group.name }}"
+          value: {{ $group.name | quote }}
         {{- end }}
         {{ include "risingwave.cloudEnvironments" $ctx | nindent 8 }}
         # Disable auto region loading. Refer to the original source for more information.

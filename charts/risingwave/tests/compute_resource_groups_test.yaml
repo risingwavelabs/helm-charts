@@ -18,11 +18,9 @@ tests:
   - hasDocuments:
       count: 3
   - documentIndex: 0
-    containsDocument:
-      apiVersion: apps/v1
-      kind: StatefulSet
-      metadata:
-        name: RELEASE-NAME-risingwave-compute. # Default resource group
+    equal:
+      path: metadata.name
+      value: RELEASE-NAME-risingwave-compute # Default group
   - documentIndex: 0
     equal:
       path: spec.replicas
@@ -31,11 +29,9 @@ tests:
     notExists:
       path: spec.template.spec.containers[?(@.name=="RW_RESOURCE_GROUP")] 
   - documentIndex: 1
-    containsDocument:
-      apiVersion: apps/v1
-      kind: StatefulSet
-      metadata:
-        name: RELEASE-NAME-risingwave-compute-group-a
+    equal:
+      path: metadata.name
+      value: RELEASE-NAME-risingwave-compute-group-a
   - documentIndex: 1
     equal:
       path: spec.replicas
@@ -50,14 +46,12 @@ tests:
       value: group-a
   - documentIndex: 2
     equal:
+      path: metadata.name
+      value: RELEASE-NAME-risingwave-compute-group-b
+  - documentIndex: 2
+    equal:
       path: spec.replicas
       value: 5
-  - documentIndex: 2
-    containsDocument:
-      apiVersion: apps/v1
-      kind: StatefulSet
-      metadata:
-        name: RELEASE-NAME-risingwave-compute-group-b
   - documentIndex: 2
     equal:
       path: spec.template.spec.containers[0].env[0].name
