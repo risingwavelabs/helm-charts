@@ -1,0 +1,130 @@
+suite: Test compute resource groups
+templates:
+- compute-sts.yaml
+chart:
+  appVersion: 1.0.0
+  version: 0.0.1
+tests:
+- it: renders multiple StatefulSets for resource groups
+  set:
+    computeComponent:
+      replicas: 3
+      resourceGroups:
+        - name: group-a
+          replicas: 2
+        - name: group-b
+          replicas: 5
+  asserts:
+  - hasDocuments:
+      count: 3
+  - documentIndex: 0
+    equal:
+      path: metadata.name
+      value: RELEASE-NAME-risingwave-compute # Default group
+  - documentIndex: 0
+    equal:
+      path: spec.replicas
+      value: 3
+  - documentIndex: 0
+    notExists:
+      path: spec.template.spec.containers[?(@.name=="RW_RESOURCE_GROUP")] 
+  - documentIndex: 1
+    equal:
+      path: metadata.name
+      value: RELEASE-NAME-risingwave-compute-group-a
+  - documentIndex: 1
+    equal:
+      path: spec.replicas
+      value: 2
+  - documentIndex: 1
+    equal:
+      path: spec.template.spec.containers[0].env[0].name
+      value: RW_RESOURCE_GROUP
+  - documentIndex: 1    
+    equal:
+      path: spec.template.spec.containers[0].env[0].value
+      value: group-a
+  - documentIndex: 2
+    equal:
+      path: metadata.name
+      value: RELEASE-NAME-risingwave-compute-group-b
+  - documentIndex: 2
+    equal:
+      path: spec.replicas
+      value: 5
+  - documentIndex: 2
+    equal:
+      path: spec.template.spec.containers[0].env[0].name
+      value: RW_RESOURCE_GROUP
+  - documentIndex: 2    
+    equal:
+      path: spec.template.spec.containers[0].env[0].value
+      value: group-b
+- it: falls back to old behavior if resourceGroups is empty
+  set:
+    computeComponent:
+      resourceGroups: []
+      replicas: 3
+  asserts:
+  - documentIndex: 0
+    hasDocuments:
+      count: 1
+  - documentIndex: 0
+    equal:
+      path: spec.replicas
+      value: 3
+  - documentIndex: 0
+    notExists:
+      path: spec.template.spec.containers[?(@.name=="RW_RESOURCE_GROUP")] 
+- it: keeps all original containers when resourceGroups is empty
+  set:
+    computeComponent:
+      resourceGroups: []
+      replicas: 2
+      additionalContainers:
+        - name: sidecar
+          image: busybox
+          command: ["sleep", "3600"]
+    compactMode:
+      enabled: true
+  asserts:
+    - documentIndex: 0
+      lengthEqual:
+        path: spec.template.spec.containers
+        count: 3
+    - documentIndex: 0
+      exists:
+        path: spec.template.spec.containers[?(@.name=="compute")]
+    - documentIndex: 0
+      exists:
+        path: spec.template.spec.containers[?(@.name=="frontend")]
+    - documentIndex: 0
+      exists:
+        path: spec.template.spec.containers[?(@.name=="sidecar")]
+- it: fails if resource group names are not unique
+  set:
+    computeComponent:
+      resourceGroups:
+        - name: group-a
+        - name: group-a
+  asserts:
+    - failedTemplate:
+        errorMessage: "Duplicate resource group name: 'group-a'"
+- it: fails if resource group name is 'default'
+  set:
+    computeComponent:
+      resourceGroups:
+        - name: default
+        - name: group-b
+  asserts:
+    - failedTemplate:
+        errorMessage: "Duplicate resource group name: 'default'"
+- it: fails if resource group name is empty
+  set:
+    computeComponent:
+      resourceGroups:
+        - name: ""
+        - name: group-b
+  asserts:
+    - failedTemplate:
+        errorMessage: "Each resource group must have a non-empty name."

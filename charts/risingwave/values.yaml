@@ -1031,6 +1031,21 @@ computeComponent:
   ##
   replicas: 1
 
+  ## @param computeComponent.resourceGroups List of resource groups for compute nodes. Each resource group is a map with
+  ## at least 'name' (required, must be unique) and 'replicas' (optional). Any other fields in computeComponent can be
+  ## overridden per group; otherwise, they inherit from computeComponent. If set, a separate StatefulSet will be created
+  ## for each group, and the environment variable RW_RESOURCE_GROUP will be set to the group's name in the container.
+  ## Note that there will be always a default group which includes all configuration of computeComponent. Don't set
+  ## resource group name to "default" otherwise it will fail with error: "Duplicate resource group name".
+
+  ## Example:
+  ## resourceGroups:
+  ##   - name: group-a
+  ##     replicas: 2
+  ##   - name: group-b
+  ##     replicas: 1
+  resourceGroups: []
+
   ## @param computeComponent.autoscaling Compute Pod horizontal Pod Autoscalers
   ## Reference: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#container-resource-metrics
   autoscaling:
