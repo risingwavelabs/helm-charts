@@ -83,6 +83,30 @@ Most of the pod related values are under these sections:
 Almost all possible fields on the raw workloads are exposed,
 including `replicas`, `resources`, `nodeSelector`, `affinity`, `tolerations` and others.
 
+#### Resource Groups for Compute Nodes
+
+For advanced use cases, you can organize compute nodes into resource groups with different configurations:
+
+```yaml
+computeComponent:
+  replicas: 3  # Default group
+  resourceGroups:
+    - name: high-memory
+      replicas: 2
+      resources:
+        requests:
+          cpu: 4
+          memory: 32Gi
+    - name: cpu-intensive  
+      replicas: 1
+      resources:
+        requests:
+          cpu: 8
+          memory: 16Gi
+```
+
+Each resource group creates a separate set of compute pods with its own configuration. Groups can override any setting from the parent `computeComponent` section. Resource group names must be unique and cannot be "default" as this name is reserved.
+
 ### Customize Meta Store
 
 > [!CAUTION]
