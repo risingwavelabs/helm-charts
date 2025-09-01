@@ -25,6 +25,9 @@ tags:
 ## Ref: https://github.com/bitnami/charts/blob/main/bitnami/postgresql/values.yaml
 ##
 postgresql:
+  image:
+    repository: bitnami/postgresql
+
   auth:
     postgresPassword: "postgres"
     database: "risingwave"
@@ -46,6 +49,9 @@ postgresql:
 ## Ref: https://github.com/bitnami/charts/blob/main/bitnami/minio/values.yaml
 ##
 minio:
+  image:
+    repository: bitnami/minio
+
   defaultBuckets: risingwave
 
   auth:
