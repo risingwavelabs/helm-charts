@@ -61,7 +61,7 @@ serviceAccount:
 image:
   registry: docker.risingwave.com
   repository: risingwavelabs/risingwave-operator
-  tag: "v0.10.2"
+  tag: "v0.11.0"
   digest: ""
   ## @param image.pullPolicy Image pull policy
   ## Specify a imagePullPolicy
