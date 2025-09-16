@@ -26,7 +26,7 @@ tags:
 ##
 postgresql:
   image:
-    repository: bitnami/postgresql
+    repository: bitnamilegacy/postgresql
 
   auth:
     postgresPassword: "postgres"
@@ -50,7 +50,7 @@ postgresql:
 ##
 minio:
   image:
-    repository: bitnami/minio
+    repository: bitnamilegacy/minio
 
   defaultBuckets: risingwave
 
