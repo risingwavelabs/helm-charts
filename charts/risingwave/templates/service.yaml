@@ -63,3 +63,8 @@ spec:
     {{- if or (eq .Values.service.type "NodePort") (eq .Values.service.type "LoadBalancer") }}
     nodePort: {{ .Values.service.nodePort }}
     {{- end }}
+  {{- if .Values.frontendComponent.webhookListener }}
+  - name: http
+    port: {{ .Values.ports.frontend.http }}
+    targetPort: {{ .Values.ports.frontend.http }}
+  {{- end }}

@@ -989,6 +989,11 @@ frontendComponent:
     ## when embeddedServing is true.
     enabled: false
 
+  ## @param frontendComponent.webhookListener Enable webhook listener in frontend.
+  ## If enabled, the webhook listener will be started in the frontend pods.
+  ## Defaults to false.
+  webhookListener: false
+
   ## @param frontendComponent.configuration RisingWave configuration in toml or toml object.
   ## If specified, it will override the default configuration.
   ## Ref: https://github.com/risingwavelabs/risingwave/blob/main/src/config/example.toml
@@ -1321,6 +1326,9 @@ ports:
     ## @param ports.frontend.metrics Port for the frontend metrics service.
     ##
     metrics: 8080
+    ## @params ports.frontend.http Port for the frontend webhook HTTP service.
+    ##
+    http: 4560
   compactor:
     ## @param ports.compactor.svc Port for the compactor service.
     ##

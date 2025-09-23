@@ -154,6 +154,11 @@ spec:
           name: c-svc
           protocol: TCP
         {{- end }}
+        {{- if .Values.frontendComponent.webhookListener }}
+        - containerPort: {{ .Values.ports.frontend.http }}
+          name: http
+          protocol: TCP
+        {{- end }}
         envFrom:
         {{- if .Values.frontendComponent.extraEnvVarsConfigMap }}
         - configMapRef:
@@ -276,6 +281,10 @@ spec:
           value: $(CONTAINER_MEMORY_LIMIT)
         {{- end }}
         {{- end }}
+        {{- end }}
+        {{- if .Values.frontendComponent.webhookListener }}
+        - name: RW_WEBHOOK_LISTEN_ADDR
+          value: "0.0.0.0:{{ .Values.ports.frontend.http }}"
         {{- end }}
         {{- if .Values.frontendComponent.extraEnvVars }}
         {{- .Values.frontendComponent.extraEnvVars | toYaml | nindent 8 }}
