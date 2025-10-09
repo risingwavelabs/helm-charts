@@ -1,0 +1,171 @@
+suite: Test webhook listener setup
+chart:
+  appVersion: 1.0.0
+  version: 0.0.1
+templates:
+- standalone/standalone-sts.yaml
+- compute-sts.yaml
+- frontend-deploy.yaml
+- service.yaml
+tests:
+# ------------------- frontend --------------------
+- it: there must not be webhook listener related configurations by default
+  templates:
+  - frontend-deploy.yaml
+  asserts:
+  - notContains:
+      path: spec.template.spec.containers[0].env
+      value: RW_WEBHOOK_LISTEN_ADDR
+  - notContains:
+      path: spec.template.spec.containers[0].ports
+      value:
+        name: http
+- it: there must be webhook listener related configurations when enabled
+  set:
+    ports:
+      frontend:
+        http: 4565
+    frontendComponent:
+      webhookListener: true
+  templates:
+  - frontend-deploy.yaml
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: RW_WEBHOOK_LISTEN_ADDR
+        value: 0.0.0.0:4565
+  - contains:
+      path: spec.template.spec.containers[0].ports
+      content:
+        name: http
+        containerPort: 4565
+        protocol: TCP
+- it: the service must expose the webhook listener port when enabled
+  set:
+    ports:
+      frontend:
+        http: 4565
+    frontendComponent:
+      webhookListener: true
+  templates:
+  - service.yaml
+  asserts:
+  - contains:
+      path: spec.ports
+      content:
+        name: http
+        port: 4565
+        targetPort: 4565
+# ------------------- standalone --------------------
+- it: there must not be webhook listener related configurations by default (standalone)
+  set:
+    standalone:
+      enabled: true
+  templates:
+  - standalone/standalone-sts.yaml
+  asserts:
+  - notContains:
+      path: spec.template.spec.containers[0].env
+      value: RW_WEBHOOK_LISTEN_ADDR
+  - notContains:
+      path: spec.template.spec.containers[0].ports
+      value:
+        name: http
+- it: there must be webhook listener related configurations when enabled (standalone)
+  set:
+    standalone:
+      enabled: true
+    ports:
+      frontend:
+        http: 4565
+    frontendComponent:
+      webhookListener: true
+  templates:
+  - standalone/standalone-sts.yaml
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: RW_WEBHOOK_LISTEN_ADDR
+        value: 0.0.0.0:4565
+  - contains:
+      path: spec.template.spec.containers[0].ports
+      content:
+        name: http
+        containerPort: 4565
+        protocol: TCP
+- it: the service must expose the webhook listener port when enabled (standalone)
+  set:
+    standalone:
+      enabled: true
+    ports:
+      frontend:
+        http: 4565
+    frontendComponent:
+      webhookListener: true
+  templates:
+  - service.yaml
+  asserts:
+  - contains:
+      path: spec.ports
+      content:
+        name: http
+        port: 4565
+        targetPort: 4565
+# ------------------- compact --------------------
+- it: there must not be webhook listener related configurations by default (compact)
+  set:
+    compactMode:
+      enabled: true
+  templates:
+  - compute-sts.yaml
+  asserts:
+  - notContains:
+      path: spec.template.spec.containers[?(@.name == 'frontend')].env
+      value: RW_WEBHOOK_LISTEN_ADDR
+  - notContains:
+      path: spec.template.spec.containers[?(@.name == 'frontend')].ports
+      value:
+        name: http
+- it: there must be webhook listener related configurations when enabled (compact)
+  set:
+    compactMode:
+      enabled: true
+    ports:
+      frontend:
+        http: 4565
+    frontendComponent:
+      webhookListener: true
+  templates:
+  - compute-sts.yaml
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[?(@.name == 'frontend')].env
+      content:
+        name: RW_WEBHOOK_LISTEN_ADDR
+        value: 0.0.0.0:4565
+  - contains:
+      path: spec.template.spec.containers[?(@.name == 'frontend')].ports
+      content:
+        name: http
+        containerPort: 4565
+        protocol: TCP
+- it: the service must expose the webhook listener port when enabled (compact)
+  set:
+    compactMode:
+      enabled: true
+    ports:
+      frontend:
+        http: 4565
+    frontendComponent:
+      webhookListener: true
+  templates:
+  - service.yaml
+  asserts:
+  - contains:
+      path: spec.ports
+      content:
+        name: http
+        port: 4565
+        targetPort: 4565

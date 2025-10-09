@@ -375,6 +375,11 @@ spec:
         - containerPort: {{ $ctx.Values.ports.frontend.metrics }}
           name: f-metrics
           protocol: TCP
+        {{- if $ctx.Values.frontendComponent.webhookListener }}
+        - containerPort: {{ $ctx.Values.ports.frontend.http }}
+          name: http
+          protocol: TCP
+        {{- end }}
         envFrom:
         {{- if $ctx.Values.frontendComponent.extraEnvVarsConfigMap }}
         - configMapRef:
@@ -431,6 +436,10 @@ spec:
           value: /risingwave/certs/tls.crt
         - name: RW_SSL_KEY
           value: /risingwave/certs/tls.key
+        {{- end }}
+        {{- if $ctx.Values.frontendComponent.webhookListener }}
+        - name: RW_WEBHOOK_LISTEN_ADDR
+          value: "0.0.0.0:{{ $ctx.Values.ports.frontend.http }}"
         {{- end }}
         {{- if $ctx.Values.frontendComponent.extraEnvVars }}
         {{- $ctx.Values.frontendComponent.extraEnvVars | toYaml | nindent 8 }}
