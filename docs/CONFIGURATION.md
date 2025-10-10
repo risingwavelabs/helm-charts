@@ -128,8 +128,9 @@ Customize the `metaStore` section to configure the meta store backends. Currentl
 
 > [!CAUTION]
 >
-> When the meta store backend is `SQLite`, it's impossible to have multiple meta nodes because the SQLite database is
+> - When the meta store backend is `SQLite`, it's impossible to have multiple meta nodes because the SQLite database is
 > stored locally! The leader election won't go well and there will be dual leaders.
+> - When the meta store backend is `PostgreSQL`, make sure the PostgreSQL user configured in your Helm values has at least `USAGE` permission on the `public` schema.
 
 In the backends, `SQLite` is the only one that stores data locally. Make sure it is configured to a persistent path
 (e.g., in a persistent volume), otherwise please expect a data loss on restart.
