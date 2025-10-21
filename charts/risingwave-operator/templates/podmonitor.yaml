@@ -7,7 +7,6 @@ SPDX-License-Identifier: APACHE-2.0
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
-  namespace: {{ .Release.Namespace }}
   name: {{ include "risingwave-operator.fullname" . }}
   namespace: {{ ternary .Values.monitor.podMonitor.namespace .Release.Namespace (not (empty .Values.monitor.podMonitor.namespace)) }}
   labels:
