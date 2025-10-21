@@ -3,8 +3,12 @@ templates:
 - meta-sts.yaml
 - frontend-deploy.yaml
 - compute-sts.yaml
+- iceberg-compactor-deploy.yaml
 - compactor-deploy.yaml
 - standalone/standalone-sts.yaml
+set:
+  icebergCompactorComponent:
+    enabled: true
 chart:
   appVersion: 1.0.0
   version: 0.0.1
@@ -14,6 +18,7 @@ tests:
   - meta-sts.yaml
   - frontend-deploy.yaml
   - compute-sts.yaml
+  - iceberg-compactor-deploy.yaml
   - compactor-deploy.yaml
   set:
     monitor:
@@ -48,6 +53,7 @@ tests:
   - meta-sts.yaml
   - frontend-deploy.yaml
   - compute-sts.yaml
+  - iceberg-compactor-deploy.yaml
   - compactor-deploy.yaml
   set:
     monitor:
@@ -124,6 +130,7 @@ tests:
       value: "1234"
 - it: port value should match (compactor)
   templates:
+  - iceberg-compactor-deploy.yaml
   - compactor-deploy.yaml
   set:
     monitor:

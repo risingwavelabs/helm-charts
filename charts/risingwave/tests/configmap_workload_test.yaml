@@ -3,8 +3,12 @@ templates:
 - meta-sts.yaml
 - compute-sts.yaml
 - frontend-deploy.yaml
+- iceberg-compactor-deploy.yaml
 - compactor-deploy.yaml
 - standalone/standalone-sts.yaml
+set:
+  icebergCompactorComponent:
+    enabled: true
 chart:
   appVersion: 1.0.0
   version: 0.0.1
@@ -14,6 +18,7 @@ tests:
   - meta-sts.yaml
   - compute-sts.yaml
   - frontend-deploy.yaml
+  - iceberg-compactor-deploy.yaml
   - compactor-deploy.yaml
   set:
     configuration: |
@@ -31,6 +36,7 @@ tests:
   - meta-sts.yaml
   - compute-sts.yaml
   - frontend-deploy.yaml
+  - iceberg-compactor-deploy.yaml
   - compactor-deploy.yaml
   set:
     existingConfigMap: "a"

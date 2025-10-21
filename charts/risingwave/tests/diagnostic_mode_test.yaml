@@ -4,11 +4,14 @@ templates:
 - templates/compute-sts.yaml
 - templates/frontend-deploy.yaml
 - templates/compactor-deploy.yaml
+- templates/iceberg-compactor-deploy.yaml
 - templates/standalone/standalone-sts.yaml
 chart:
   appVersion: 1.0.0
   version: 0.0.1
 set:
+  icebergCompactorComponent:
+    enabled: true
   diagnosticMode:
     enabled: true
     command:
@@ -22,6 +25,7 @@ tests:
   - templates/compute-sts.yaml
   - templates/frontend-deploy.yaml
   - templates/compactor-deploy.yaml
+  - templates/iceberg-compactor-deploy.yaml
   asserts:
   - hasDocuments:
       count: 1
@@ -51,6 +55,7 @@ tests:
   - templates/compute-sts.yaml
   - templates/frontend-deploy.yaml
   - templates/compactor-deploy.yaml
+  - templates/iceberg-compactor-deploy.yaml
   asserts:
   - hasDocuments:
       count: 1

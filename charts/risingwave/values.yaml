@@ -1298,6 +1298,20 @@ compactorComponent:
   ## Due the issue of https://github.com/helm/helm/pull/13534, Helm converts int to float incorrectly.
   configuration: ""
 
+icebergCompactorComponent:
+  ## @param icebergCompactorComponent.enabled Enable Iceberg compactor component. Defaults to false.
+  ## This doesn't take effect if standalone mode is enabled.
+  ##
+  enabled: false
+
+  ## @param icebergCompactorComponent.replicas Number of replicas.
+  ##
+  replicas: 1
+
+  ## All configurations are the same as compactorComponent.
+  ## For brevity, they are not repeated here.
+  ## Ref: compactorComponent
+
 ## @section RisingWave container ports. No need to change in most cases.
 ##
 

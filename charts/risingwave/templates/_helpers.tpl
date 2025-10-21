@@ -437,6 +437,13 @@ Create the name of the compactor Service and Deployment to use
 {{- end }}
 
 {{/*
+Create the name of the compactor Service and Deployment to use
+*/}}
+{{- define "risingwave.icebergCompactorComponentName" -}}
+{{- printf "%s-iceberg-compactor" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
 Create the image name to use.
 */}}
 {{- define "risingwave.image" -}}
@@ -679,6 +686,11 @@ Process:
 {{- define "risingwave.compactorConfig"}}
 {{ default (include "risingwave.renderConfig" (dict "config" .Values.configuration) | trim)
            (include "risingwave.renderConfig" (dict "config" .Values.compactorComponent.configuration) | trim) }}
+{{- end }}
+
+{{- define "risingwave.icebergCompactorConfig"}}
+{{ default (include "risingwave.renderConfig" (dict "config" .Values.configuration) | trim)
+           (include "risingwave.renderConfig" (dict "config" (default "" .Values.icebergCompactorComponent.configuration)) | trim) }}
 {{- end }}
 
 {{- define "risingwave.computeConfig"}}

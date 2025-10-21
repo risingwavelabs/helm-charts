@@ -21,4 +21,5 @@ data:
   risingwave.frontend.toml : |{{ include "risingwave.frontendConfig" . | nindent 4 }}
   risingwave.compute.toml : |{{ include "risingwave.computeConfig" . | nindent 4 }}
   risingwave.compactor.toml : |{{ include "risingwave.compactorConfig" . | nindent 4 }}
+  risingwave.iceberg_compactor.toml : |{{ include "risingwave.icebergCompactorConfig" . | nindent 4 }}
 {{- end }}
