@@ -437,7 +437,7 @@ Create the name of the compactor Service and Deployment to use
 {{- end }}
 
 {{/*
-Create the name of the compactor Service and Deployment to use
+Create the name of the Iceberg compactor Deployment to use
 */}}
 {{- define "risingwave.icebergCompactorComponentName" -}}
 {{- printf "%s-iceberg-compactor" (include "risingwave.fullname" .) | trunc 63 | trimSuffix "-" }}
