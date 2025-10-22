@@ -6,6 +6,7 @@ SPDX-License-Identifier: APACHE-2.0
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: {{ .Release.Namespace }}
   name: {{ include "risingwave-operator.fullname" . }}
   labels:
     apps.kubernetes.io/component: manager
