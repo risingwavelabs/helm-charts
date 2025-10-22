@@ -184,7 +184,7 @@ spec:
         - name: RUST_LOG
           value: {{ .Values.frontendComponent.rustLog }}
         - name: RUST_BACKTRACE
-          value: {{ .Values.frontendComponent.rustBacktrace }}
+          value: {{ .Values.frontendComponent.rustBacktrace | quote }}
         - name: POD_IP
           valueFrom:
             fieldRef:
