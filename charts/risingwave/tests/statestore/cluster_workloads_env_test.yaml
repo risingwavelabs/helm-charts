@@ -3,6 +3,7 @@ templates:
 - templates/meta-sts.yaml
 - templates/compute-sts.yaml
 - templates/compactor-deploy.yaml
+- templates/iceberg-compactor-deploy.yaml
 - templates/frontend-deploy.yaml
 set:
   metaComponent:
@@ -13,6 +14,9 @@ set:
     extraEnvVarsSecret: dummy
   frontendComponent:
     embeddedServing: true
+    extraEnvVarsSecret: dummy
+  icebergCompactorComponent:
+    enabled: true
     extraEnvVarsSecret: dummy
 chart:
   appVersion: 1.0.0

@@ -1,0 +1,57 @@
+suite: Test iceberg compactor deploy
+templates:
+- templates/iceberg-compactor-deploy.yaml
+chart:
+  appVersion: 1.0.0
+  version: 0.0.1
+tests:
+- it: iceberg compactor deployment is created
+  set:
+    icebergCompactorComponent:
+      enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: metadata.name
+      value: RELEASE-NAME-risingwave-iceberg-compactor
+  - isSubset:
+      path: metadata.labels
+      content:
+        risingwave.risingwavelabs.com/component: iceberg-compactor
+  - isSubset:
+      path: spec.selector.matchLabels
+      content:
+        risingwave.risingwavelabs.com/component: iceberg-compactor
+  - isSubset:
+      path: spec.template.metadata.labels
+      content:
+        risingwave/component: iceberg-compactor
+        risingwave.risingwavelabs.com/component: iceberg-compactor
+- it: iceberg compactor deployment isn't created when disabled
+  set:
+    icebergCompactorComponent:
+      enabled: false
+  asserts:
+  - hasDocuments:
+      count: 0
+- it: iceberg compactor deployment isn't created when standalone mode is enabled
+  set:
+    standalone:
+      enabled: true
+    set:
+      icebergCompactorComponent:
+        enabled: true
+  asserts:
+  - hasDocuments:
+      count: 0
+- it: iceberg compactor deployment has compactor mode env
+  set:
+    icebergCompactorComponent:
+      enabled: true
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: RW_COMPACTOR_MODE
+        value: dedicated_iceberg
