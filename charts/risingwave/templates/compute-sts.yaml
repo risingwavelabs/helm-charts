@@ -221,7 +221,7 @@ spec:
         - name: RUST_LOG
           value: {{ $comp.rustLog }}
         - name: RUST_BACKTRACE
-          value: {{ $comp.rustBacktrace }}
+          value: {{ $comp.rustBacktrace | quote }}
         - name: POD_IP
           valueFrom:
             fieldRef:
@@ -398,7 +398,7 @@ spec:
         - name: RUST_LOG
           value: {{ $ctx.Values.frontendComponent.rustLog }}
         - name: RUST_BACKTRACE
-          value: {{ $ctx.Values.frontendComponent.rustBacktrace }}
+          value: {{ $ctx.Values.frontendComponent.rustBacktrace | quote }}
         - name: POD_IP
           valueFrom:
             fieldRef:

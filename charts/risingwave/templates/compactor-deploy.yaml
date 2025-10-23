@@ -139,7 +139,7 @@ spec:
         - name: RUST_LOG
           value: {{ .Values.compactorComponent.rustLog }}
         - name: RUST_BACKTRACE
-          value: {{ .Values.compactorComponent.rustBacktrace }}
+          value: {{ .Values.compactorComponent.rustBacktrace | quote }}
         - name: POD_IP
           valueFrom:
             fieldRef:
