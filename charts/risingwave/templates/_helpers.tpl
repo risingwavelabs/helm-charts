@@ -698,6 +698,16 @@ Process:
            (include "risingwave.renderConfig" (dict "config" .Values.computeComponent.configuration) | trim) }}
 {{- end }}
 
+{{- define "risingwave.computeConfigForResourceGroup"}}
+{{- /* Renders compute configuration for a specific resource group.
+     Falls back to global configuration if resource group doesn't have custom config.
+     Parameters: .group (resource group object), .root (root context) */}}
+{{- $group := .group }}
+{{- $root := .root }}
+{{ default (include "risingwave.renderConfig" (dict "config" $root.Values.configuration) | trim)
+           (include "risingwave.renderConfig" (dict "config" $group.configuration) | trim) }}
+{{- end }}
+
 {{- define "risingwave.configHashAnnotation" }}
 {{- if not .Values.existingConfigMap }}
 risingwave.risingwavelabs.com/config-hash: {{ include "risingwave.config" . | sha1sum }}
@@ -723,7 +733,18 @@ risingwave.risingwavelabs.com/compactor-config-hash: {{ include "risingwave.comp
 {{- end }}
 
 {{- define "risingwave.computeConfigHashAnnotation" }}
-{{- if and (not .Values.existingConfigMap) (not .Values.computeComponent.configuration) }}
+{{- if and (not .Values.existingConfigMap) .Values.computeComponent.configuration }}
 risingwave.risingwavelabs.com/compute-config-hash: {{ include "risingwave.computeConfig" . | sha1sum }}
+{{- end }}
+{{- end }}
+
+{{- define "risingwave.computeConfigHashAnnotationForResourceGroup" }}
+{{- /* Creates config hash annotation for compute resource groups with custom configurations.
+     Only creates annotation when resource group has custom configuration.
+     Parameters: .group (resource group object), .root (root context) */}}
+{{- $group := .group }}
+{{- $root := .root }}
+{{- if and (not $root.Values.existingConfigMap) $group.configuration }}
+risingwave.risingwavelabs.com/compute-config-hash: {{ include "risingwave.computeConfigForResourceGroup" (dict "group" $group "root" $root) | sha1sum }}
 {{- end }}
 {{- end }}
