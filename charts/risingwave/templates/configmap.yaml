@@ -4,6 +4,10 @@ SPDX-License-Identifier: APACHE-2.0
 */}}
 
 {{- if empty .Values.existingConfigMap }}
+{{- $resourceGroups := .Values.computeComponent.resourceGroups | default list }}
+{{- $hasGroups := gt (len $resourceGroups) 0 }}
+
+{{/* Main ConfigMap for all components except compute resource groups with custom configs */}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -22,4 +26,28 @@ data:
   risingwave.compute.toml : |{{ include "risingwave.computeConfig" . | nindent 4 }}
   risingwave.compactor.toml : |{{ include "risingwave.compactorConfig" . | nindent 4 }}
   risingwave.iceberg_compactor.toml : |{{ include "risingwave.icebergCompactorConfig" . | nindent 4 }}
+
+{{/* Additional ConfigMaps for compute resource groups with custom configurations */}}
+{{- if $hasGroups }}
+{{- range $group := $resourceGroups }}
+{{- if $group.configuration }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "risingwave.configurationConfigMapName" $ }}-compute-{{ $group.name }}
+  labels:
+      {{- include "risingwave.labels" $ | nindent 4 }}
+      {{- "risingwave.risingwavelabs.com/component: compute" | nindent 4 }}
+      {{- printf "risingwave.risingwavelabs.com/resource-group: %s" $group.name | nindent 4 }}
+  {{- $annotations := (include "risingwave.annotations" $ ) | trim }}
+  {{- if $annotations }}
+  annotations:
+    {{ nindent 4 $annotations }}
+  {{- end }}
+data:
+  risingwave.compute.toml : |{{ include "risingwave.computeConfigForResourceGroup" (dict "group" $group "root" $) | nindent 4 }}
+{{- end }}
+{{- end }}
+{{- end }}
 {{- end }}

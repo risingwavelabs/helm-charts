@@ -100,7 +100,11 @@ spec:
         {{- if $comp.podAnnotations }}
         {{- toYaml $comp.podAnnotations | nindent 8 }}
         {{- end }}
+        {{- if $group.configuration }}
+        {{- include "risingwave.computeConfigHashAnnotationForResourceGroup" (dict "group" $group "root" $ctx) | nindent 8 }}
+        {{- else }}
         {{- include "risingwave.computeConfigHashAnnotation" $ctx | nindent 8 }}
+        {{- end }}
         {{- if $ctx.Values.compactMode.enabled }}
         {{- include "risingwave.frontendConfigHashAnnotation" $ctx | nindent 8 }}
         {{- end }}
@@ -114,7 +118,11 @@ spec:
       volumes:
       - name: config
         configMap:
-          name: {{ include "risingwave.configurationConfigMapName" $ctx }}
+          name: {{- if $group.configuration }}
+            {{ include "risingwave.configurationConfigMapName" $ctx }}-compute-{{ $group.name }}
+          {{- else }}
+            {{ include "risingwave.configurationConfigMapName" $ctx }}
+          {{- end }}
       {{- if and $ctx.Values.compactMode.enabled $ctx.Values.tls.existingSecretName }}
       - name: certs
         secret:

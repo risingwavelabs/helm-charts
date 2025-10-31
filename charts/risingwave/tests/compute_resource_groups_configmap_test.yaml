@@ -1,0 +1,92 @@
+suite: Test compute resource groups ConfigMaps
+templates:
+- configmap.yaml
+chart:
+  appVersion: 1.0.0
+  version: 0.0.1
+tests:
+- it: creates separate ConfigMaps for resource groups with custom configurations
+  set:
+    computeComponent:
+      replicas: 2
+      resourceGroups:
+        - name: group-a
+          replicas: 3
+          configuration:
+            streaming:
+              parallelism: 4
+        - name: group-b
+          replicas: 1
+          configuration:
+            streaming:
+              parallelism: 2
+  asserts:
+    - hasDocuments:
+        count: 3  # 1 main ConfigMap + 2 additional ConfigMaps for resource groups
+    # Main ConfigMap
+    - documentIndex: 0
+      isKind:
+        of: ConfigMap
+    - documentIndex: 0
+      equal:
+        path: metadata.name
+        value: RELEASE-NAME-risingwave-configuration
+    # Resource group ConfigMaps - test names first
+    - documentIndex: 1
+      isKind:
+        of: ConfigMap
+    - documentIndex: 1
+      equal:
+        path: metadata.name
+        value: RELEASE-NAME-risingwave-configuration-compute-group-a
+    - documentIndex: 1
+      equal:
+        path: 'metadata.labels["risingwave.risingwavelabs.com/resource-group"]'
+        value: group-a
+    - documentIndex: 2
+      isKind:
+        of: ConfigMap
+    - documentIndex: 2
+      equal:
+        path: metadata.name
+        value: RELEASE-NAME-risingwave-configuration-compute-group-b
+    - documentIndex: 2
+      equal:
+        path: 'metadata.labels["risingwave.risingwavelabs.com/resource-group"]'
+        value: group-b
+
+- it: does not create additional ConfigMaps when resource groups have no custom configurations
+  set:
+    computeComponent:
+      replicas: 2
+      resourceGroups:
+        - name: group-a
+          replicas: 3
+        - name: group-b
+          replicas: 1
+  asserts:
+    - hasDocuments:
+        count: 1  # Only main ConfigMap, no additional ConfigMaps for resource groups without custom configs
+    - documentIndex: 0
+      isKind:
+        of: ConfigMap
+    - documentIndex: 0
+      equal:
+        path: metadata.name
+        value: RELEASE-NAME-risingwave-configuration
+
+- it: handles empty resource groups list
+  set:
+    computeComponent:
+      replicas: 2
+      resourceGroups: []
+  asserts:
+    - hasDocuments:
+        count: 1  # Only main ConfigMap
+    - documentIndex: 0
+      isKind:
+        of: ConfigMap
+    - documentIndex: 0
+      equal:
+        path: metadata.name
+        value: RELEASE-NAME-risingwave-configuration
