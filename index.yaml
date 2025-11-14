@@ -2,6 +2,43 @@ apiVersion: v1
 entries:
   risingwave:
   - apiVersion: v2
+    appVersion: v2.6.2
+    created: "2025-11-14T08:45:57.657450177Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      version: 2.x.x
+    - name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      tags:
+      - bundle
+      - postgresql
+      version: 16.x.x
+    - name: minio
+      repository: https://charts.bitnami.com/bitnami
+      tags:
+      - minio
+      - bundle
+      version: 14.x.x
+    description: The distributed streaming database SQL stream processing with Postgres-like
+      experience.
+    digest: 28ddf7b699b9c1fbc7360a6f6c2da79abd274af8d891a915dc6dc73b05efe073
+    home: https://www.risingwave.com
+    icon: https://avatars.githubusercontent.com/u/77175557?s=48&v=4
+    keywords:
+    - risingwave
+    - streaming-processing
+    - cloud-native
+    - real-time
+    maintainers:
+    - name: RisingWave Labs
+      url: https://www.risingwave-labs.com
+    name: risingwave
+    type: application
+    urls:
+    - https://github.com/risingwavelabs/helm-charts/releases/download/risingwave-0.2.43/risingwave-0.2.43.tgz
+    version: 0.2.43
+  - apiVersion: v2
     appVersion: v2.6.1
     created: "2025-11-03T15:37:42.956544752Z"
     dependencies:
@@ -4847,4 +4884,4 @@ entries:
     urls:
     - https://github.com/risingwavelabs/helm-charts/releases/download/risingwave-operator-0.1.0/risingwave-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2025-11-05T06:42:09.250135297Z"
+generated: "2025-11-14T08:45:57.657812725Z"
