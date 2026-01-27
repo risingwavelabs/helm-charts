@@ -172,6 +172,8 @@ spec:
                             name:
                               default: ""
                               description: Name of the node group.
+                              maxLength: 253
+                              pattern: ^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                               type: string
                             persistentVolumeClaimRetentionPolicy:
                               description: |-
@@ -6520,6 +6522,8 @@ spec:
                             name:
                               default: ""
                               description: Name of the node group.
+                              maxLength: 253
+                              pattern: ^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                               type: string
                             persistentVolumeClaimRetentionPolicy:
                               description: |-
@@ -12868,6 +12872,8 @@ spec:
                             name:
                               default: ""
                               description: Name of the node group.
+                              maxLength: 253
+                              pattern: ^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                               type: string
                             persistentVolumeClaimRetentionPolicy:
                               description: |-
@@ -19216,6 +19222,8 @@ spec:
                             name:
                               default: ""
                               description: Name of the node group.
+                              maxLength: 253
+                              pattern: ^$|^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                               type: string
                             persistentVolumeClaimRetentionPolicy:
                               description: |-
@@ -31765,7 +31773,7 @@ spec:
                   spec.components will be ignored. Standalone mode can be turned on/off dynamically.
                 type: boolean
               enableWebhookListener:
-                default: false
+                default: true
                 description: |-
                   Flag to control whether to enable the webhook listener. If enabled, the webhook listener will be started
                   in the frontend nodes to receive the webhook events from external systems, e.g., GitHub.
