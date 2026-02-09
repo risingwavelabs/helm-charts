@@ -120,7 +120,7 @@ Each RisingWave component has a set of environment variables automatically confi
 | `RW_LISTEN_ADDR` | ✓ | ✓ | ✓ | ✓ | Address the component listens on (0.0.0.0:port) |
 | `RW_ADVERTISE_ADDR` | ✓ | ✓ | ✓ | ✓ | Address advertised to other nodes |
 | `RW_PROMETHEUS_LISTENER_ADDR` | - | ✓ | ✓ | ✓ | Prometheus metrics endpoint address |
-| `RW_PROMETHEUS_HOST` | ✓ | - | - | - | Prometheus metrics endpoint for meta (legacy name) |
+| `RW_PROMETHEUS_HOST` | ✓ | - | - | - | Prometheus metrics endpoint for meta (different name for historical reasons) |
 | `RW_META_ADDR` | - | ✓ | ✓ | ✓ | Meta service address |
 | `RW_STATE_STORE` | ✓ | ✓ | - | ✓ | State store connection string |
 | `RW_BACKEND` | ✓ | - | - | - | Meta store backend type |
@@ -157,10 +157,10 @@ Each component uses a hardcoded bootstrap command that starts the appropriate Ri
 
 **Special Cases:**
 
-- **Embedded Serving Mode**: When `frontendComponent.embeddedServing.enabled: true`, compute nodes receive additional arguments: `--role=streaming`
+- **Embedded Serving Mode**: When `frontendComponent.embeddedServing.enabled: true`, compute nodes receive an additional command-line argument: `--role=streaming`
 - **Auto Deregistration**: When `computeComponent.autoDeregistration.enabled: true`, compute nodes include a preStop lifecycle hook to gracefully unregister from the meta service
 
-The bootstrap commands rely on environment variables for configuration rather than command-line arguments. This design allows for flexible configuration through Kubernetes ConfigMaps and Secrets.
+Most configuration is passed through environment variables rather than command-line arguments. This design allows for flexible configuration through Kubernetes ConfigMaps and Secrets. The `--role=streaming` argument is one of the few command-line parameters used, as it fundamentally changes the compute node's operational mode.
 
 #### Adding Custom Environment Variables
 
