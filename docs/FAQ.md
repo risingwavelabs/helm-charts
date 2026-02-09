@@ -41,3 +41,7 @@ persistent volume. Please refer to [the installation guide](CONFIGURATION.md) fo
 ### What to do if risingwave fails to start with PostgreSQL meta backend giving an uppercase database name?
 
 When starting RisingWave with PostgreSQL as the metadata backend, if the startup fails and you provided an uppercase database name, please ensure that the corresponding uppercase database has been created properly. In PostgreSQL, if you create a database with an uppercase name without using double quotes, the database name will be converted to lowercase. Check [SQL-SYNTAX-IDENTIFIERS](https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS) for more details.
+
+### How are environment variables like RW_PROMETHEUS_LISTENER_ADDR set for each node?
+
+The Helm chart automatically configures environment variables for each RisingWave component (meta, compute, frontend, compactor). The `RW_PROMETHEUS_LISTENER_ADDR` variable is set based on the `ports` configuration in values.yaml. For detailed information about how environment variables and bootstrap commands are configured, see the [Environment Variables and Bootstrap Commands](CONFIGURATION.md#environment-variables-and-bootstrap-commands) section in the configuration guide.

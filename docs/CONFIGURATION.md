@@ -107,6 +107,108 @@ computeComponent:
 
 Each resource group creates a separate set of compute pods with its own configuration. Groups can override any setting from the parent `computeComponent` section. Resource group names must be unique and cannot be "default" as this name is reserved.
 
+### Environment Variables and Bootstrap Commands
+
+RisingWave components are configured through environment variables and bootstrap command line arguments. This section explains how these are set and how to customize them.
+
+#### How Environment Variables Are Set
+
+Each RisingWave component has a set of environment variables automatically configured by the Helm chart. The most important ones include:
+
+| Environment Variable | Meta | Compute | Frontend | Compactor | Description |
+|:---------------------|:-----|:--------|:---------|:----------|:------------|
+| `RW_LISTEN_ADDR` | ✓ | ✓ | ✓ | ✓ | Address the component listens on (0.0.0.0:port) |
+| `RW_ADVERTISE_ADDR` | ✓ | ✓ | ✓ | ✓ | Address advertised to other nodes |
+| `RW_PROMETHEUS_LISTENER_ADDR` | - | ✓ | ✓ | ✓ | Prometheus metrics endpoint address |
+| `RW_PROMETHEUS_HOST` | ✓ | - | - | - | Prometheus metrics endpoint for meta (legacy name) |
+| `RW_META_ADDR` | - | ✓ | ✓ | ✓ | Meta service address |
+| `RW_STATE_STORE` | ✓ | ✓ | - | ✓ | State store connection string |
+| `RW_BACKEND` | ✓ | - | - | - | Meta store backend type |
+| `RW_CONFIG_PATH` | ✓ | ✓ | ✓ | ✓ | Path to component TOML configuration |
+
+**Prometheus Metrics Configuration:**
+
+The `RW_PROMETHEUS_LISTENER_ADDR` environment variable is automatically set based on the `ports` configuration in values.yaml:
+
+- **Meta**: Uses `RW_PROMETHEUS_HOST` set to `0.0.0.0:{{ .Values.ports.meta.metrics }}` (default: 1250)
+- **Compute**: Uses `RW_PROMETHEUS_LISTENER_ADDR` set to `0.0.0.0:{{ .Values.ports.compute.metrics }}` (default: 1222)
+- **Frontend**: Uses `RW_PROMETHEUS_LISTENER_ADDR` set to `0.0.0.0:{{ .Values.ports.frontend.metrics }}` (default: 8080)
+- **Compactor**: Uses `RW_PROMETHEUS_LISTENER_ADDR` set to `0.0.0.0:{{ .Values.ports.compactor.metrics }}` (default: 1260)
+
+To customize the metrics port for a component, override the corresponding port value:
+
+```yaml
+ports:
+  compute:
+    metrics: 9090  # Custom metrics port for compute nodes
+  frontend:
+    metrics: 9091  # Custom metrics port for frontend nodes
+```
+
+#### How Bootstrap Commands Are Set
+
+Each component uses a hardcoded bootstrap command that starts the appropriate RisingWave node type:
+
+- **Meta**: `/risingwave/bin/risingwave meta-node`
+- **Compute**: `/risingwave/bin/risingwave compute-node`
+- **Frontend**: `/risingwave/bin/risingwave frontend-node`
+- **Compactor**: `/risingwave/bin/risingwave compactor-node`
+- **Standalone**: `/risingwave/bin/risingwave standalone`
+
+**Special Cases:**
+
+- **Embedded Serving Mode**: When `frontendComponent.embeddedServing.enabled: true`, compute nodes receive additional arguments: `--role=streaming`
+- **Auto Deregistration**: When `computeComponent.autoDeregistration.enabled: true`, compute nodes include a preStop lifecycle hook to gracefully unregister from the meta service
+
+The bootstrap commands rely on environment variables for configuration rather than command-line arguments. This design allows for flexible configuration through Kubernetes ConfigMaps and Secrets.
+
+#### Adding Custom Environment Variables
+
+Each component supports adding custom environment variables through three methods:
+
+**Method 1: Direct environment variables**
+
+```yaml
+metaComponent:
+  extraEnvVars:
+    - name: CUSTOM_VAR
+      value: "custom-value"
+    - name: RUST_LOG
+      value: "info,risingwave_stream=debug"
+```
+
+**Method 2: From ConfigMap**
+
+```yaml
+metaComponent:
+  extraEnvVarsConfigMap: "my-custom-config"
+```
+
+**Method 3: From Secret**
+
+```yaml
+metaComponent:
+  extraEnvVarsSecret: "my-custom-secret"
+```
+
+These options are available for all components: `metaComponent`, `computeComponent`, `frontendComponent`, `compactorComponent`, and `standalone`.
+
+#### Example: Customizing Logging
+
+To enable debug logging for specific modules:
+
+```yaml
+computeComponent:
+  extraEnvVars:
+    - name: RUST_LOG
+      value: "info,risingwave_stream=debug,risingwave_batch=debug"
+
+frontendComponent:
+  extraEnvVars:
+    - name: RUST_LOG
+      value: "info,risingwave_frontend=debug"
+```
+
 ### Customize Meta Store
 
 > [!CAUTION]
