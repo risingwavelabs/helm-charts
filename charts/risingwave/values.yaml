@@ -109,7 +109,7 @@ diagnosticMode:
 image:
   registry: docker.risingwave.com
   repository: risingwavelabs/risingwave
-  tag: "v2.8.0"
+  tag: "v2.7.3"
   digest: ""
   ## @param image.pullPolicy RisingWave image pull policy
   ## Specify a imagePullPolicy
