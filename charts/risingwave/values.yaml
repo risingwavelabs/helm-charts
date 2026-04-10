@@ -246,6 +246,8 @@ standalone:
 
   ## @param standalone.resources Resource requests and limits.
   ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  ## Note: Set requests and limits to the same values to ensure guaranteed QoS and avoid
+  ## performance and stability issues. A cpu:memory ratio of 1:4 is recommended.
   resources:
     limits: { }
     requests: { }
@@ -762,6 +764,8 @@ metaComponent:
 
   ## @param metaComponent.resources Resource requests and limits.
   ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  ## Note: Set requests and limits to the same values to ensure guaranteed QoS and avoid
+  ## performance and stability issues. A cpu:memory ratio of 1:4 is recommended.
   resources:
     limits: { }
     requests: { }
@@ -902,6 +906,8 @@ frontendComponent:
 
   ## @param frontendComponent.resources Resource requests and limits.
   ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  ## Note: Set requests and limits to the same values to ensure guaranteed QoS and avoid
+  ## performance and stability issues. A cpu:memory ratio of 1:4 is recommended.
   resources:
     limits: { }
     requests: { }
@@ -1067,6 +1073,8 @@ computeComponent:
 
   ## @param computeComponent.resources Resource requests and limits.
   ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  ## Note: Set requests and limits to the same values to ensure guaranteed QoS and avoid
+  ## performance and stability issues. A cpu:memory ratio of 1:4 is recommended.
   resources:
     limits: { }
     requests: { }
@@ -1209,6 +1217,8 @@ compactorComponent:
 
   ## @param compactorComponent.resources Resource requests and limits.
   ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  ## Note: Set requests and limits to the same values to ensure guaranteed QoS and avoid
+  ## performance and stability issues. A cpu:memory ratio of 1:4 is recommended.
   resources:
     limits: { }
     requests: { }
