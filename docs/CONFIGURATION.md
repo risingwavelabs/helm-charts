@@ -70,6 +70,12 @@ For the two modes, the recommending resources are:
 
 ### Customize Pods of Different Components
 
+> [!IMPORTANT]
+>
+> When setting resource requests and limits, always set them to the **same values** to ensure guaranteed QoS class.
+> Using different values for requests and limits can cause performance and stability issues.
+> A cpu:memory ratio of **1:4** is recommended (e.g., 4 CPU / 16Gi memory).
+
 Most of the pod related values are under these sections:
 
 | Section            | Component  | Description                                    |
@@ -95,13 +101,19 @@ computeComponent:
       replicas: 2
       resources:
         requests:
-          cpu: 4
+          cpu: 8
+          memory: 32Gi
+        limits:
+          cpu: 8
           memory: 32Gi
     - name: cpu-intensive  
       replicas: 1
       resources:
         requests:
-          cpu: 8
+          cpu: 4
+          memory: 16Gi
+        limits:
+          cpu: 4
           memory: 16Gi
 ```
 
