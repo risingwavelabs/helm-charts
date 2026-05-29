@@ -1,0 +1,135 @@
+{{/*
+Copyright RisingWave Labs.
+SPDX-License-Identifier: APACHE-2.0
+*/}}
+
+{{- define "risingwave.podDisruptionBudget" -}}
+{{- $root := .root -}}
+{{- $pdb := .podDisruptionBudget | default dict -}}
+{{- if $pdb.enabled -}}
+{{- $minAvailable := get $pdb "minAvailable" -}}
+{{- $maxUnavailable := get $pdb "maxUnavailable" -}}
+{{- $hasMinAvailable := ne (toString $minAvailable) "" -}}
+{{- $hasMaxUnavailable := ne (toString $maxUnavailable) "" -}}
+{{- if eq $hasMinAvailable $hasMaxUnavailable -}}
+{{- fail (printf "%s.podDisruptionBudget requires exactly one of minAvailable or maxUnavailable" .valuesPath) -}}
+{{- end }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ printf "%s-pdb" .name }}
+  labels:
+    {{- include "risingwave.labels" $root | nindent 4 }}
+    risingwave.risingwavelabs.com/component: {{ .component }}
+    {{- with .resourceGroup }}
+    risingwave.risingwavelabs.com/resource-group: {{ . }}
+    {{- end }}
+  {{- $annotations := (include "risingwave.annotations" $root) | trim }}
+  {{- if $annotations }}
+  annotations:
+    {{ nindent 4 $annotations }}
+  {{- end }}
+spec:
+  {{- if $hasMinAvailable }}
+  minAvailable: {{ $minAvailable }}
+  {{- else }}
+  maxUnavailable: {{ $maxUnavailable }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "risingwave.selectorLabels" $root | nindent 6 }}
+      risingwave.risingwavelabs.com/component: {{ .component }}
+      {{- with .resourceGroup }}
+      risingwave.risingwavelabs.com/resource-group: {{ . }}
+      {{- end }}
+{{- end -}}
+{{- end -}}
+
+{{- if not .Values.standalone.enabled -}}
+{{- include "risingwave.podDisruptionBudget" (dict
+  "root" .
+  "name" (include "risingwave.metaComponentName" .)
+  "component" "meta"
+  "podDisruptionBudget" .Values.metaComponent.podDisruptionBudget
+  "valuesPath" "metaComponent"
+) }}
+
+{{- if not .Values.compactMode.enabled }}
+{{- include "risingwave.podDisruptionBudget" (dict
+  "root" .
+  "name" (include "risingwave.frontendComponentName" .)
+  "component" "frontend"
+  "podDisruptionBudget" .Values.frontendComponent.podDisruptionBudget
+  "valuesPath" "frontendComponent"
+) }}
+{{- end }}
+
+{{- $resourceGroups := .Values.computeComponent.resourceGroups | default list }}
+{{- $hasGroups := gt (len $resourceGroups) 0 }}
+{{- $defaultGroup := dict "name" "default" }}
+{{- $allGroups := list $defaultGroup }}
+{{- if $hasGroups }}
+  {{- $nameMap := dict }}
+  {{- $_ := set $nameMap "default" true }}
+  {{- range $group := $resourceGroups }}
+    {{- $name := $group.name | default "" }}
+    {{- if eq $name "" }}
+      {{- fail "Each resource group must have a non-empty name." }}
+    {{- end }}
+    {{- if hasKey $nameMap $name }}
+      {{- fail (printf "Duplicate resource group name: '%s'" $name) }}
+    {{- end }}
+    {{- $_ := set $nameMap $name true }}
+    {{- $allGroups = append $allGroups $group }}
+  {{- end }}
+{{- end }}
+{{- range $group := $allGroups }}
+  {{- $ctx := deepCopy $ }}
+  {{- $comp := dict }}
+  {{- range $k, $v := $.Values.computeComponent }}
+    {{- $_ := set $comp $k $v }}
+  {{- end }}
+  {{- if ne $group.name "default" }}
+    {{- range $k, $v := $group }}
+      {{- $_ := set $comp $k $v }}
+    {{- end }}
+  {{- end }}
+  {{- $_ := set $ctx.Values "computeComponent" $comp }}
+  {{- $_ := set $ctx.Values.computeComponent "resourceGroupName" $group.name }}
+  {{- $name := include "risingwave.computeComponentName" $ctx }}
+  {{- if ne $group.name "default" }}
+    {{- $name = printf "%s-%s" $name $group.name }}
+  {{- end }}
+  {{- $valuesPath := "computeComponent" }}
+  {{- if ne $group.name "default" }}
+    {{- $valuesPath = printf "computeComponent.resourceGroups[%s]" $group.name }}
+  {{- end }}
+{{- include "risingwave.podDisruptionBudget" (dict
+  "root" $ctx
+  "name" $name
+  "component" "compute"
+  "resourceGroup" (ternary "" $group.name (eq $group.name "default"))
+  "podDisruptionBudget" $comp.podDisruptionBudget
+  "valuesPath" $valuesPath
+) }}
+{{- end }}
+
+{{- include "risingwave.podDisruptionBudget" (dict
+  "root" .
+  "name" (include "risingwave.compactorComponentName" .)
+  "component" "compactor"
+  "podDisruptionBudget" .Values.compactorComponent.podDisruptionBudget
+  "valuesPath" "compactorComponent"
+) }}
+
+{{- if .Values.icebergCompactorComponent.enabled }}
+{{- include "risingwave.podDisruptionBudget" (dict
+  "root" .
+  "name" (include "risingwave.icebergCompactorComponentName" .)
+  "component" "iceberg-compactor"
+  "podDisruptionBudget" .Values.icebergCompactorComponent.podDisruptionBudget
+  "valuesPath" "icebergCompactorComponent"
+) }}
+{{- end }}
+{{- end -}}

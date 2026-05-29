@@ -1,0 +1,413 @@
+suite: Test pod disruption budgets
+templates:
+- templates/pdb.yaml
+chart:
+  appVersion: 1.0.0
+  version: 0.0.1
+tests:
+- it: pod disruption budgets should not render by default
+  asserts:
+  - hasDocuments:
+      count: 0
+- it: pod disruption budgets should render for distributed components
+  set:
+    commonLabels:
+      LABEL: LABEL_V
+    commonAnnotations:
+      ANNOTATION: ANNOTATION_V
+    metaComponent:
+      podDisruptionBudget:
+        enabled: true
+        maxUnavailable: 1
+    frontendComponent:
+      podDisruptionBudget:
+        enabled: true
+        maxUnavailable: 1
+    computeComponent:
+      podDisruptionBudget:
+        enabled: true
+        maxUnavailable: 1
+    compactorComponent:
+      podDisruptionBudget:
+        enabled: true
+        maxUnavailable: 1
+    icebergCompactorComponent:
+      enabled: true
+      podDisruptionBudget:
+        enabled: true
+        maxUnavailable: 1
+  asserts:
+  - hasDocuments:
+      count: 5
+  - documentIndex: 0
+    equal:
+      path: metadata.name
+      value: RELEASE-NAME-risingwave-meta-pdb
+  - documentIndex: 0
+    equal:
+      path: spec.maxUnavailable
+      value: 1
+  - documentIndex: 0
+    isSubset:
+      path: metadata.labels
+      content:
+        helm.sh/chart: risingwave-0.0.1
+        app.kubernetes.io/name: risingwave
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/version: 1.0.0
+        app.kubernetes.io/instance: RELEASE-NAME
+        risingwave.risingwavelabs.com/component: meta
+        LABEL: LABEL_V
+  - documentIndex: 0
+    isSubset:
+      path: metadata.annotations
+      content:
+        ANNOTATION: ANNOTATION_V
+  - documentIndex: 0
+    isSubset:
+      path: spec.selector.matchLabels
+      content:
+        app.kubernetes.io/name: risingwave
+        app.kubernetes.io/instance: RELEASE-NAME
+        risingwave.risingwavelabs.com/component: meta
+  - documentIndex: 1
+    equal:
+      path: metadata.name
+      value: RELEASE-NAME-risingwave-frontend-pdb
+  - documentIndex: 1
+    isSubset:
+      path: spec.selector.matchLabels
+      content:
+        risingwave.risingwavelabs.com/component: frontend
+  - documentIndex: 2
+    equal:
+      path: metadata.name
+      value: RELEASE-NAME-risingwave-compute-pdb
+  - documentIndex: 2
+    isSubset:
+      path: spec.selector.matchLabels
+      content:
+        risingwave.risingwavelabs.com/component: compute
+  - documentIndex: 3
+    equal:
+      path: metadata.name
+      value: RELEASE-NAME-risingwave-compactor-pdb
+  - documentIndex: 3
+    isSubset:
+      path: spec.selector.matchLabels
+      content:
+        risingwave.risingwavelabs.com/component: compactor
+  - documentIndex: 4
+    equal:
+      path: metadata.name
+      value: RELEASE-NAME-risingwave-iceberg-compactor-pdb
+  - documentIndex: 4
+    isSubset:
+      path: spec.selector.matchLabels
+      content:
+        risingwave.risingwavelabs.com/component: iceberg-compactor
+- it: pod disruption budget should support minAvailable
+  set:
+    metaComponent:
+      podDisruptionBudget:
+        enabled: true
+        minAvailable: 1
+  asserts:
+  - hasDocuments:
+      count: 1
+  - equal:
+      path: spec.minAvailable
+      value: 1
+  - notExists:
+      path: spec.maxUnavailable
+- it: non-meta pod disruption budgets should support minAvailable
+  set:
+    frontendComponent:
+      podDisruptionBudget:
+        enabled: true
+        minAvailable: 1
+    computeComponent:
+      podDisruptionBudget:
+        enabled: true
+        minAvailable: 2
+    compactorComponent:
+      podDisruptionBudget:
+        enabled: true
+        minAvailable: 50%
+    icebergCompactorComponent:
+      enabled: true
+      podDisruptionBudget:
+        enabled: true
+        minAvailable: 1
+  asserts:
+  - hasDocuments:
+      count: 4
+  - documentIndex: 0
+    equal:
+      path: metadata.name
+      value: RELEASE-NAME-risingwave-frontend-pdb
+  - documentIndex: 0
+    equal:
+      path: spec.minAvailable
+      value: 1
+  - documentIndex: 0
+    notExists:
+      path: spec.maxUnavailable
+  - documentIndex: 1
+    equal:
+      path: metadata.name
+      value: RELEASE-NAME-risingwave-compute-pdb
+  - documentIndex: 1
+    equal:
+      path: spec.minAvailable
+      value: 2
+  - documentIndex: 1
+    notExists:
+      path: spec.maxUnavailable
+  - documentIndex: 2
+    equal:
+      path: metadata.name
+      value: RELEASE-NAME-risingwave-compactor-pdb
+  - documentIndex: 2
+    equal:
+      path: spec.minAvailable
+      value: 50%
+  - documentIndex: 2
+    notExists:
+      path: spec.maxUnavailable
+  - documentIndex: 3
+    equal:
+      path: metadata.name
+      value: RELEASE-NAME-risingwave-iceberg-compactor-pdb
+  - documentIndex: 3
+    equal:
+      path: spec.minAvailable
+      value: 1
+  - documentIndex: 3
+    notExists:
+      path: spec.maxUnavailable
+- it: frontend pod disruption budget should not render in compact mode
+  set:
+    compactMode:
+      enabled: true
+    frontendComponent:
+      podDisruptionBudget:
+        enabled: true
+        maxUnavailable: 1
+  asserts:
+  - hasDocuments:
+      count: 0
+- it: iceberg compactor pod disruption budget should not render when iceberg compactor is disabled
+  set:
+    icebergCompactorComponent:
+      enabled: false
+      podDisruptionBudget:
+        enabled: true
+        maxUnavailable: 1
+  asserts:
+  - hasDocuments:
+      count: 0
+- it: compute pod disruption budgets should render for resource groups
+  set:
+    computeComponent:
+      podDisruptionBudget:
+        enabled: true
+        maxUnavailable: 1
+      resourceGroups:
+      - name: group-a
+        podDisruptionBudget:
+          enabled: true
+          minAvailable: 1
+      - name: group-b
+  asserts:
+  - hasDocuments:
+      count: 3
+  - documentIndex: 0
+    equal:
+      path: metadata.name
+      value: RELEASE-NAME-risingwave-compute-pdb
+  - documentIndex: 0
+    equal:
+      path: spec.maxUnavailable
+      value: 1
+  - documentIndex: 0
+    isSubset:
+      path: spec.selector.matchLabels
+      content:
+        risingwave.risingwavelabs.com/component: compute
+  - documentIndex: 1
+    equal:
+      path: metadata.name
+      value: RELEASE-NAME-risingwave-compute-group-a-pdb
+  - documentIndex: 1
+    equal:
+      path: spec.minAvailable
+      value: 1
+  - documentIndex: 1
+    isSubset:
+      path: metadata.labels
+      content:
+        risingwave.risingwavelabs.com/component: compute
+        risingwave.risingwavelabs.com/resource-group: group-a
+  - documentIndex: 1
+    isSubset:
+      path: spec.selector.matchLabels
+      content:
+        risingwave.risingwavelabs.com/component: compute
+        risingwave.risingwavelabs.com/resource-group: group-a
+  - documentIndex: 2
+    equal:
+      path: metadata.name
+      value: RELEASE-NAME-risingwave-compute-group-b-pdb
+  - documentIndex: 2
+    equal:
+      path: spec.maxUnavailable
+      value: 1
+  - documentIndex: 2
+    isSubset:
+      path: spec.selector.matchLabels
+      content:
+        risingwave.risingwavelabs.com/component: compute
+        risingwave.risingwavelabs.com/resource-group: group-b
+- it: pod disruption budget should fail when no budget is set
+  set:
+    metaComponent:
+      podDisruptionBudget:
+        enabled: true
+  asserts:
+  - failedTemplate:
+      errorMessage: "metaComponent.podDisruptionBudget requires exactly one of minAvailable or maxUnavailable"
+- it: frontend pod disruption budget should fail when no budget is set
+  set:
+    frontendComponent:
+      podDisruptionBudget:
+        enabled: true
+  asserts:
+  - failedTemplate:
+      errorMessage: "frontendComponent.podDisruptionBudget requires exactly one of minAvailable or maxUnavailable"
+- it: compute pod disruption budget should fail when no budget is set
+  set:
+    computeComponent:
+      podDisruptionBudget:
+        enabled: true
+  asserts:
+  - failedTemplate:
+      errorMessage: "computeComponent.podDisruptionBudget requires exactly one of minAvailable or maxUnavailable"
+- it: compactor pod disruption budget should fail when no budget is set
+  set:
+    compactorComponent:
+      podDisruptionBudget:
+        enabled: true
+  asserts:
+  - failedTemplate:
+      errorMessage: "compactorComponent.podDisruptionBudget requires exactly one of minAvailable or maxUnavailable"
+- it: iceberg compactor pod disruption budget should fail when no budget is set
+  set:
+    icebergCompactorComponent:
+      enabled: true
+      podDisruptionBudget:
+        enabled: true
+  asserts:
+  - failedTemplate:
+      errorMessage: "icebergCompactorComponent.podDisruptionBudget requires exactly one of minAvailable or maxUnavailable"
+- it: compute resource group pod disruption budget should fail when no budget is set
+  set:
+    computeComponent:
+      resourceGroups:
+      - name: group-a
+        podDisruptionBudget:
+          enabled: true
+  asserts:
+  - failedTemplate:
+      errorMessage: "computeComponent.resourceGroups[group-a].podDisruptionBudget requires exactly one of minAvailable or maxUnavailable"
+- it: pod disruption budget should fail when both budgets are set
+  set:
+    metaComponent:
+      podDisruptionBudget:
+        enabled: true
+        minAvailable: 1
+        maxUnavailable: 1
+  asserts:
+  - failedTemplate:
+      errorMessage: "metaComponent.podDisruptionBudget requires exactly one of minAvailable or maxUnavailable"
+- it: frontend pod disruption budget should fail when both budgets are set
+  set:
+    frontendComponent:
+      podDisruptionBudget:
+        enabled: true
+        minAvailable: 1
+        maxUnavailable: 1
+  asserts:
+  - failedTemplate:
+      errorMessage: "frontendComponent.podDisruptionBudget requires exactly one of minAvailable or maxUnavailable"
+- it: compute pod disruption budget should fail when both budgets are set
+  set:
+    computeComponent:
+      podDisruptionBudget:
+        enabled: true
+        minAvailable: 1
+        maxUnavailable: 1
+  asserts:
+  - failedTemplate:
+      errorMessage: "computeComponent.podDisruptionBudget requires exactly one of minAvailable or maxUnavailable"
+- it: compactor pod disruption budget should fail when both budgets are set
+  set:
+    compactorComponent:
+      podDisruptionBudget:
+        enabled: true
+        minAvailable: 1
+        maxUnavailable: 1
+  asserts:
+  - failedTemplate:
+      errorMessage: "compactorComponent.podDisruptionBudget requires exactly one of minAvailable or maxUnavailable"
+- it: iceberg compactor pod disruption budget should fail when both budgets are set
+  set:
+    icebergCompactorComponent:
+      enabled: true
+      podDisruptionBudget:
+        enabled: true
+        minAvailable: 1
+        maxUnavailable: 1
+  asserts:
+  - failedTemplate:
+      errorMessage: "icebergCompactorComponent.podDisruptionBudget requires exactly one of minAvailable or maxUnavailable"
+- it: compute resource group pod disruption budget should fail when both budgets are set
+  set:
+    computeComponent:
+      resourceGroups:
+      - name: group-a
+        podDisruptionBudget:
+          enabled: true
+          minAvailable: 1
+          maxUnavailable: 1
+  asserts:
+  - failedTemplate:
+      errorMessage: "computeComponent.resourceGroups[group-a].podDisruptionBudget requires exactly one of minAvailable or maxUnavailable"
+- it: pod disruption budgets should not render in standalone mode
+  set:
+    standalone:
+      enabled: true
+    metaComponent:
+      podDisruptionBudget:
+        enabled: true
+        maxUnavailable: 1
+    frontendComponent:
+      podDisruptionBudget:
+        enabled: true
+        maxUnavailable: 1
+    computeComponent:
+      podDisruptionBudget:
+        enabled: true
+        maxUnavailable: 1
+    compactorComponent:
+      podDisruptionBudget:
+        enabled: true
+        maxUnavailable: 1
+    icebergCompactorComponent:
+      enabled: true
+      podDisruptionBudget:
+        enabled: true
+        maxUnavailable: 1
+  asserts:
+  - hasDocuments:
+      count: 0
