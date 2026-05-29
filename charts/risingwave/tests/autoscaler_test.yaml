@@ -5,15 +5,12 @@ chart:
   appVersion: 1.0.0
   version: 0.0.1
 tests:
-  - it: HorizontalPodAutoscaler should not exist when enabled is false
-    set:
-      computeComponent:
-        autoscaling:
-          enabled: false
+  - it: HorizontalPodAutoscaler should not exist when autoscaling is disabled
     asserts:
       - hasDocuments:
           count: 0
-  - it: HorizontalPodAutoscaler should exist when enabled is true
+
+  - it: HorizontalPodAutoscaler should exist for compute when enabled
     set:
       computeComponent:
         autoscaling:
@@ -21,9 +18,129 @@ tests:
     asserts:
       - hasDocuments:
           count: 1
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-risingwave-compute-autoscaler
+      - equal:
+          path: spec.scaleTargetRef
+          value:
+            apiVersion: apps/v1
+            kind: StatefulSet
+            name: RELEASE-NAME-risingwave-compute
+
+  - it: HorizontalPodAutoscaler should exist for meta when enabled
+    set:
+      metaComponent:
+        autoscaling:
+          enabled: true
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-risingwave-meta-autoscaler
+      - isSubset:
+          path: metadata.labels
+          content:
+            risingwave.risingwavelabs.com/component: meta
+      - equal:
+          path: spec.scaleTargetRef
+          value:
+            apiVersion: apps/v1
+            kind: StatefulSet
+            name: RELEASE-NAME-risingwave-meta
+
+  - it: HorizontalPodAutoscaler should exist for frontend when enabled
+    set:
+      frontendComponent:
+        autoscaling:
+          enabled: true
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-risingwave-frontend-autoscaler
+      - isSubset:
+          path: metadata.labels
+          content:
+            risingwave.risingwavelabs.com/component: frontend
+      - equal:
+          path: spec.scaleTargetRef
+          value:
+            apiVersion: apps/v1
+            kind: Deployment
+            name: RELEASE-NAME-risingwave-frontend
+
+  - it: HorizontalPodAutoscaler should not exist for frontend in compact mode
+    set:
+      compactMode:
+        enabled: true
+      frontendComponent:
+        autoscaling:
+          enabled: true
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: HorizontalPodAutoscaler should exist for compactor when enabled
+    set:
+      compactorComponent:
+        autoscaling:
+          enabled: true
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-risingwave-compactor-autoscaler
+      - isSubset:
+          path: metadata.labels
+          content:
+            risingwave.risingwavelabs.com/component: compactor
+      - equal:
+          path: spec.scaleTargetRef
+          value:
+            apiVersion: apps/v1
+            kind: Deployment
+            name: RELEASE-NAME-risingwave-compactor
+
+  - it: HorizontalPodAutoscaler should exist for iceberg compactor when enabled
+    set:
+      icebergCompactorComponent:
+        enabled: true
+        autoscaling:
+          enabled: true
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-risingwave-iceberg-compactor-autoscaler
+      - isSubset:
+          path: metadata.labels
+          content:
+            risingwave.risingwavelabs.com/component: iceberg-compactor
+      - equal:
+          path: spec.scaleTargetRef
+          value:
+            apiVersion: apps/v1
+            kind: Deployment
+            name: RELEASE-NAME-risingwave-iceberg-compactor
+
+  - it: HorizontalPodAutoscaler should not exist for iceberg compactor when component is disabled
+    set:
+      icebergCompactorComponent:
+        enabled: false
+        autoscaling:
+          enabled: true
+    asserts:
+      - hasDocuments:
+          count: 0
+
   - it: HorizontalPodAutoscaler should reflect common labels and annotations
     set:
-      computeComponent:
+      metaComponent:
         autoscaling:
           enabled: true
       commonLabels:
@@ -37,29 +154,32 @@ tests:
           path: metadata.labels
           content:
             LABEL: LABEL_V
+            risingwave.risingwavelabs.com/component: meta
       - exists:
           path: metadata.annotations
       - isSubset:
           path: metadata.annotations
           content:
             ANNOTATION: ANNOTATION_V
-  - it: HorizontalPodAutoscaler should reflect computeComponent replicas and autoscaling maxReplicas
+
+  - it: HorizontalPodAutoscaler should reflect replicas and autoscaling maxReplicas
     set:
-      computeComponent:
+      compactorComponent:
+        replicas: 2
         autoscaling:
           enabled: true
-          maxReplicas : 5
-        replicas: 1
+          maxReplicas: 5
     asserts:
       - equal:
           path: spec.maxReplicas
           value: 5
       - equal:
           path: spec.minReplicas
-          value: 1
-  - it: HorizontalPodAutoscaler should reflect computeComponent autoscaling metrics and behavior
+          value: 2
+
+  - it: HorizontalPodAutoscaler should reflect autoscaling metrics and behavior
     set:
-      computeComponent:
+      frontendComponent:
         autoscaling:
           enabled: true
           metrics:
@@ -67,8 +187,8 @@ tests:
               resource:
                 name: memory
                 target:
-                type: Utilization
-                averageUtilization: 30
+                  type: Utilization
+                  averageUtilization: 30
           behavior:
             scaleDown:
               stabilizationWindowSeconds: 300
@@ -91,8 +211,8 @@ tests:
             resource:
               name: memory
               target:
-              type: Utilization
-              averageUtilization: 30
+                type: Utilization
+                averageUtilization: 30
       - equal:
           path: spec.behavior.scaleDown.stabilizationWindowSeconds
           value: 300
@@ -114,3 +234,59 @@ tests:
       - equal:
           path: spec.behavior.scaleUp.selectPolicy
           value: Max
+
+  - it: HorizontalPodAutoscalers should render for all non-compute distributed components
+    set:
+      metaComponent:
+        autoscaling:
+          enabled: true
+      frontendComponent:
+        autoscaling:
+          enabled: true
+      compactorComponent:
+        autoscaling:
+          enabled: true
+      icebergCompactorComponent:
+        enabled: true
+        autoscaling:
+          enabled: true
+    asserts:
+      - hasDocuments:
+          count: 4
+      - documentIndex: 0
+        equal:
+          path: metadata.name
+          value: RELEASE-NAME-risingwave-meta-autoscaler
+      - documentIndex: 1
+        equal:
+          path: metadata.name
+          value: RELEASE-NAME-risingwave-frontend-autoscaler
+      - documentIndex: 2
+        equal:
+          path: metadata.name
+          value: RELEASE-NAME-risingwave-compactor-autoscaler
+      - documentIndex: 3
+        equal:
+          path: metadata.name
+          value: RELEASE-NAME-risingwave-iceberg-compactor-autoscaler
+
+  - it: HorizontalPodAutoscaler should not exist for non-compute components in standalone mode
+    set:
+      standalone:
+        enabled: true
+      metaComponent:
+        autoscaling:
+          enabled: true
+      frontendComponent:
+        autoscaling:
+          enabled: true
+      compactorComponent:
+        autoscaling:
+          enabled: true
+      icebergCompactorComponent:
+        enabled: true
+        autoscaling:
+          enabled: true
+    asserts:
+      - hasDocuments:
+          count: 0

@@ -1,0 +1,88 @@
+suite: Test workload replicas with autoscaling
+chart:
+  appVersion: 1.0.0
+  version: 0.0.1
+set:
+  tags:
+    minio: true
+    postgresql: true
+tests:
+  - it: meta statefulset should include replicas by default
+    templates:
+      - templates/meta-sts.yaml
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 1
+
+  - it: meta statefulset should omit replicas when autoscaling is enabled
+    templates:
+      - templates/meta-sts.yaml
+    set:
+      metaComponent:
+        autoscaling:
+          enabled: true
+    asserts:
+      - notExists:
+          path: spec.replicas
+
+  - it: frontend deployment should include replicas by default
+    templates:
+      - templates/frontend-deploy.yaml
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 1
+
+  - it: frontend deployment should omit replicas when autoscaling is enabled
+    templates:
+      - templates/frontend-deploy.yaml
+    set:
+      frontendComponent:
+        autoscaling:
+          enabled: true
+    asserts:
+      - notExists:
+          path: spec.replicas
+
+  - it: compactor deployment should include replicas by default
+    templates:
+      - templates/compactor-deploy.yaml
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 1
+
+  - it: compactor deployment should omit replicas when autoscaling is enabled
+    templates:
+      - templates/compactor-deploy.yaml
+    set:
+      compactorComponent:
+        autoscaling:
+          enabled: true
+    asserts:
+      - notExists:
+          path: spec.replicas
+
+  - it: iceberg compactor deployment should include replicas by default
+    templates:
+      - templates/iceberg-compactor-deploy.yaml
+    set:
+      icebergCompactorComponent:
+        enabled: true
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 1
+
+  - it: iceberg compactor deployment should omit replicas when autoscaling is enabled
+    templates:
+      - templates/iceberg-compactor-deploy.yaml
+    set:
+      icebergCompactorComponent:
+        enabled: true
+        autoscaling:
+          enabled: true
+    asserts:
+      - notExists:
+          path: spec.replicas
