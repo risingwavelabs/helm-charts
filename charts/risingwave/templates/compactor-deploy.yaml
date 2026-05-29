@@ -82,6 +82,9 @@ spec:
       {{- if .Values.compactorComponent.affinity }}
       affinity: {{- toYaml .Values.compactorComponent.affinity | nindent 8 }}
       {{- end }}
+      {{- if .Values.compactorComponent.topologySpreadConstraints }}
+      topologySpreadConstraints: {{- toYaml .Values.compactorComponent.topologySpreadConstraints | nindent 8 }}
+      {{- end }}
       {{- if .Values.compactorComponent.schedulerName }}
       schedulerName: {{ .Values.compactorComponent.schedulerName }}
       {{- end }}

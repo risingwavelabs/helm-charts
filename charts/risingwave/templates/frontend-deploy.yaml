@@ -88,6 +88,9 @@ spec:
       {{- if .Values.frontendComponent.affinity }}
       affinity: {{- toYaml .Values.frontendComponent.affinity | nindent 8 }}
       {{- end }}
+      {{- if .Values.frontendComponent.topologySpreadConstraints }}
+      topologySpreadConstraints: {{- toYaml .Values.frontendComponent.topologySpreadConstraints | nindent 8 }}
+      {{- end }}
       {{- if .Values.frontendComponent.schedulerName }}
       schedulerName: {{ .Values.frontendComponent.schedulerName }}
       {{- end }}
