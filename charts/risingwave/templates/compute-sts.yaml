@@ -153,6 +153,9 @@ spec:
       {{- if $comp.affinity }}
       affinity: {{- toYaml $comp.affinity | nindent 8 }}
       {{- end }}
+      {{- if $comp.topologySpreadConstraints }}
+      topologySpreadConstraints: {{- toYaml $comp.topologySpreadConstraints | nindent 8 }}
+      {{- end }}
       {{- if $comp.schedulerName }}
       schedulerName: {{ $comp.schedulerName }}
       {{- end }}

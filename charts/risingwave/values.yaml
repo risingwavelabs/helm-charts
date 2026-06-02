@@ -801,6 +801,11 @@ metaComponent:
   ##
   affinity: { }
 
+  ## @param metaComponent.topologySpreadConstraints Topology spread constraints for pod assignment.
+  ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/
+  ##
+  topologySpreadConstraints: [ ]
+
   ## @param metaComponent.terminationGracePeriodSeconds Termination grace period in seconds.
   ## Defaults to 1 seconds.
   ##
@@ -942,6 +947,11 @@ frontendComponent:
   ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
   ##
   affinity: { }
+
+  ## @param frontendComponent.topologySpreadConstraints Topology spread constraints for pod assignment.
+  ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/
+  ##
+  topologySpreadConstraints: [ ]
 
   ## @param frontendComponent.terminationGracePeriodSeconds Termination grace period in seconds.
   ## Defaults to 10 seconds.
@@ -1110,6 +1120,11 @@ computeComponent:
   ##
   affinity: { }
 
+  ## @param computeComponent.topologySpreadConstraints Topology spread constraints for pod assignment.
+  ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/
+  ##
+  topologySpreadConstraints: [ ]
+
   ## @param computeComponent.terminationGracePeriodSeconds Termination grace period in seconds.
   ## Defaults to 1 seconds.
   ##
@@ -1253,6 +1268,11 @@ compactorComponent:
   ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
   ##
   affinity: { }
+
+  ## @param compactorComponent.topologySpreadConstraints Topology spread constraints for pod assignment.
+  ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/
+  ##
+  topologySpreadConstraints: [ ]
 
   ## @param compactorComponent.terminationGracePeriodSeconds Termination grace period in seconds.
   ## Defaults to 1 seconds.

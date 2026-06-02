@@ -82,6 +82,9 @@ spec:
       {{- if .Values.icebergCompactorComponent.affinity }}
       affinity: {{- toYaml .Values.icebergCompactorComponent.affinity | nindent 8 }}
       {{- end }}
+      {{- if .Values.icebergCompactorComponent.topologySpreadConstraints }}
+      topologySpreadConstraints: {{- toYaml .Values.icebergCompactorComponent.topologySpreadConstraints | nindent 8 }}
+      {{- end }}
       {{- if .Values.icebergCompactorComponent.schedulerName }}
       schedulerName: {{ .Values.icebergCompactorComponent.schedulerName }}
       {{- end }}

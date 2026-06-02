@@ -95,6 +95,9 @@ spec:
       {{- if .Values.metaComponent.affinity }}
       affinity: {{- toYaml .Values.metaComponent.affinity | nindent 8 }}
       {{- end }}
+      {{- if .Values.metaComponent.topologySpreadConstraints }}
+      topologySpreadConstraints: {{- toYaml .Values.metaComponent.topologySpreadConstraints | nindent 8 }}
+      {{- end }}
       {{- if .Values.metaComponent.schedulerName }}
       schedulerName: {{ .Values.metaComponent.schedulerName }}
       {{- end }}
