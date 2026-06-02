@@ -762,6 +762,16 @@ metaComponent:
   ##
   replicas: 1
 
+  ## @param metaComponent.podDisruptionBudget.enabled Enable PodDisruptionBudget for meta pods.
+  ## @param metaComponent.podDisruptionBudget.minAvailable Minimum number or percentage of pods that must remain available.
+  ## @param metaComponent.podDisruptionBudget.maxUnavailable Maximum number or percentage of pods that can be unavailable.
+  ## Set exactly one of minAvailable or maxUnavailable when enabled.
+  ##
+  podDisruptionBudget:
+    enabled: false
+    minAvailable: ""
+    maxUnavailable: ""
+
   ## @param metaComponent.autoscaling Meta Pod horizontal Pod Autoscalers
   ## Reference: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#container-resource-metrics
   autoscaling:
@@ -916,6 +926,16 @@ frontendComponent:
   ## @param frontendComponent.replicas Number of replicas.
   ##
   replicas: 1
+
+  ## @param frontendComponent.podDisruptionBudget.enabled Enable PodDisruptionBudget for frontend pods.
+  ## @param frontendComponent.podDisruptionBudget.minAvailable Minimum number or percentage of pods that must remain available.
+  ## @param frontendComponent.podDisruptionBudget.maxUnavailable Maximum number or percentage of pods that can be unavailable.
+  ## Set exactly one of minAvailable or maxUnavailable when enabled.
+  ##
+  podDisruptionBudget:
+    enabled: false
+    minAvailable: ""
+    maxUnavailable: ""
 
   ## @param frontendComponent.autoscaling Frontend Pod horizontal Pod Autoscalers
   ## Reference: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#container-resource-metrics
@@ -1073,6 +1093,16 @@ computeComponent:
   ## @param computeComponent.replicas Number of replicas.
   ##
   replicas: 1
+
+  ## @param computeComponent.podDisruptionBudget.enabled Enable PodDisruptionBudget for compute pods.
+  ## @param computeComponent.podDisruptionBudget.minAvailable Minimum number or percentage of pods that must remain available.
+  ## @param computeComponent.podDisruptionBudget.maxUnavailable Maximum number or percentage of pods that can be unavailable.
+  ## Set exactly one of minAvailable or maxUnavailable when enabled.
+  ##
+  podDisruptionBudget:
+    enabled: false
+    minAvailable: ""
+    maxUnavailable: ""
 
   ## @param computeComponent.resourceGroups List of resource groups for compute nodes. Each resource group is a map with
   ## at least 'name' (required, must be unique) and 'replicas' (optional). Any other fields in computeComponent can be
@@ -1246,6 +1276,16 @@ compactorComponent:
   ##
   replicas: 1
 
+  ## @param compactorComponent.podDisruptionBudget.enabled Enable PodDisruptionBudget for compactor pods.
+  ## @param compactorComponent.podDisruptionBudget.minAvailable Minimum number or percentage of pods that must remain available.
+  ## @param compactorComponent.podDisruptionBudget.maxUnavailable Maximum number or percentage of pods that can be unavailable.
+  ## Set exactly one of minAvailable or maxUnavailable when enabled.
+  ##
+  podDisruptionBudget:
+    enabled: false
+    minAvailable: ""
+    maxUnavailable: ""
+
   ## @param compactorComponent.autoscaling Compactor Pod horizontal Pod Autoscalers
   ## Reference: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#container-resource-metrics
   autoscaling:
@@ -1361,6 +1401,16 @@ icebergCompactorComponent:
   ## @param icebergCompactorComponent.replicas Number of replicas.
   ##
   replicas: 1
+
+  ## @param icebergCompactorComponent.podDisruptionBudget.enabled Enable PodDisruptionBudget for Iceberg compactor pods.
+  ## @param icebergCompactorComponent.podDisruptionBudget.minAvailable Minimum number or percentage of pods that must remain available.
+  ## @param icebergCompactorComponent.podDisruptionBudget.maxUnavailable Maximum number or percentage of pods that can be unavailable.
+  ## Set exactly one of minAvailable or maxUnavailable when enabled.
+  ##
+  podDisruptionBudget:
+    enabled: false
+    minAvailable: ""
+    maxUnavailable: ""
 
   ## @param icebergCompactorComponent.autoscaling Iceberg compactor Pod horizontal Pod Autoscalers
   ## Reference: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#container-resource-metrics
