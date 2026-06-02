@@ -3,31 +3,51 @@
   SPDX-License-Identifier: APACHE-2.0
   */}}
 
-{{- if .Values.computeComponent.autoscaling.enabled -}}
+{{- $hpas := list }}
+{{- if .Values.computeComponent.autoscaling.enabled }}
+  {{- $hpas = append $hpas (dict "component" "compute" "name" (include "risingwave.computeComponentName" .) "kind" "StatefulSet" "replicas" .Values.computeComponent.replicas "autoscaling" .Values.computeComponent.autoscaling) }}
+{{- end }}
+{{- if and (not .Values.standalone.enabled) .Values.metaComponent.autoscaling.enabled }}
+  {{- $hpas = append $hpas (dict "component" "meta" "name" (include "risingwave.metaComponentName" .) "kind" "StatefulSet" "replicas" .Values.metaComponent.replicas "autoscaling" .Values.metaComponent.autoscaling) }}
+{{- end }}
+{{- if and (not .Values.standalone.enabled) (not .Values.compactMode.enabled) .Values.frontendComponent.autoscaling.enabled }}
+  {{- $hpas = append $hpas (dict "component" "frontend" "name" (include "risingwave.frontendComponentName" .) "kind" "Deployment" "replicas" .Values.frontendComponent.replicas "autoscaling" .Values.frontendComponent.autoscaling) }}
+{{- end }}
+{{- if and (not .Values.standalone.enabled) .Values.compactorComponent.autoscaling.enabled }}
+  {{- $hpas = append $hpas (dict "component" "compactor" "name" (include "risingwave.compactorComponentName" .) "kind" "Deployment" "replicas" .Values.compactorComponent.replicas "autoscaling" .Values.compactorComponent.autoscaling) }}
+{{- end }}
+{{- if and (not .Values.standalone.enabled) .Values.icebergCompactorComponent.enabled .Values.icebergCompactorComponent.autoscaling.enabled }}
+  {{- $hpas = append $hpas (dict "component" "iceberg-compactor" "name" (include "risingwave.icebergCompactorComponentName" .) "kind" "Deployment" "replicas" .Values.icebergCompactorComponent.replicas "autoscaling" .Values.icebergCompactorComponent.autoscaling) }}
+{{- end }}
+
+{{- range $index, $hpa := $hpas }}
+{{- if gt $index 0 }}
+---
+{{- end }}
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ include "risingwave.computeComponentName" . }}-autoscaler
-  namespace: {{ .Release.Namespace }}
+  name: {{ $hpa.name }}-autoscaler
+  namespace: {{ $.Release.Namespace }}
   labels:
-    {{- include "risingwave.labels" . | nindent 4 }}
-    risingwave.risingwavelabs.com/component: compute
-  {{- $annotations := (include "risingwave.annotations" . ) | trim }}
+    {{- include "risingwave.labels" $ | nindent 4 }}
+    risingwave.risingwavelabs.com/component: {{ $hpa.component }}
+  {{- $annotations := (include "risingwave.annotations" $ ) | trim }}
   {{- if $annotations }}
   annotations:
     {{ nindent 4 $annotations }}
   {{- end }}
 spec:
-  maxReplicas: {{ .Values.computeComponent.autoscaling.maxReplicas }}
-  minReplicas: {{ .Values.computeComponent.replicas }}
+  maxReplicas: {{ $hpa.autoscaling.maxReplicas }}
+  minReplicas: {{ $hpa.replicas }}
   scaleTargetRef:
     apiVersion: apps/v1
-    kind: StatefulSet
-    name: {{ include "risingwave.computeComponentName" . }}
-  {{- if .Values.computeComponent.autoscaling.metrics }}
-  metrics: {{ toYaml .Values.computeComponent.autoscaling.metrics | nindent 4}}
+    kind: {{ $hpa.kind }}
+    name: {{ $hpa.name }}
+  {{- if $hpa.autoscaling.metrics }}
+  metrics: {{ toYaml $hpa.autoscaling.metrics | nindent 4}}
   {{- end }}
-  {{- if .Values.computeComponent.autoscaling.behavior }}
-  behavior: {{ toYaml .Values.computeComponent.autoscaling.behavior | nindent 4 }}
+  {{- if $hpa.autoscaling.behavior }}
+  behavior: {{ toYaml $hpa.autoscaling.behavior | nindent 4 }}
   {{- end }}
 {{- end }}

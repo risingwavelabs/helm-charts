@@ -762,6 +762,14 @@ metaComponent:
   ##
   replicas: 1
 
+  ## @param metaComponent.autoscaling Meta Pod horizontal Pod Autoscalers
+  ## Reference: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#container-resource-metrics
+  autoscaling:
+    enabled: false
+    maxReplicas: 5
+    metrics: null
+    behavior: null
+
   ## @param metaComponent.resources Resource requests and limits.
   ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   ## Note: Set requests and limits to the same values to ensure guaranteed QoS and avoid
@@ -908,6 +916,14 @@ frontendComponent:
   ## @param frontendComponent.replicas Number of replicas.
   ##
   replicas: 1
+
+  ## @param frontendComponent.autoscaling Frontend Pod horizontal Pod Autoscalers
+  ## Reference: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#container-resource-metrics
+  autoscaling:
+    enabled: false
+    maxReplicas: 5
+    metrics: null
+    behavior: null
 
   ## @param frontendComponent.resources Resource requests and limits.
   ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
@@ -1230,6 +1246,14 @@ compactorComponent:
   ##
   replicas: 1
 
+  ## @param compactorComponent.autoscaling Compactor Pod horizontal Pod Autoscalers
+  ## Reference: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#container-resource-metrics
+  autoscaling:
+    enabled: false
+    maxReplicas: 5
+    metrics: null
+    behavior: null
+
   ## @param compactorComponent.resources Resource requests and limits.
   ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   ## Note: Set requests and limits to the same values to ensure guaranteed QoS and avoid
@@ -1337,6 +1361,14 @@ icebergCompactorComponent:
   ## @param icebergCompactorComponent.replicas Number of replicas.
   ##
   replicas: 1
+
+  ## @param icebergCompactorComponent.autoscaling Iceberg compactor Pod horizontal Pod Autoscalers
+  ## Reference: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#container-resource-metrics
+  autoscaling:
+    enabled: false
+    maxReplicas: 5
+    metrics: null
+    behavior: null
 
   ## All configurations are the same as compactorComponent.
   ## For brevity, they are not repeated here.
