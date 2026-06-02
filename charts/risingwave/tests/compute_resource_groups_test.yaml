@@ -101,6 +101,60 @@ tests:
     - documentIndex: 0
       exists:
         path: spec.template.spec.containers[?(@.name=="sidecar")]
+- it: resource groups can override topology spread constraints
+  set:
+    computeComponent:
+      replicas: 3
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            group: default
+      resourceGroups:
+        - name: group-a
+          replicas: 2
+          topologySpreadConstraints:
+          - maxSkew: 2
+            topologyKey: topology.kubernetes.io/zone
+            whenUnsatisfiable: ScheduleAnyway
+            labelSelector:
+              matchLabels:
+                group: a
+        - name: group-b
+          replicas: 1
+  asserts:
+    - documentIndex: 0
+      equal:
+        path: spec.template.spec.topologySpreadConstraints
+        value:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              group: default
+    - documentIndex: 1
+      equal:
+        path: spec.template.spec.topologySpreadConstraints
+        value:
+        - maxSkew: 2
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              group: a
+    - documentIndex: 2
+      equal:
+        path: spec.template.spec.topologySpreadConstraints
+        value:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              group: default
 - it: fails if resource group names are not unique
   set:
     computeComponent:

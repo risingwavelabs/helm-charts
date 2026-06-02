@@ -87,7 +87,20 @@ Most of the pod related values are under these sections:
 | compactorComponent | Compactor  | Customizing the Deployment for compactor pods  |
 
 Almost all possible fields on the raw workloads are exposed,
-including `replicas`, `resources`, `nodeSelector`, `affinity`, `tolerations` and others.
+including `replicas`, `resources`, `nodeSelector`, `affinity`, `tolerations`, `topologySpreadConstraints` and others.
+
+For distributed mode components, topology spread constraints can be configured per component:
+
+```yaml
+computeComponent:
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          risingwave.risingwavelabs.com/component: compute
+```
 
 #### Resource Groups for Compute Nodes
 
@@ -354,6 +367,11 @@ manager:
   affinity: { }
 
   tolerations: [ ]
+
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
 
   resources:
     limits:

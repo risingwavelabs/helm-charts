@@ -772,6 +772,14 @@ metaComponent:
     minAvailable: ""
     maxUnavailable: ""
 
+  ## @param metaComponent.autoscaling Meta Pod horizontal Pod Autoscalers
+  ## Reference: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#container-resource-metrics
+  autoscaling:
+    enabled: false
+    maxReplicas: 5
+    metrics: null
+    behavior: null
+
   ## @param metaComponent.resources Resource requests and limits.
   ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   ## Note: Set requests and limits to the same values to ensure guaranteed QoS and avoid
@@ -810,6 +818,11 @@ metaComponent:
   ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
   ##
   affinity: { }
+
+  ## @param metaComponent.topologySpreadConstraints Topology spread constraints for pod assignment.
+  ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/
+  ##
+  topologySpreadConstraints: [ ]
 
   ## @param metaComponent.terminationGracePeriodSeconds Termination grace period in seconds.
   ## Defaults to 1 seconds.
@@ -924,6 +937,14 @@ frontendComponent:
     minAvailable: ""
     maxUnavailable: ""
 
+  ## @param frontendComponent.autoscaling Frontend Pod horizontal Pod Autoscalers
+  ## Reference: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#container-resource-metrics
+  autoscaling:
+    enabled: false
+    maxReplicas: 5
+    metrics: null
+    behavior: null
+
   ## @param frontendComponent.resources Resource requests and limits.
   ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   ## Note: Set requests and limits to the same values to ensure guaranteed QoS and avoid
@@ -962,6 +983,11 @@ frontendComponent:
   ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
   ##
   affinity: { }
+
+  ## @param frontendComponent.topologySpreadConstraints Topology spread constraints for pod assignment.
+  ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/
+  ##
+  topologySpreadConstraints: [ ]
 
   ## @param frontendComponent.terminationGracePeriodSeconds Termination grace period in seconds.
   ## Defaults to 10 seconds.
@@ -1140,6 +1166,11 @@ computeComponent:
   ##
   affinity: { }
 
+  ## @param computeComponent.topologySpreadConstraints Topology spread constraints for pod assignment.
+  ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/
+  ##
+  topologySpreadConstraints: [ ]
+
   ## @param computeComponent.terminationGracePeriodSeconds Termination grace period in seconds.
   ## Defaults to 1 seconds.
   ##
@@ -1255,6 +1286,14 @@ compactorComponent:
     minAvailable: ""
     maxUnavailable: ""
 
+  ## @param compactorComponent.autoscaling Compactor Pod horizontal Pod Autoscalers
+  ## Reference: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#container-resource-metrics
+  autoscaling:
+    enabled: false
+    maxReplicas: 5
+    metrics: null
+    behavior: null
+
   ## @param compactorComponent.resources Resource requests and limits.
   ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   ## Note: Set requests and limits to the same values to ensure guaranteed QoS and avoid
@@ -1293,6 +1332,11 @@ compactorComponent:
   ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
   ##
   affinity: { }
+
+  ## @param compactorComponent.topologySpreadConstraints Topology spread constraints for pod assignment.
+  ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/
+  ##
+  topologySpreadConstraints: [ ]
 
   ## @param compactorComponent.terminationGracePeriodSeconds Termination grace period in seconds.
   ## Defaults to 1 seconds.
@@ -1367,6 +1411,14 @@ icebergCompactorComponent:
     enabled: false
     minAvailable: ""
     maxUnavailable: ""
+
+  ## @param icebergCompactorComponent.autoscaling Iceberg compactor Pod horizontal Pod Autoscalers
+  ## Reference: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#container-resource-metrics
+  autoscaling:
+    enabled: false
+    maxReplicas: 5
+    metrics: null
+    behavior: null
 
   ## All configurations are the same as compactorComponent.
   ## For brevity, they are not repeated here.

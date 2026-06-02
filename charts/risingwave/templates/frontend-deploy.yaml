@@ -18,7 +18,9 @@ metadata:
     {{ nindent 4 $annotations }}
   {{- end }}
 spec:
+  {{- if not .Values.frontendComponent.autoscaling.enabled }}
   replicas: {{ .Values.frontendComponent.replicas }}
+  {{- end }}
   selector:
     matchLabels:
       {{- include "risingwave.selectorLabels" . | nindent 6 }}
@@ -87,6 +89,9 @@ spec:
       {{- end }}
       {{- if .Values.frontendComponent.affinity }}
       affinity: {{- toYaml .Values.frontendComponent.affinity | nindent 8 }}
+      {{- end }}
+      {{- if .Values.frontendComponent.topologySpreadConstraints }}
+      topologySpreadConstraints: {{- toYaml .Values.frontendComponent.topologySpreadConstraints | nindent 8 }}
       {{- end }}
       {{- if .Values.frontendComponent.schedulerName }}
       schedulerName: {{ .Values.frontendComponent.schedulerName }}
