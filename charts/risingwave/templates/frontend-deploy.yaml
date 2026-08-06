@@ -334,8 +334,18 @@ spec:
         readinessProbe:
           initialDelaySeconds: 2
           periodSeconds: 10
+          {{- if .Values.frontendComponent.embeddedServing }}
+          exec:
+            command:
+            - /bin/sh
+            - -ec
+            - |-
+              nc -z 127.0.0.1 {{ .Values.ports.frontend.svc }}
+              nc -z 127.0.0.1 {{ .Values.ports.compute.svc }}
+          {{- else }}
           tcpSocket:
             port: svc
+          {{- end }}
         {{- end }}
       {{- if .Values.frontendComponent.additionalContainers }}
       {{- toYaml .Values.frontendComponent.additionalContainers | nindent 6 }}
