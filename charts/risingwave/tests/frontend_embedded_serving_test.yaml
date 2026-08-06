@@ -31,11 +31,11 @@ tests:
   - equal:
       path: spec.template.spec.containers[0].readinessProbe.exec.command
       value:
-      - /bin/sh
+      - bash
       - -ec
       - |-
-        nc -z 127.0.0.1 4567
-        nc -z 127.0.0.1 5688
+        </dev/tcp/127.0.0.1/4567
+        </dev/tcp/127.0.0.1/5688
 - it: standard frontend readiness probe should remain unchanged
   template: frontend-deploy.yaml
   set:

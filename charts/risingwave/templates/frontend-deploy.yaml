@@ -337,11 +337,11 @@ spec:
           {{- if .Values.frontendComponent.embeddedServing }}
           exec:
             command:
-            - /bin/sh
+            - bash
             - -ec
             - |-
-              nc -z 127.0.0.1 {{ .Values.ports.frontend.svc }}
-              nc -z 127.0.0.1 {{ .Values.ports.compute.svc }}
+              </dev/tcp/127.0.0.1/{{ .Values.ports.frontend.svc }}
+              </dev/tcp/127.0.0.1/{{ .Values.ports.compute.svc }}
           {{- else }}
           tcpSocket:
             port: svc
