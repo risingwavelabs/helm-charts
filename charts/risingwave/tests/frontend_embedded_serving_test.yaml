@@ -17,6 +17,42 @@ tests:
       value:
       - /risingwave/bin/risingwave
       - standalone
+- it: readiness probe should check both frontend and compute listeners
+  template: frontend-deploy.yaml
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].readinessProbe.initialDelaySeconds
+      value: 2
+  - equal:
+      path: spec.template.spec.containers[0].readinessProbe.periodSeconds
+      value: 10
+  - notExists:
+      path: spec.template.spec.containers[0].readinessProbe.tcpSocket
+  - equal:
+      path: spec.template.spec.containers[0].readinessProbe.exec.command
+      value:
+      - bash
+      - -ec
+      - |-
+        </dev/tcp/127.0.0.1/4567
+        </dev/tcp/127.0.0.1/5688
+- it: standard frontend readiness probe should remain unchanged
+  template: frontend-deploy.yaml
+  set:
+    frontendComponent:
+      embeddedServing: false
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].readinessProbe.initialDelaySeconds
+      value: 2
+  - equal:
+      path: spec.template.spec.containers[0].readinessProbe.periodSeconds
+      value: 10
+  - notExists:
+      path: spec.template.spec.containers[0].readinessProbe.exec
+  - equal:
+      path: spec.template.spec.containers[0].readinessProbe.tcpSocket.port
+      value: svc
 - it: should have pre-stop lifecycle hook when auto deregistration is enabled
   template: frontend-deploy.yaml
   set:
