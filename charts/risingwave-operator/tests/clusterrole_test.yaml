@@ -23,7 +23,7 @@ tests:
       path: rules
       content:
         apiGroups:
-        - ""
+        - events.k8s.io
         resources:
         - events
         verbs:
